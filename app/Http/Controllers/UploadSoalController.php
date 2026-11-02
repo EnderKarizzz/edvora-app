@@ -29,13 +29,16 @@ class UploadSoalController extends Controller
     // Kelompok masalah yang dikirim ke browser; sisanya cukup disebut jumlahnya.
     private const MAKS_MASALAH = 50;
 
+    // Batas waktu periksa() dan simpan() dalam detik. Validasi mengunduh semua link gambar dan memanggil database
+    // Supabase yang jauh, jadi file besar (mis. 500 soal dengan ±100 gambar) bisa lebih dari 30 detik bawaan php.ini.
+    private const BATAS_DETIK = 120;
+
     public function template(): BinaryFileResponse
     {
         abort_unless(is_file(self::pathTemplate()), 404, 'Template belum dipasang di server.');
 
         return response()->download(self::pathTemplate());
     }
-
 
     public static function pathTemplate(): string
     {
@@ -122,6 +125,9 @@ class UploadSoalController extends Controller
     /** @return array<string, mixed>|null hasil periksa(); null bila file tidak bisa dibaca sebagai .xlsx */
     private function periksaFile(Request $request, Subtes $subtes, ImportSoalExcel $importer): ?array
     {
+        // Hitungan waktu mulai dari nol di sini, jadi simpan() juga mendapat waktu penuh untuk menyimpan.
+        set_time_limit(self::BATAS_DETIK);
+
         $request->validate([
             'file' => ['required', 'file', 'extensions:xlsx', 'max:2048'],
         ], [
