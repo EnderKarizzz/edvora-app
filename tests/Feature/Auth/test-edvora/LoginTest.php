@@ -13,13 +13,13 @@ class LoginTest extends TestCase
     public function test_user_can_login_with_correct_credentials()
     {
         $user = User::factory()->create([
-            'email' => 'sim001@simulasi.test',
-            'password' => bcrypt('SimulasiEdvora2026'),
+            'email' => 'testuser@example.com',
+            'password' => bcrypt('password123'),
         ]);
 
         $response = $this->post('/login', [
-            'email' => 'sim001@simulasi.test',
-            'password' => 'SimulasiEdvora2026',
+            'email' => 'testuser@example.com',
+            'password' => 'password123',
         ]);
 
         $this->assertAuthenticatedAs($user);
@@ -29,12 +29,12 @@ class LoginTest extends TestCase
     public function test_user_cannot_login_with_incorrect_password()
     {
         $user = User::factory()->create([
-            'email' => 'sim001@simulasi.test',
-            'password' => bcrypt('SimulasiEdvora2026'),
+            'email' => 'testuser@example.com',
+            'password' => bcrypt('password123'),
         ]);
 
         $response = $this->post('/login', [
-            'email' => 'sim001@simulasi.test',
+            'email' => 'testuser@example.com',
             'password' => 'salahpassword',
         ]);
 
