@@ -15,6 +15,8 @@ Test fitur memeriksa unggahan Excel soal Editor, batas jumlah soal, validasi kun
 | Unggah 500 soal valid; semua soal berstatus `draft` | Lulus | Bagian dari eksekusi terakhir: 3 test, 12 assertions |
 | Kunci jawaban tidak valid (`Z`); unggahan ditolak dan tidak ada soal tersimpan | Lulus | Bagian dari eksekusi terakhir: 3 test, 12 assertions |
 | Unggah 501 soal; unggahan ditolak dan tidak ada soal tersimpan | Lulus | Bagian dari eksekusi terakhir: 3 test, 12 assertions |
+
+## Screeshot Output
 ![alt text](image.png)
 
 ## Percobaan menjalankan ulang
@@ -33,7 +35,6 @@ Time: 00:12.140, Memory: 72.00 MB
 OK (3 tests, 12 assertions)
 ```
 
-Eksekusi sebelumnya sempat berhenti karena bootstrap `vendor/autoload.php` tidak dapat dibuka dari sesi Codex. Hasil tersebut sudah digantikan oleh eksekusi berhasil di atas.
 
 ## Kesimpulan
 
