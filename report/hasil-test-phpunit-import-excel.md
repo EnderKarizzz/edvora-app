@@ -1,6 +1,6 @@
 # Laporan Hasil PHPUnit: Import Excel Soal Editor
 
-**Tanggal pencatatan:** 2 November 2026  
+**Tanggal pencatatan:** 3 November 2026  
 **File test:** `tests/Feature/EditorQuestionImportTest.php`  
 **Branch:** `test/naila-phpunit`
 
@@ -10,11 +10,11 @@ Test fitur memeriksa unggahan Excel soal Editor, batas jumlah soal, validasi kun
 
 ## Hasil yang sudah terkonfirmasi
 
-| Skenario | Hasil terakhir yang diketahui | Bukti |
+| Skenario | Hasil | Bukti |
 |---|---|---|
-| Unggah 500 soal valid; semua soal berstatus `draft` | Lulus | PHPUnit sebelumnya: `OK (2 tests, 9 assertions)` |
-| Kunci jawaban tidak valid (`Z`); unggahan ditolak dan tidak ada soal tersimpan | Lulus | PHPUnit sebelumnya: `OK (2 tests, 9 assertions)` |
-| Unggah 501 soal; unggahan ditolak dan tidak ada soal tersimpan | Belum terverifikasi | Skenario sudah ditambahkan ke test setelah hasil 2-test di atas |
+| Unggah 500 soal valid; semua soal berstatus `draft` | Lulus | Bagian dari eksekusi terakhir: 3 test, 12 assertions |
+| Kunci jawaban tidak valid (`Z`); unggahan ditolak dan tidak ada soal tersimpan | Lulus | Bagian dari eksekusi terakhir: 3 test, 12 assertions |
+| Unggah 501 soal; unggahan ditolak dan tidak ada soal tersimpan | Lulus | Bagian dari eksekusi terakhir: 3 test, 12 assertions |
 ![alt text](image.png)
 
 ## Percobaan menjalankan ulang
@@ -25,14 +25,16 @@ Perintah:
 vendor\bin\phpunit tests\Feature\EditorQuestionImportTest.php
 ```
 
-Pada percobaan ulang tanggal 2 November 2026, PHPUnit berhenti sebelum menjalankan test dengan pesan:
+Eksekusi terakhir pada 3 November 2026 berhasil. Output yang dilaporkan:
 
 ```text
-Cannot open bootstrap script "...\vendor\autoload.php"
+...                                                                 3 / 3 (100%)
+Time: 00:12.140, Memory: 72.00 MB
+OK (3 tests, 12 assertions)
 ```
 
-Ini adalah kendala bootstrap saat menjalankan dari sesi tersebut, bukan hasil gagal dari assertion test. Jalankan kembali perintah di atas dari terminal VS Code dalam folder proyek untuk mendapatkan hasil terbaru bagi ketiga skenario.
+Eksekusi sebelumnya sempat berhenti karena bootstrap `vendor/autoload.php` tidak dapat dibuka dari sesi Codex. Hasil tersebut sudah digantikan oleh eksekusi berhasil di atas.
 
 ## Kesimpulan
 
-Dua skenario awal telah lulus sebelumnya. Skenario batas 501 soal sudah ada di source test, tetapi hasilnya perlu dikonfirmasi lewat eksekusi PHPUnit yang berhasil.
+Ketiga skenario lulus: file 500 soal valid tersimpan dengan status awal `draft`, file dengan kunci jawaban keliru ditolak tanpa penyimpanan sebagian, dan file 501 soal ditolak tanpa menyimpan soal.
