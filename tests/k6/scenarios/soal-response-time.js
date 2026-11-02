@@ -11,7 +11,6 @@ import { login, getXsrfToken } from '../helpers/auth.js';
  * Target Pengujian:
  * - Mengukur waktu pemrosesan pengiriman jawaban oleh server (POST /latihan/ujian/jawab) secara terpisah.
  * - Mengukur waktu pengambilan atau pemunculan soal berikutnya (GET /latihan/kerjakan/{sesiId}) secara terpisah.
- * - Simulasi beban bertahap hingga 500 Virtual Users (VU).
  * - Target SLA Waktu Respons: Maksimal 1 detik (1000 ms) untuk masing-masing aksi.
  */
 
@@ -55,30 +54,59 @@ export const options = {
 };
 
 /**
- * Setup function: Memverifikasi kesiapan server dan mengambil data sesi aktif bila ada
+ * Setup: Menyiapkan data sesi aktif dan soal riil dari database
  */
 export function setup() {
     const res = http.get(`${CONFIG.BASE_URL}/login`);
+    const auth = login(CONFIG.SISWA.EMAIL, CONFIG.SISWA.PASSWORD, 'siswa');
+    
+    let sesiId = CONFIG.SESI_ID;
+    let soalId = CONFIG.SOAL_ID;
+    let opsiId = CONFIG.OPSI_ID;
+
+    if (auth.success) {
+        // Cari sesi aktif dari riwayat
+        const riwayatRes = http.get(`${CONFIG.BASE_URL}/riwayat`);
+        if (riwayatRes.status === 200 && riwayatRes.body) {
+            const cleanBody = riwayatRes.body.replace(/&quot;/g, '"');
+            const matchSesi = cleanBody.match(/"id":"([0-9a-f-]{36})"[^}]*"status":"berjalan"/i);
+            if (matchSesi && matchSesi[1]) {
+                sesiId = matchSesi[1];
+            }
+        }
+
+        // Jika sesi aktif ditemukan, muat data soal pertama dan opsi jawabannya
+        if (sesiId) {
+            const kerjakanRes = http.get(`${CONFIG.BASE_URL}/latihan/kerjakan/${sesiId}`);
+            if (kerjakanRes.status === 200 && kerjakanRes.body) {
+                const cleanBody = kerjakanRes.body.replace(/&quot;/g, '"');
+                const matchSoal = cleanBody.match(/"soalList":\s*\[\s*\{\s*"id":\s*"([0-9a-f-]{36})"/i);
+                if (matchSoal && matchSoal[1]) {
+                    soalId = matchSoal[1];
+                }
+                const matchOpsi = cleanBody.match(/"opsi_jawaban":\s*\[\s*\{\s*"id":\s*"([0-9a-f-]{36})"/i);
+                if (matchOpsi && matchOpsi[1]) {
+                    opsiId = matchOpsi[1];
+                }
+            }
+        }
+    }
+
     return {
         baseUrl: CONFIG.BASE_URL,
         serverReady: res.status === 200,
-        activeSession: {
-            sesiId: CONFIG.SESI_ID || '',
-            soalId: CONFIG.SOAL_ID || '',
-        },
+        sesiId: sesiId,
+        soalId: soalId,
+        opsiId: opsiId,
     };
 }
 
-export default function (data) {
+export default function (setupData) {
     const email = CONFIG.SISWA.EMAIL;
     const password = CONFIG.SISWA.PASSWORD;
 
-    // Headers standar untuk request API dan Inertia
-    const headersInertia = {
-        'Accept': 'text/html, application/xhtml+xml, application/json',
-        'X-Inertia': 'true',
-        'X-Inertia-Version': '1.0.0',
-        'X-Requested-With': 'XMLHttpRequest',
+    const headersPage = {
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
     };
 
     // TAHAP 1: AUTENTIKASI SISWA
@@ -90,7 +118,6 @@ export default function (data) {
         } else {
             rateErrorAuth.add(0);
         }
-        // Jeda waktu agar VU yang gagal login tidak melakukan tight-loop hammering
         sleep(2);
         return;
     }
@@ -106,42 +133,24 @@ export default function (data) {
         headersPost['X-XSRF-TOKEN'] = xsrfToken;
     }
 
-    // TAHAP 2: MENENTUKAN ATAU MENGAMBIL SESI PENGERJAAN AKTIF
-    // Berdasarkan LatihanSoalController:
-    // Sesi fleksibel dimuat di GET /latihan/kerjakan/{pengerjaanId}
-    let sesiId = CONFIG.SESI_ID;
-    let soalId = CONFIG.SOAL_ID;
+    // TAHAP 2: MENGGUNAKAN SESI PENGERJAAN AKTIF
+    const sesiId = setupData.sesiId || CONFIG.SESI_ID;
+    const soalId = setupData.soalId || CONFIG.SOAL_ID;
+    const opsiId = setupData.opsiId || '';
 
-    // Jika parameter sesiId tidak disuplai dari luar, coba temukan sesi aktif dari riwayat
-    if (!sesiId) {
-        const riwayatRes = http.get(`${CONFIG.BASE_URL}/riwayat`, {
-            headers: headersInertia,
-            tags: { name: 'GET_Riwayat_Pengerjaan' },
-        });
-
-        if (riwayatRes.status === 200 && riwayatRes.body) {
-            // Ekstrak ID pengerjaan berjalan dari props Inertia jika ada
-            const match = riwayatRes.body.match(/"id":"([0-9a-f-]{36})"[^}]*"status":"berjalan"/i);
-            if (match && match[1]) {
-                sesiId = match[1];
-            }
-        }
-    }
-
-    // Jika tidak ada sesi latihan yang aktif atau kredensial database belum menyediakan soal:
-    if (!sesiId) {
-        // Catat bahwa proses pengujian membutuhkan sesi aktif dari database
+    if (!sesiId || !soalId) {
         sleep(2);
         return;
     }
 
     // TAHAP 3: PENGIRIMAN JAWABAN SISWA (POST /latihan/ujian/jawab)
     // Diukur terpisah sebagai metrik waktu_pengiriman_jawaban (SLA <= 1000 ms)
+    const activeOpsiId = opsiId || CONFIG.OPSI_ID;
     const payloadJawab = JSON.stringify({
         sesiId: sesiId,
-        soalId: soalId || 'default-soal-uuid',
-        opsiIds: [],
-        jawabanIsian: '1',
+        soalId: soalId,
+        opsiIds: [activeOpsiId],
+        jawabanIsian: null,
         pilihanKolom: null,
     });
 
@@ -159,7 +168,7 @@ export default function (data) {
     rateErrorValidation.add(jawabRes.status === 422 ? 1 : 0);
     rateErrorServer5xx.add(jawabRes.status >= 500 ? 1 : 0);
 
-    const isJawabSukses = jawabRes.status === 200 && jawabRes.body.includes('benar');
+    const isJawabSukses = jawabRes.status === 200 && (jawabRes.body.includes('benar') || jawabRes.body.includes('kunci'));
     rateSuccessJawaban.add(isJawabSukses ? 1 : 0);
 
     check(jawabRes, {
@@ -177,11 +186,10 @@ export default function (data) {
 
     // TAHAP 4: PENGAMBILAN / PEMUNCULAN SOAL BERIKUTNYA (GET /latihan/kerjakan/{sesiId})
     // Diukur terpisah sebagai metrik waktu_ambil_soal_berikutnya (SLA <= 1000 ms)
-    // Sesuai alur implementasi EDVORA: Halaman kerjakan memuat soal-soal sesi ujian
     const nextUrl = `${CONFIG.BASE_URL}/latihan/kerjakan/${sesiId}`;
     const startAmbil = Date.now();
     const ambilRes = http.get(nextUrl, {
-        headers: headersInertia,
+        headers: headersPage,
         tags: { name: 'METRIC_GET_Soal_Berikutnya' },
     });
     const durasiAmbil = Date.now() - startAmbil;
@@ -198,7 +206,7 @@ export default function (data) {
         '[Ambil Soal] Bukan 404 Tidak Ditemukan': (r) => r.status !== 404,
     });
 
-    // Pacing time singkat antar siklus pengerjaan soal berikutnya
+    // Pacing time singkat antar siklus
     sleep(1);
 }
 

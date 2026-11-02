@@ -63,10 +63,7 @@ export default function () {
     const password = CONFIG.EDITOR.PASSWORD;
 
     const headersInertia = {
-        'Accept': 'text/html, application/xhtml+xml, application/json',
-        'X-Inertia': 'true',
-        'X-Inertia-Version': '1.0.0',
-        'X-Requested-With': 'XMLHttpRequest',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
     };
 
     // TAHAP 1: AUTENTIKASI EDITOR

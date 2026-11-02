@@ -30,9 +30,10 @@ export const CONFIG = {
         PASSWORD: __ENV.EDITOR_PASSWORD || '',
     },
 
-    // Parameter ID Spesifik (opsional dari env)
-    SESI_ID: __ENV.SESI_ID || '',
-    SOAL_ID: __ENV.SOAL_ID || '',
+    // Parameter ID Spesifik (opsional dari env, default ke data seed yang valid)
+    SESI_ID: __ENV.SESI_ID || 'a32178a6-1de2-4d00-9200-5b9b5518eff9',
+    SOAL_ID: __ENV.SOAL_ID || '440894ab-6f1a-407a-83ca-01696baee3a2',
+    OPSI_ID: __ENV.OPSI_ID || '44c043e6-b41f-49bf-97ca-0acdfb0ff5b6',
 
     // Target SLA Performa Tugas:
     // Skenario A: Waktu pengiriman jawaban & pengambilan soal berikutnya maksimal 1 detik (1000 ms)

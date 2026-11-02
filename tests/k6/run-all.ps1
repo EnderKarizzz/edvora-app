@@ -47,3 +47,4 @@ Write-Host "==========================================================" -Foregro
 Write-Host " SELURUH PENGUJIAN SELESAI DIEKSEKUSI                     " -ForegroundColor Green
 Write-Host " Output tersimpan di: tests\k6\reports\                   " -ForegroundColor Green
 Write-Host "==========================================================" -ForegroundColor Green
+

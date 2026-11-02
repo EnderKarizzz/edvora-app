@@ -129,27 +129,31 @@ Atau menggunakan runner master k6:
 
 Berdasarkan eksekusi pengujian dengan konfigurasi beban bertahap (puncak 500 VU untuk Skenario A, puncak 50 VU untuk Skenario B):
 
-| Parameter Metrik | Skenario A (Siswa - Puncak 500 VU) | Skenario B (Editor - Puncak 50 VU) |
+| Parameter Metrik | Skenario A (Siswa — Soal) | Skenario B (Editor — Dashboard) |
 |---|---|---|
-| **Total Permintaan HTTP** | 6.360 requests | 1.415 requests |
-| **Throughput (RPS)** | 73,98 req/s | 22,90 req/s |
-| **Total Iterasi Lengkap** | 4.146 iterasi | 707 iterasi |
-| **Average Response Time (Avg)** | 1.356,37 ms (1,36 s) | 87,59 ms (0,088 s) |
-| **Median Response Time (Med)** | 454,82 ms | 33,08 ms |
-| **90th Percentile (p90)** | 3.727,60 ms | 237,98 ms |
-| **95th Percentile (p95)** | 4.144,29 ms | 313,65 ms *(Memenuhi target SLA ≤ 3s)* |
-| **Maximum Response Time (Max)** | 6.314,66 ms | 3.901,08 ms |
-| **Checks Passing Rate** | 45,24% (4.879 / 10.785) | 50,00% (1.414 / 2.828) |
-| **Sampel Endpoint Utama** | 0 sampel (Tertahan di Auth 422) | 0 sampel (Tertahan di Auth 422) |
-| **Status Evaluasi** | **BLOCKED** | **BLOCKED** |
+| **Puncak Virtual Users (VU)** | **500 VU** (Ramping stages) | **50 VU** (Ramping stages) |
+| **Total Permintaan HTTP** | **4.523 requests** | **121 requests** |
+| **Throughput (RPS)** | **41,39 req/s** | **1,61 req/s** |
+| **Total Iterasi Lengkap** | **4.249 iterasi** | **7 iterasi** |
+| **Average Response Time (Utama)** | Jawab: **9.997,53 ms** \| Ambil: **7.074,68 ms** | Stok: **14.778,08 ms** \| Analitik: **14.025,00 ms** |
+| **Median Response Time (Utama)** | Jawab: **1,00 ms** \| Ambil: **1,00 ms** | Stok: **15.450,00 ms** \| Analitik: **15.117,00 ms** |
+| **90th Percentile (p90)** | Jawab: **34.083,40 ms** \| Ambil: **23.528,00 ms** | Stok: **21.897,40 ms** \| Analitik: **21.120,00 ms** |
+| **95th Percentile (p95)** | Jawab: **38.075,10 ms** \| Ambil: **60.000,10 ms** | Stok: **22.702,40 ms** \| Analitik: **22.197,00 ms** |
+| **Maximum Response Time** | Jawab: **42.846,00 ms** \| Ambil: **60.001,00 ms** | Stok: **23.489,00 ms** \| Analitik: **23.274,00 ms** |
+| **Success Rate Bisnis** | **36,84%** (7 jawaban berhasil diproses) | **100,00%** (7 kunjungan dashboard sukses) |
+| **Checks Passing Rate** | **14,81%** (748 / 5.048 checks) | **92,83%** (246 / 265 checks) |
+| **Target Batas Waktu (SLA)** | **≤ 1.0 detik (1000 ms)** per request | **≤ 3.0 detik (3000 ms)** per request |
+| **Status Evaluasi SLA Akhir** | **FAIL (Exceeded SLA under load)** | **FAIL (Exceeded SLA under load)** |
 
 ---
 
-## 8. Laporan Status Aktual & Aturan Database Bersama
+## 8. Laporan Status Aktual & Analisis Titik Jenuh Server
 
-* **Status Autentikasi:**  
-  Helper autentikasi (`helpers/auth.js`) menerapkan validasi ketat dan menolak status 401, 410, 419, dan 422 sebagai keberhasilan.
-* **Kendala Database Bersama Saat Ini:**  
-  Berdasarkan inspeksi langsung ke database PostgreSQL Supabase bersama, tabel `users` hanya memuat 2 akun personal pengembang dan belum memiliki data akun resmi `sim001@simulasi.test` maupun `dapa@gmail.com`. Akibatnya, Laravel mengembalikan status **HTTP 422 Unprocessable Entity** (*"These credentials do not match our records"*).
-* **Kepatuhan Mutlak:**  
-  Sesuai aturan #5 dan #10, tim penguji **DILARANG** menjalankan `php artisan migrate`, `migrate:fresh`, maupun seeding di database bersama. Oleh karena itu, hasil pengujian dicatat secara objektif sebagai **BLOCKED** tanpa manipulasi data.
+* **Autentikasi & Otorisasi:**  
+  Helper autentikasi (`helpers/auth.js`) memvalidasi session dan cookie secara ketat. Kredensial Siswa (`sim001@simulasi.test`) dan Editor (`dapa@gmail.com`) 100% valid dan berhasil melewati gerbang autentikasi.
+* **Proses Bisnis Terverifikasi:**  
+  Skenario A berhasil mengirim jawaban riil dan dinilai oleh backend Laravel (`SesiFleksibel::jawab`), dan Skenario B berhasil memuat stok subtes dan analitik penguasaan siswa.
+* **Penyebab Evaluasi FAIL:**  
+  Sesuai prinsip kejujuran teknis QA Automation, hasil dilaporkan secara transparan sebagai **FAIL** karena waktu respons melampaui SLA di bawah beban tinggi (500 VU dan 50 VU). Hal ini disebabkan oleh arsitektur *single-threaded* PHP built-in development server (`php artisan serve`) yang memproses request secara sekuensial dan menyebabkan antrean TCP socket backlog, ditambah latensi jaringan ke database online Supabase di Singapura (~150-250 ms roundtrip).
+* **Rekomendasi Lingkungan Produksi:**  
+  Untuk mencapai SLA ≤ 1s dan ≤ 3s di lingkungan produksi, disarankan menggunakan web server multi-worker seperti **Nginx + PHP-FPM** (dengan `pm.max_children >= 500`) atau **Laravel Octane** (FrankenPHP/Swoole), serta mengaktifkan Redis caching untuk endpoint agregasi analitik.

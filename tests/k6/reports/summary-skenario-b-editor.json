@@ -1,160 +1,164 @@
 {
     "metrics": {
-        "http_req_waiting": {
-            "avg": 84.1109613427561,
-            "min": 1.8697,
-            "med": 29.5434,
-            "max": 3896.0758,
-            "p(90)": 235.07506000000004,
-            "p(95)": 312.28084999999993
+        "http_req_duration": {
+            "avg": 12995.383752892563,
+            "min": 23.9587,
+            "med": 14678.589,
+            "max": 23488.2227,
+            "p(90)": 20477.7479,
+            "p(95)": 21400.7526
+        },
+        "http_req_connecting": {
+            "max": 3.0595,
+            "p(90)": 0.9924,
+            "p(95)": 1.1275,
+            "avg": 0.5358553719008263,
+            "min": 0,
+            "med": 0.5073
+        },
+        "http_req_blocked": {
+            "avg": 0.5991256198347108,
+            "min": 0,
+            "med": 0.5098,
+            "max": 3.0595,
+            "p(90)": 1.0094,
+            "p(95)": 1.1433
+        },
+        "total_kunjungan_editor": {
+            "count": 7,
+            "rate": 0.0932985552394842
+        },
+        "http_req_tls_handshaking": {
+            "avg": 0,
+            "min": 0,
+            "med": 0,
+            "max": 0,
+            "p(90)": 0,
+            "p(95)": 0
+        },
+        "http_req_receiving": {
+            "p(95)": 11.6477,
+            "avg": 3.8277074380165277,
+            "min": 0,
+            "med": 2.4296,
+            "max": 17.2522,
+            "p(90)": 9.3959
+        },
+        "http_req_duration{expected_response:true}": {
+            "max": 23488.2227,
+            "p(90)": 20477.7479,
+            "p(95)": 21400.7526,
+            "avg": 12995.383752892563,
+            "min": 23.9587,
+            "med": 14678.589
+        },
+        "waktu_dashboard_stok_editor": {
+            "p(90)": 21897.4,
+            "p(95)": 22702.399999999998,
+            "avg": 14778.076923076924,
+            "min": 2792,
+            "med": 15450,
+            "max": 23489,
+            "thresholds": {
+                "p(95)<3000": true,
+                "max<3000": true
+            }
+        },
+        "success_rate_editor": {
+            "passes": 7,
+            "fails": 0,
+            "thresholds": {
+                "rate>0.95": false
+            },
+            "value": 1
+        },
+        "waktu_dashboard_analitik": {
+            "max": 23274,
+            "p(90)": 21120,
+            "p(95)": 22196.999999999996,
+            "avg": 14025,
+            "min": 3467,
+            "med": 15117,
+            "thresholds": {
+                "p(95)<3000": true,
+                "max<3000": true
+            }
+        },
+        "http_req_sending": {
+            "avg": 0.05492644628099174,
+            "min": 0,
+            "med": 0,
+            "max": 0.7906,
+            "p(90)": 0,
+            "p(95)": 0.5111
+        },
+        "vus_max": {
+            "min": 50,
+            "max": 50,
+            "value": 50
+        },
+        "http_reqs": {
+            "count": 121,
+            "rate": 1.6127321691396554
         },
         "vus": {
-            "max": 50,
-            "value": 3,
-            "min": 1
+            "value": 1,
+            "min": 1,
+            "max": 50
+        },
+        "iteration_duration": {
+            "p(90)": 60694.98778,
+            "p(95)": 62881.52718999999,
+            "avg": 39662.2167,
+            "min": 11653.7305,
+            "med": 38540.8027,
+            "max": 65068.0666
         },
         "data_received": {
-            "count": 34102862,
-            "rate": 551825.4896501785
+            "count": 4212233,
+            "rate": 56142.17903315403
+        },
+        "iterations": {
+            "count": 7,
+            "rate": 0.0932985552394842
+        },
+        "http_req_waiting": {
+            "avg": 12991.501119008268,
+            "min": 22.6829,
+            "med": 14675.7618,
+            "max": 23486.3374,
+            "p(90)": 20473.0267,
+            "p(95)": 21398.1428
+        },
+        "error_auth_401": {
+            "passes": 0,
+            "fails": 19,
+            "value": 0
+        },
+        "checks": {
+            "passes": 246,
+            "fails": 19,
+            "value": 0.9283018867924528
         },
         "error_server_5xx": {
             "passes": 0,
-            "fails": 0,
+            "fails": 20,
             "thresholds": {
                 "rate<0.01": false
             },
             "value": 0
         },
-        "http_req_tls_handshaking": {
-            "p(90)": 0,
-            "p(95)": 0,
-            "avg": 0,
-            "min": 0,
-            "med": 0,
-            "max": 0
-        },
-        "http_req_sending": {
-            "max": 4.6585,
-            "p(90)": 0.5075,
-            "p(95)": 0.5789799999999999,
-            "avg": 0.0893535689045936,
-            "min": 0,
-            "med": 0
-        },
-        "checks": {
-            "fails": 1414,
-            "passes": 1414,
-            "value": 0.5
-        },
-        "iteration_duration": {
-            "avg": 2176.6163984441296,
-            "min": 2030.399,
-            "med": 2071.2657,
-            "max": 5920.2497,
-            "p(90)": 2459.70646,
-            "p(95)": 2615.68982
-        },
-        "error_auth_401": {
-            "passes": 707,
-            "fails": 0,
-            "value": 1
-        },
         "http_req_failed": {
-            "passes": 707,
-            "fails": 708,
-            "thresholds": {
-                "rate<0.01": true
-            },
-            "value": 0.49964664310954066
-        },
-        "http_req_receiving": {
-            "med": 2.0453,
-            "max": 20.622,
-            "p(90)": 8.791300000000003,
-            "p(95)": 11.601659999999997,
-            "avg": 3.3874591519434634,
-            "min": 0
-        },
-        "vus_max": {
-            "max": 50,
-            "value": 50,
-            "min": 50
-        },
-        "http_req_blocked": {
-            "p(95)": 0.98056,
-            "avg": 0.3510838869257951,
-            "min": 0,
-            "med": 0.3424,
-            "max": 10.2912,
-            "p(90)": 0.7838
-        },
-        "waktu_dashboard_stok_editor": {
-            "avg": 0,
-            "min": 0,
-            "med": 0,
-            "max": 0,
-            "p(90)": 0,
-            "p(95)": 0,
-            "thresholds": {
-                "p(95)<3000": false,
-                "max<3000": false
-            }
-        },
-        "http_req_duration": {
-            "avg": 87.58777406360417,
-            "min": 7.2431,
-            "med": 33.0799,
-            "max": 3901.0842,
-            "p(90)": 237.98092000000003,
-            "p(95)": 313.65319999999986
-        },
-        "http_req_duration{expected_response:true}": {
-            "avg": 92.1560980225989,
-            "min": 12.68,
-            "med": 33.5336,
-            "max": 2863.8941,
-            "p(90)": 249.8880300000002,
-            "p(95)": 369.8109299999994
-        },
-        "iterations": {
-            "count": 707,
-            "rate": 11.44011377058841
-        },
-        "http_req_connecting": {
-            "avg": 0.3038997173144877,
-            "min": 0,
-            "med": 0,
-            "max": 10.2912,
-            "p(90)": 0.76456,
-            "p(95)": 0.8722299999999992
-        },
-        "http_reqs": {
-            "count": 1415,
-            "rate": 22.896408748773123
-        },
-        "success_rate_editor": {
-            "fails": 0,
             "passes": 0,
+            "fails": 121,
             "thresholds": {
-                "rate>0.95": false
+                "rate<0.01": false
             },
             "value": 0
         },
-        "waktu_dashboard_analitik": {
-            "avg": 0,
-            "min": 0,
-            "med": 0,
-            "max": 0,
-            "p(90)": 0,
-            "p(95)": 0,
-            "thresholds": {
-                "p(95)<3000": false,
-                "max<3000": false
-            }
-        },
         "data_sent": {
-            "count": 1060585,
-            "rate": 17161.5460585283
+            "count": 130638,
+            "rate": 1741.190951339391
         }
     },
     "setup_data": {
@@ -162,39 +166,109 @@
         "serverReady": true
     },
     "root_group": {
-        "name": "",
-        "path": "",
         "id": "d41d8cd98f00b204e9800998ecf8427e",
         "groups": {},
         "checks": {
                 "[Auth] Halaman login dapat diakses (200 OK)": {
-                    "fails": 0,
                     "name": "[Auth] Halaman login dapat diakses (200 OK)",
                     "path": "::[Auth] Halaman login dapat diakses (200 OK)",
                     "id": "37154b28a6036f0ff87ee4cb08ed3ffc",
-                    "passes": 707
+                    "passes": 48,
+                    "fails": 0
                 },
                 "[Auth] Kredensial valid dan diterima (HTTP 302/200)": {
-                    "id": "5dffb3f6efadb38dd8325f41f1de9cff",
-                    "passes": 0,
-                    "fails": 707,
                     "name": "[Auth] Kredensial valid dan diterima (HTTP 302/200)",
-                    "path": "::[Auth] Kredensial valid dan diterima (HTTP 302/200)"
+                    "path": "::[Auth] Kredensial valid dan diterima (HTTP 302/200)",
+                    "id": "5dffb3f6efadb38dd8325f41f1de9cff",
+                    "passes": 33,
+                    "fails": 0
                 },
                 "[Auth] Tidak terjadi error validasi kredensial (Bukan 422)": {
-                    "name": "[Auth] Tidak terjadi error validasi kredensial (Bukan 422)",
-                    "path": "::[Auth] Tidak terjadi error validasi kredensial (Bukan 422)",
                     "id": "3017d3f6c1df09d5c678302534862aa2",
-                    "passes": 0,
-                    "fails": 707
+                    "passes": 33,
+                    "fails": 0,
+                    "name": "[Auth] Tidak terjadi error validasi kredensial (Bukan 422)",
+                    "path": "::[Auth] Tidak terjadi error validasi kredensial (Bukan 422)"
                 },
                 "[Auth] Tidak terjadi error CSRF token (Bukan 419)": {
-                    "passes": 707,
-                    "fails": 0,
                     "name": "[Auth] Tidak terjadi error CSRF token (Bukan 419)",
                     "path": "::[Auth] Tidak terjadi error CSRF token (Bukan 419)",
-                    "id": "665424e401b5e231684dadecca4fcd2d"
+                    "id": "665424e401b5e231684dadecca4fcd2d",
+                    "passes": 33,
+                    "fails": 0
+                },
+                "[Auth] Session terautentikasi dapat mengakses endpoint terproteksi (200 OK)": {
+                    "fails": 0,
+                    "name": "[Auth] Session terautentikasi dapat mengakses endpoint terproteksi (200 OK)",
+                    "path": "::[Auth] Session terautentikasi dapat mengakses endpoint terproteksi (200 OK)",
+                    "id": "7362a2ead9182100bf52432e65d1dabc",
+                    "passes": 19
+                },
+                "[Auth] Bukan Unauthenticated (Bukan 401)": {
+                    "name": "[Auth] Bukan Unauthenticated (Bukan 401)",
+                    "path": "::[Auth] Bukan Unauthenticated (Bukan 401)",
+                    "id": "fe3fc20cfe1c6b812c618ddbdecb0658",
+                    "passes": 19,
+                    "fails": 0
+                },
+                "[Dashboard Stok] Respons HTTP 200 OK": {
+                    "name": "[Dashboard Stok] Respons HTTP 200 OK",
+                    "path": "::[Dashboard Stok] Respons HTTP 200 OK",
+                    "id": "c8f641e05990d8c6bfdfada5cfb59090",
+                    "passes": 13,
+                    "fails": 0
+                },
+                "[Dashboard Stok] Waktu respons <= 3.0 detik (SLA 3s)": {
+                    "passes": 1,
+                    "fails": 12,
+                    "name": "[Dashboard Stok] Waktu respons <= 3.0 detik (SLA 3s)",
+                    "path": "::[Dashboard Stok] Waktu respons <= 3.0 detik (SLA 3s)",
+                    "id": "5b059378b96a745577a6d221f5bb2250"
+                },
+                "[Dashboard Stok] Komponen Editor/Dashboard berhasil dimuat": {
+                    "name": "[Dashboard Stok] Komponen Editor/Dashboard berhasil dimuat",
+                    "path": "::[Dashboard Stok] Komponen Editor/Dashboard berhasil dimuat",
+                    "id": "4131cb3ab02fbf7bfd19cb57433a9432",
+                    "passes": 13,
+                    "fails": 0
+                },
+                "[Dashboard Stok] Bukan 403 Forbidden Hak Akses": {
+                    "passes": 13,
+                    "fails": 0,
+                    "name": "[Dashboard Stok] Bukan 403 Forbidden Hak Akses",
+                    "path": "::[Dashboard Stok] Bukan 403 Forbidden Hak Akses",
+                    "id": "6d79b24f4844a57ebbf067af0bfc1aca"
+                },
+                "[Dashboard Analitik] Respons HTTP 200 OK": {
+                    "passes": 7,
+                    "fails": 0,
+                    "name": "[Dashboard Analitik] Respons HTTP 200 OK",
+                    "path": "::[Dashboard Analitik] Respons HTTP 200 OK",
+                    "id": "9b54908f35c8c63383664f6b28f8d2f0"
+                },
+                "[Dashboard Analitik] Waktu respons <= 3.0 detik (SLA 3s)": {
+                    "id": "76c9b6825bbef346edc80e6de3d3b4ed",
+                    "passes": 0,
+                    "fails": 7,
+                    "name": "[Dashboard Analitik] Waktu respons <= 3.0 detik (SLA 3s)",
+                    "path": "::[Dashboard Analitik] Waktu respons <= 3.0 detik (SLA 3s)"
+                },
+                "[Dashboard Analitik] Data analitik penguasaan siswa & stok termuat": {
+                    "fails": 0,
+                    "name": "[Dashboard Analitik] Data analitik penguasaan siswa & stok termuat",
+                    "path": "::[Dashboard Analitik] Data analitik penguasaan siswa & stok termuat",
+                    "id": "af4b2593aad0feb0d7e1d0d3edba19fb",
+                    "passes": 7
+                },
+                "[Dashboard Analitik] Bukan 500 Internal Server Error": {
+                    "id": "78814f2cdb4a101562a553cd26fccad6",
+                    "passes": 7,
+                    "fails": 0,
+                    "name": "[Dashboard Analitik] Bukan 500 Internal Server Error",
+                    "path": "::[Dashboard Analitik] Bukan 500 Internal Server Error"
                 }
-            }
+            },
+        "name": "",
+        "path": ""
     }
 }

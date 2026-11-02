@@ -1,77 +1,288 @@
 {
-    "setup_data": {
-        "activeSession": {
-            "opsiId": "",
-            "sesiId": "",
-            "soalId": ""
-        },
-        "baseUrl": "http://127.0.0.1:8000",
-        "serverReady": true
-    },
     "root_group": {
+        "name": "",
         "path": "",
         "id": "d41d8cd98f00b204e9800998ecf8427e",
-        "groups": {},
-        "checks": {
-                "[Auth] Halaman login dapat diakses (200 OK)": {
-                    "name": "[Auth] Halaman login dapat diakses (200 OK)",
-                    "path": "::[Auth] Halaman login dapat diakses (200 OK)",
-                    "id": "37154b28a6036f0ff87ee4cb08ed3ffc",
-                    "passes": 2213,
-                    "fails": 1933
-                },
-                "[Auth] Kredensial valid dan diterima (HTTP 302/200)": {
-                    "name": "[Auth] Kredensial valid dan diterima (HTTP 302/200)",
-                    "path": "::[Auth] Kredensial valid dan diterima (HTTP 302/200)",
-                    "id": "5dffb3f6efadb38dd8325f41f1de9cff",
-                    "passes": 0,
-                    "fails": 2213
-                },
-                "[Auth] Tidak terjadi error validasi kredensial (Bukan 422)": {
-                    "path": "::[Auth] Tidak terjadi error validasi kredensial (Bukan 422)",
-                    "id": "3017d3f6c1df09d5c678302534862aa2",
-                    "passes": 453,
-                    "fails": 1760,
-                    "name": "[Auth] Tidak terjadi error validasi kredensial (Bukan 422)"
-                },
-                "[Auth] Tidak terjadi error CSRF token (Bukan 419)": {
-                    "id": "665424e401b5e231684dadecca4fcd2d",
-                    "passes": 2213,
-                    "fails": 0,
-                    "name": "[Auth] Tidak terjadi error CSRF token (Bukan 419)",
-                    "path": "::[Auth] Tidak terjadi error CSRF token (Bukan 419)"
-                }
-            },
-        "name": ""
-    },
-    "metrics": {
-        "http_req_duration{expected_response:true}": {
-            "avg": 2344.277996883471,
-            "min": 16.9067,
-            "med": 2622.46785,
-            "max": 6314.6643,
-            "p(90)": 4256.45982,
-            "p(95)": 4654.283324999999
-        },
-        "waktu_ambil_soal_berikutnya": {
-            "min": 0,
-            "med": 0,
-            "max": 0,
-            "p(90)": 0,
-            "p(95)": 0,
-            "avg": 0,
-            "thresholds": {
-                "p(95)<1000": false,
-                "max<1000": false
+        "groups": {
+            "setup": {
+                "name": "setup",
+                "path": "::setup",
+                "id": "5c0f8025f7e0b6654089e5b00e950f1a",
+                "groups": {},
+                "checks": {
+                        "[Auth] Halaman login dapat diakses (200 OK)": {
+                            "name": "[Auth] Halaman login dapat diakses (200 OK)",
+                            "path": "::setup::[Auth] Halaman login dapat diakses (200 OK)",
+                            "id": "71204b328d5a25484c94bf34dd71e706",
+                            "passes": 1,
+                            "fails": 0
+                        },
+                        "[Auth] Kredensial valid dan diterima (HTTP 302/200)": {
+                            "name": "[Auth] Kredensial valid dan diterima (HTTP 302/200)",
+                            "path": "::setup::[Auth] Kredensial valid dan diterima (HTTP 302/200)",
+                            "id": "c840ab97e2dec9013ff69a145cac152a",
+                            "passes": 1,
+                            "fails": 0
+                        },
+                        "[Auth] Tidak terjadi error validasi kredensial (Bukan 422)": {
+                            "id": "bb4ab4527f63df730f18b2406d9f34ff",
+                            "passes": 1,
+                            "fails": 0,
+                            "name": "[Auth] Tidak terjadi error validasi kredensial (Bukan 422)",
+                            "path": "::setup::[Auth] Tidak terjadi error validasi kredensial (Bukan 422)"
+                        },
+                        "[Auth] Tidak terjadi error CSRF token (Bukan 419)": {
+                            "path": "::setup::[Auth] Tidak terjadi error CSRF token (Bukan 419)",
+                            "id": "462333939c1616b32ef48bee11a31a99",
+                            "passes": 1,
+                            "fails": 0,
+                            "name": "[Auth] Tidak terjadi error CSRF token (Bukan 419)"
+                        },
+                        "[Auth] Session terautentikasi dapat mengakses endpoint terproteksi (200 OK)": {
+                            "name": "[Auth] Session terautentikasi dapat mengakses endpoint terproteksi (200 OK)",
+                            "path": "::setup::[Auth] Session terautentikasi dapat mengakses endpoint terproteksi (200 OK)",
+                            "id": "d2bf7332c33bf7c255f93c68b7f75ea2",
+                            "passes": 1,
+                            "fails": 0
+                        },
+                        "[Auth] Bukan Unauthenticated (Bukan 401)": {
+                            "name": "[Auth] Bukan Unauthenticated (Bukan 401)",
+                            "path": "::setup::[Auth] Bukan Unauthenticated (Bukan 401)",
+                            "id": "ab6b676c32909a5739cd6d576fcb6f72",
+                            "passes": 1,
+                            "fails": 0
+                        }
+                    }
             }
         },
+        "checks": {
+            "[Auth] Halaman login dapat diakses (200 OK)": {
+                "name": "[Auth] Halaman login dapat diakses (200 OK)",
+                "path": "::[Auth] Halaman login dapat diakses (200 OK)",
+                "id": "37154b28a6036f0ff87ee4cb08ed3ffc",
+                "passes": 166,
+                "fails": 4095
+            },
+            "[Auth] Kredensial valid dan diterima (HTTP 302/200)": {
+                "name": "[Auth] Kredensial valid dan diterima (HTTP 302/200)",
+                "path": "::[Auth] Kredensial valid dan diterima (HTTP 302/200)",
+                "id": "5dffb3f6efadb38dd8325f41f1de9cff",
+                "passes": 63,
+                "fails": 92
+            },
+            "[Auth] Tidak terjadi error validasi kredensial (Bukan 422)": {
+                "name": "[Auth] Tidak terjadi error validasi kredensial (Bukan 422)",
+                "path": "::[Auth] Tidak terjadi error validasi kredensial (Bukan 422)",
+                "id": "3017d3f6c1df09d5c678302534862aa2",
+                "passes": 155,
+                "fails": 0
+            },
+            "[Auth] Tidak terjadi error CSRF token (Bukan 419)": {
+                "name": "[Auth] Tidak terjadi error CSRF token (Bukan 419)",
+                "path": "::[Auth] Tidak terjadi error CSRF token (Bukan 419)",
+                "id": "665424e401b5e231684dadecca4fcd2d",
+                "passes": 155,
+                "fails": 0
+            },
+            "[Auth] Session terautentikasi dapat mengakses endpoint terproteksi (200 OK)": {
+                "path": "::[Auth] Session terautentikasi dapat mengakses endpoint terproteksi (200 OK)",
+                "id": "7362a2ead9182100bf52432e65d1dabc",
+                "passes": 20,
+                "fails": 43,
+                "name": "[Auth] Session terautentikasi dapat mengakses endpoint terproteksi (200 OK)"
+            },
+            "[Auth] Bukan Unauthenticated (Bukan 401)": {
+                "name": "[Auth] Bukan Unauthenticated (Bukan 401)",
+                "path": "::[Auth] Bukan Unauthenticated (Bukan 401)",
+                "id": "fe3fc20cfe1c6b812c618ddbdecb0658",
+                "passes": 63,
+                "fails": 0
+            },
+            "[Submit Jawaban] Respons HTTP 200 OK": {
+                "passes": 7,
+                "fails": 12,
+                "name": "[Submit Jawaban] Respons HTTP 200 OK",
+                "path": "::[Submit Jawaban] Respons HTTP 200 OK",
+                "id": "6cd3e567dae2715af0af512fda7c7c33"
+            },
+            "[Submit Jawaban] Waktu respons <= 1.0 detik (SLA 1s)": {
+                "id": "6f6ec44b50caece2e9f37cd72c1aee6b",
+                "passes": 12,
+                "fails": 7,
+                "name": "[Submit Jawaban] Waktu respons <= 1.0 detik (SLA 1s)",
+                "path": "::[Submit Jawaban] Waktu respons <= 1.0 detik (SLA 1s)"
+            },
+            "[Submit Jawaban] Server memvalidasi proses bisnis jawaban": {
+                "name": "[Submit Jawaban] Server memvalidasi proses bisnis jawaban",
+                "path": "::[Submit Jawaban] Server memvalidasi proses bisnis jawaban",
+                "id": "bdc455c1584e97ec30e03b8e5f3bdd29",
+                "passes": 7,
+                "fails": 12
+            },
+            "[Submit Jawaban] Tidak terkena Rate Limiter (Bukan 429)": {
+                "name": "[Submit Jawaban] Tidak terkena Rate Limiter (Bukan 429)",
+                "path": "::[Submit Jawaban] Tidak terkena Rate Limiter (Bukan 429)",
+                "id": "bd74f28ea5c1c72eb8bc85da701fb842",
+                "passes": 19,
+                "fails": 0
+            },
+            "[Submit Jawaban] Bukan Sesi Habis (Bukan 410)": {
+                "path": "::[Submit Jawaban] Bukan Sesi Habis (Bukan 410)",
+                "id": "ac64935e8e380f79eae704634379bf98",
+                "passes": 19,
+                "fails": 0,
+                "name": "[Submit Jawaban] Bukan Sesi Habis (Bukan 410)"
+            },
+            "[Submit Jawaban] Bukan Error Validasi (Bukan 422)": {
+                "name": "[Submit Jawaban] Bukan Error Validasi (Bukan 422)",
+                "path": "::[Submit Jawaban] Bukan Error Validasi (Bukan 422)",
+                "id": "99df514c68a6296cfebfc5a561915f6a",
+                "passes": 19,
+                "fails": 0
+            },
+            "[Ambil Soal] Respons HTTP 200 OK": {
+                "name": "[Ambil Soal] Respons HTTP 200 OK",
+                "path": "::[Ambil Soal] Respons HTTP 200 OK",
+                "id": "8beb6aa515ec6ad31880d4d3cad941f3",
+                "passes": 1,
+                "fails": 18
+            },
+            "[Ambil Soal] Waktu respons <= 1.0 detik (SLA 1s)": {
+                "name": "[Ambil Soal] Waktu respons <= 1.0 detik (SLA 1s)",
+                "path": "::[Ambil Soal] Waktu respons <= 1.0 detik (SLA 1s)",
+                "id": "f72dcc67a84ee583cbd0504512b1da83",
+                "passes": 16,
+                "fails": 3
+            },
+            "[Ambil Soal] Komponen soal berhasil dimuat": {
+                "name": "[Ambil Soal] Komponen soal berhasil dimuat",
+                "path": "::[Ambil Soal] Komponen soal berhasil dimuat",
+                "id": "36ce3133eebcf407371b937ec42fe84d",
+                "passes": 1,
+                "fails": 18
+            },
+            "[Ambil Soal] Bukan 404 Tidak Ditemukan": {
+                "name": "[Ambil Soal] Bukan 404 Tidak Ditemukan",
+                "path": "::[Ambil Soal] Bukan 404 Tidak Ditemukan",
+                "id": "f7094403a2a5d154455cc8953ebb984e",
+                "passes": 19,
+                "fails": 0
+            }
+        }
+    },
+    "metrics": {
+        "error_auth_401": {
+            "fails": 4250,
+            "passes": 0,
+            "value": 0
+        },
+        "waktu_ambil_soal_berikutnya": {
+            "avg": 7074.684210526316,
+            "min": 0,
+            "med": 1,
+            "max": 60001,
+            "p(90)": 23527.999999999967,
+            "p(95)": 60000.1,
+            "thresholds": {
+                "p(95)<1000": true,
+                "max<1000": true
+            }
+        },
+        "http_reqs": {
+            "count": 4523,
+            "rate": 41.38616070777644
+        },
+        "total_siklus_soal": {
+            "med": 1,
+            "max": 83341,
+            "p(90)": 49961.39999999997,
+            "p(95)": 78911.19999999998,
+            "avg": 17072.21052631579,
+            "min": 0
+        },
+        "success_rate_jawaban": {
+            "passes": 7,
+            "fails": 12,
+            "thresholds": {
+                "rate>0.95": true
+            },
+            "value": 0.3684210526315789
+        },
+        "error_server_5xx": {
+            "passes": 0,
+            "fails": 19,
+            "thresholds": {
+                "rate<0.01": false
+            },
+            "value": 0
+        },
+        "http_req_duration": {
+            "p(90)": 0,
+            "p(95)": 17468.052079999707,
+            "avg": 2385.1532103028953,
+            "min": 0,
+            "med": 0,
+            "max": 60000.7494
+        },
+        "http_req_sending": {
+            "avg": 0.004888215785982754,
+            "min": 0,
+            "med": 0,
+            "max": 1.0102,
+            "p(90)": 0,
+            "p(95)": 0
+        },
+        "http_req_connecting": {
+            "avg": 0.033383506522219775,
+            "min": 0,
+            "med": 0,
+            "max": 2.66,
+            "p(90)": 0,
+            "p(95)": 0.36318999999999885
+        },
+        "error_sesi_habis_410": {
+            "passes": 0,
+            "fails": 19,
+            "value": 0
+        },
+        "checks": {
+            "passes": 748,
+            "fails": 4300,
+            "value": 0.14817749603803487
+        },
+        "vus": {
+            "value": 4,
+            "min": 0,
+            "max": 499
+        },
+        "data_received": {
+            "count": 9178631,
+            "rate": 83985.91590611955
+        },
+        "http_req_failed": {
+            "passes": 4260,
+            "fails": 263,
+            "thresholds": {
+                "rate<0.01": true
+            },
+            "value": 0.9418527525978333
+        },
         "iteration_duration": {
-            "avg": 4081.6051963096934,
-            "min": 2000.0001,
-            "med": 2163.57715,
-            "max": 11503.1494,
-            "p(90)": 8676.770550000001,
-            "p(95)": 9394.2219
+            "max": 94566.1646,
+            "p(90)": 2001.57636,
+            "p(95)": 2005.67742,
+            "avg": 4400.140252529994,
+            "min": 2000.0014,
+            "med": 2000.8846
+        },
+        "total_jawaban_terkirim": {
+            "count": 7,
+            "rate": 0.0640510999235983
+        },
+        "error_rate_limited_429": {
+            "fails": 19,
+            "passes": 0,
+            "value": 0
         },
         "http_req_tls_handshaking": {
             "avg": 0,
@@ -81,145 +292,74 @@
             "p(90)": 0,
             "p(95)": 0
         },
-        "http_req_failed": {
-            "fails": 2214,
-            "passes": 4146,
-            "thresholds": {
-                "rate<0.01": true
-            },
-            "value": 0.6518867924528302
-        },
-        "http_req_connecting": {
-            "min": 0,
-            "med": 0,
-            "max": 4.907,
-            "p(90)": 0.5380100000000001,
-            "p(95)": 0.6742049999999999,
-            "avg": 0.1717976415094342
-        },
-        "success_rate_jawaban": {
-            "fails": 0,
-            "passes": 0,
-            "thresholds": {
-                "rate>0.95": false
-            },
-            "value": 0
-        },
-        "http_req_sending": {
+        "http_req_waiting": {
+            "max": 60000.7494,
             "p(90)": 0,
-            "p(95)": 0.5063,
-            "avg": 0.036148097484276706,
-            "min": 0,
-            "med": 0,
-            "max": 2.0068
-        },
-        "http_req_receiving": {
-            "avg": 1.3009381132075473,
-            "min": 0,
-            "med": 1.0134,
-            "max": 15.369,
-            "p(90)": 3.3679800000000006,
-            "p(95)": 4.536344999999999
-        },
-        "vus": {
-            "value": 2,
-            "min": 2,
-            "max": 499
-        },
-        "error_auth_401": {
-            "passes": 1760,
-            "fails": 2386,
-            "value": 0.42450554751567776
-        },
-        "iterations": {
-            "count": 4146,
-            "rate": 48.22629794590262
-        },
-        "total_siklus_soal": {
-            "med": 0,
-            "max": 0,
-            "p(90)": 0,
-            "p(95)": 0,
-            "avg": 0,
-            "min": 0,
-            "thresholds": {
-                "max<1000": false,
-                "p(95)<1000": false
-            }
-        },
-        "data_received": {
-            "count": 106069370,
-            "rate": 1233799.5756281198
-        },
-        "http_req_duration": {
-            "med": 454.81804999999997,
-            "max": 6314.6643,
-            "p(90)": 3727.59825,
-            "p(95)": 4144.2904399999925,
-            "avg": 1356.371509937107,
-            "min": 0
-        },
-        "waktu_pengiriman_jawaban": {
-            "avg": 0,
-            "min": 0,
-            "med": 0,
-            "max": 0,
-            "p(90)": 0,
-            "p(95)": 0,
-            "thresholds": {
-                "max<1000": false,
-                "p(95)<1000": false
-            }
-        },
-        "data_sent": {
-            "count": 2739819,
-            "rate": 31869.591753942346
-        },
-        "http_req_blocked": {
-            "max": 5.4134,
-            "p(90)": 0.5555100000000001,
-            "p(95)": 0.7084349999999995,
-            "avg": 0.19166894654088082,
+            "p(95)": 17464.230589999705,
+            "avg": 2385.0154610656655,
             "min": 0,
             "med": 0
         },
-        "error_server_5xx": {
-            "passes": 0,
-            "fails": 0,
-            "thresholds": {
-                "rate<0.01": false
-            },
-            "value": 0
+        "iterations": {
+            "count": 4249,
+            "rate": 38.87901765362416
         },
         "vus_max": {
             "value": 500,
             "min": 500,
             "max": 500
         },
-        "http_req_waiting": {
-            "avg": 1355.0344237264164,
+        "data_sent": {
+            "count": 204271,
+            "rate": 1869.1117474990494
+        },
+        "waktu_pengiriman_jawaban": {
             "min": 0,
-            "med": 452.8586,
-            "max": 6311.2031,
-            "p(90)": 3726.5337000000004,
-            "p(95)": 4143.034999999993
-        },
-        "checks": {
-            "passes": 4879,
-            "fails": 5906,
-            "value": 0.45238757533611496
-        },
-        "error_rate_limited_429": {
-            "passes": 0,
-            "fails": 0,
+            "med": 1,
+            "max": 42846,
+            "p(90)": 34083.399999999994,
+            "p(95)": 38075.09999999999,
+            "avg": 9997.526315789473,
             "thresholds": {
-                "rate<0.05": false
-            },
+                "p(95)<1000": true,
+                "max<1000": true
+            }
+        },
+        "http_req_duration{expected_response:true}": {
+            "avg": 28927.999715209116,
+            "min": 17.3838,
+            "med": 32231.2722,
+            "max": 59874.6896,
+            "p(90)": 52977.875739999996,
+            "p(95)": 53994.30200999999
+        },
+        "error_validation_422": {
+            "passes": 0,
+            "fails": 19,
             "value": 0
         },
-        "http_reqs": {
-            "count": 6360,
-            "rate": 73.9795598012399
+        "http_req_receiving": {
+            "max": 15.9846,
+            "p(90)": 0,
+            "p(95)": 1.0200799999999992,
+            "avg": 0.13286102144594286,
+            "min": 0,
+            "med": 0
+        },
+        "http_req_blocked": {
+            "max": 2.66,
+            "p(90)": 0,
+            "p(95)": 0.4111899999999992,
+            "avg": 0.03752350210037588,
+            "min": 0,
+            "med": 0
         }
+    },
+    "setup_data": {
+        "opsiId": "44c043e6-b41f-49bf-97ca-0acdfb0ff5b6",
+        "serverReady": true,
+        "sesiId": "a32178a6-1de2-4d00-9200-5b9b5518eff9",
+        "soalId": "440894ab-6f1a-407a-83ca-01696baee3a2",
+        "baseUrl": "http://127.0.0.1:8000"
     }
 }

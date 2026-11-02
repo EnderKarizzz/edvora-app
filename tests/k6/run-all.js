@@ -39,6 +39,9 @@ export function setup() {
     return { 
         status: res.status, 
         url: CONFIG.BASE_URL,
+        sesiId: CONFIG.SESI_ID,
+        soalId: CONFIG.SOAL_ID,
+        opsiId: CONFIG.OPSI_ID,
         timestamp: new Date().toISOString() 
     };
 }

@@ -133,9 +133,7 @@ export function login(email, password, expectedRole = 'siswa') {
         : `${CONFIG.BASE_URL}/dashboard`;
 
     const verifyHeaders = {
-        'Accept': 'text/html, application/xhtml+xml, application/json',
-        'X-Inertia': 'true',
-        'X-Requested-With': 'XMLHttpRequest',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
     };
 
     const verifyRes = http.get(verifyUrl, {
