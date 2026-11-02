@@ -9,65 +9,82 @@ import { login, getXsrfToken } from '../helpers/auth.js';
  * Penanggung Jawab: Indah (Performance / Load Testing)
  * 
  * Target Pengujian:
- * - Mensimulasikan 100 - 500 Virtual Users (VU)
- * - Waktu pemrosesan pengiriman jawaban oleh server
- * - Waktu pengambilan / pemunculan soal berikutnya setelah jawaban dikirim
- * - Target SLA maksimal: 1 detik (1000 ms)
+ * - Mensimulasikan pengujian beban bertahap hingga 500 Virtual Users (VU).
+ * - Mengukur waktu pemrosesan pengiriman jawaban oleh backend (POST /latihan/ujian/jawab) secara terpisah (SLA <= 1 detik).
+ * - Mengukur waktu pengambilan / pemunculan soal berikutnya secara terpisah (SLA <= 1 detik).
+ * - Waktu login diisolasi dan TIDAK dimasukkan ke metrik performa soal.
  */
 
-// Custom Metrics untuk Pelaporan Detail
-const waktuProsesJawaban = new Trend('waktu_proses_jawaban', true);
+// Custom Metrics Waktu Respons (SLA <= 1000 ms)
+const waktuPengirimanJawaban = new Trend('waktu_pengiriman_jawaban', true);
 const waktuAmbilSoalBerikutnya = new Trend('waktu_ambil_soal_berikutnya', true);
 const totalSiklusSoal = new Trend('total_siklus_soal', true);
-const tingkatKeberhasilan = new Rate('tingkat_keberhasilan_soal');
-const jumlahJawabanTerkirim = new Counter('jumlah_jawaban_terkirim');
+
+// Metrik Penghitung & Kategori Error Spesifik
+const rateJawabanBerhasil = new Rate('success_rate_jawaban');
+const rateAmbilSoalBerhasil = new Rate('success_rate_ambil_soal');
+const countJawabanTerkirim = new Counter('total_jawaban_terkirim');
+
+const rateErrorAuth401 = new Rate('error_auth_401');
+const rateErrorValidation422 = new Rate('error_validation_422');
+const rateErrorSesi410 = new Rate('error_sesi_habis_410');
+const rateErrorRateLimit429 = new Rate('error_rate_limited_429');
+const rateErrorServer5xx = new Rate('error_server_5xx');
 
 export const options = {
     scenarios: {
-        // Beban Bertahap hingga 100 - 500 VU
         load_test_soal: {
             executor: 'ramping-vus',
             startVUs: 1,
-            stages: [
-                { duration: '30s', target: 50 },   // Ramp-up ke 50 VU
-                { duration: '1m',  target: 100 },  // Stabil di 100 VU
-                { duration: '1m',  target: 250 },  // Ramp-up ke 250 VU
-                { duration: '1m',  target: 500 },  // Puncak 500 VU
-                { duration: '30s', target: 0 },    // Ramp-down
-            ],
+            stages: CONFIG.STAGES.SKENARIO_A_500_VU,
             gracefulRampDown: '15s',
         },
     },
     thresholds: {
-        // Target SLA: Maksimal 1 detik (1000 ms)
-        // p95 digunakan sebagai kriteria penerimaan teknis, max untuk evaluasi batas ekstrim
-        'http_req_duration': [
-            'p(95)<1000', // 95% request harus selesai di bawah 1 detik
-            'max<1000',   // Batas absolut 1 detik sesuai ketentuan tugas
+        // Target SLA Spesifik: Maksimal 1 detik (1000 ms)
+        // p95 untuk evaluasi penerimaan sistem, max untuk evaluasi batas ekstrim
+        'waktu_pengiriman_jawaban': [
+            'p(95)<1000',
+            'max<1000'
         ],
-        'waktu_proses_jawaban': ['p(95)<1000'],
-        'waktu_ambil_soal_berikutnya': ['p(95)<1000'],
-        'total_siklus_soal': ['p(95)<1000'],
-        'http_req_failed': ['rate<0.01'], // Kegagalan request harus < 1%
-        'tingkat_keberhasilan_soal': ['rate>0.95'],
+        'waktu_ambil_soal_berikutnya': [
+            'p(95)<1000',
+            'max<1000'
+        ],
+        'total_siklus_soal': [
+            'p(95)<1000',
+            'max<1000'
+        ],
+        'http_req_failed': ['rate<0.01'],
+        'success_rate_jawaban': ['rate>0.95'],
+        'error_server_5xx': ['rate<0.01'],
+        'error_rate_limited_429': ['rate<0.05'],
     },
 };
 
 export function setup() {
-    // Verifikasi ketersediaan server sebelum load testing dijalankan
-    const res = http.get(`${CONFIG.BASE_URL}/login`);
-    if (res.status !== 200) {
-        console.warn(`[PERINGATAN SETUP] Server tidak merespons 200 di ${CONFIG.BASE_URL}/login. Status: ${res.status}`);
-    }
+    // 1. Verifikasi konektivitas server awal
+    const checkRes = http.get(`${CONFIG.BASE_URL}/login`);
+    const serverReady = checkRes.status === 200;
+    
+    // 2. Ambil parameter data nyata dari environment atau database jika disediakan
+    let activeSession = {
+        sesiId: CONFIG.SESI_ID,
+        soalId: CONFIG.SOAL_ID,
+        opsiId: CONFIG.OPSI_ID,
+    };
+
     return {
         baseUrl: CONFIG.BASE_URL,
-        timestamp: new Date().toISOString(),
+        serverReady: serverReady,
+        activeSession: activeSession,
     };
 }
 
-export default function () {
+export default function (data) {
     const email = CONFIG.SISWA.EMAIL;
     const password = CONFIG.SISWA.PASSWORD;
+
     const headersInertia = {
         'Accept': 'text/html, application/xhtml+xml, application/json',
         'X-Inertia': 'true',
@@ -75,56 +92,43 @@ export default function () {
         'X-Requested-With': 'XMLHttpRequest',
     };
 
-    // 1. TAHAP AUTENTIKASI SISWA
-    group('1. Autentikasi Siswa', function () {
-        const auth = login(email, password);
-        tingkatKeberhasilan.add(auth.success);
-    });
+    // TAHAP 1: AUTENTIKASI SISWA (Diukur terpisah, tidak masuk metrik soal)
+    const authResult = login(email, password, 'siswa');
+    if (!authResult.success) {
+        rateErrorAuth401.add(authResult.statusCode === 401 || authResult.statusCode === 422 ? 1 : 0);
+        // Think time agar VU yang gagal login tidak melakukan hammering dalam tight-loop
+        sleep(2);
+        return;
+    }
+    rateErrorAuth401.add(0);
 
-    let xsrfToken = getXsrfToken(CONFIG.BASE_URL);
+    const xsrfToken = authResult.xsrfToken || getXsrfToken(CONFIG.BASE_URL);
 
-    // 2. TAHAP AKSES SESI LATIHAN / UJIAN
-    let pengerjaanId = null;
-    let daftarSoal = [];
+    // TAHAP 2: AKSES SESI & PENGAMBILAN SOAL AKTUAL
+    // Mencoba mengambil data pengerjaan yang valid
+    let sesiId = data.activeSession.sesiId;
+    let soalId = data.activeSession.soalId;
+    let opsiId = data.activeSession.opsiId;
 
-    group('2. Akses Sesi Latihan', function () {
-        // Siswa membuka menu persiapan / daftar subtes
+    // Jika sesiId belum ada di env, periksa halaman pengerjaan fleksibel
+    if (!sesiId) {
         const persiapanRes = http.get(`${CONFIG.BASE_URL}/latihan/persiapan`, {
             headers: headersInertia,
             tags: { name: 'GET_Latihan_Persiapan' },
         });
 
         check(persiapanRes, {
-            'Akses /latihan/persiapan berhasil (200/302)': (r) => r.status === 200 || r.status === 302,
+            '[Siswa] Halaman persiapan latihan respons 200 OK': (r) => r.status === 200,
         });
+    }
 
-        // Siswa mengakses sesi ujian yang sedang berjalan atau aktif
-        // Di aplikasi EDVORA, pengerjaan aktif dibuka melalui /latihan/kerjakan/{pengerjaanId}
-        const ujianRes = http.get(`${CONFIG.BASE_URL}/latihan`, {
-            headers: headersInertia,
-            tags: { name: 'GET_Latihan_Index' },
-        });
-
-        check(ujianRes, {
-            'Akses /latihan berhasil': (r) => r.status === 200 || r.status === 302,
-        });
-    });
-
-    // 3. TAHAP PENGIRIMAN JAWABAN & PENGAMBILAN SOAL BERIKUTNYA
-    group('3. Siklus Pengiriman Jawaban & Soal Berikutnya', function () {
-        const siklusMulai = Date.now();
-
-        // Parameter request submit jawaban aktual EDVORA (LatihanSoalController::jawab)
-        // sesiId (UUID), soalId (UUID), opsiIds (Array), jawabanIsian, pilihanKolom
-        // Sesi pengujian mensimulasikan format UUID yang valid
-        const dummySesiId = __ENV.SESI_ID || '00000000-0000-0000-0000-000000000001';
-        const dummySoalId = __ENV.SOAL_ID || '00000000-0000-0000-0000-000000000002';
-        const dummyOpsiId = __ENV.OPSI_ID || '00000000-0000-0000-0000-000000000003';
-
-        const submitPayload = JSON.stringify({
-            sesiId: dummySesiId,
-            soalId: dummySoalId,
-            opsiIds: [dummyOpsiId],
+    // TAHAP 3: PENGIRIMAN JAWABAN (POST /latihan/ujian/jawab)
+    // Sesuai implementasi aktual LatihanSoalController::jawab()
+    if (sesiId && soalId) {
+        const payloadJawab = JSON.stringify({
+            sesiId: sesiId,
+            soalId: soalId,
+            opsiIds: opsiId ? [opsiId] : [],
             jawabanIsian: null,
             pilihanKolom: null,
         });
@@ -138,50 +142,72 @@ export default function () {
             jawabHeaders['X-XSRF-TOKEN'] = xsrfToken;
         }
 
-        // A. Mengirimkan Jawaban (POST /latihan/ujian/jawab)
-        const kirimMulai = Date.now();
-        const jawabRes = http.post(`${CONFIG.BASE_URL}/latihan/ujian/jawab`, submitPayload, {
+        // Mulai pengukuran waktu pemrosesan pengiriman jawaban secara terpisah
+        const kirimStart = Date.now();
+        const jawabRes = http.post(`${CONFIG.BASE_URL}/latihan/ujian/jawab`, payloadJawab, {
             headers: jawabHeaders,
-            tags: { name: 'POST_Latihan_Jawab' },
+            tags: { name: 'METRIC_POST_Jawab_Soal' },
         });
-        const waktuKirim = Date.now() - kirimMulai;
-        waktuProsesJawaban.add(waktuKirim);
+        const kirimDuration = Date.now() - kirimStart;
+        waktuPengirimanJawaban.add(kirimDuration);
 
-        // Status 200 = Sukses dinilai, 410 = Sesi habis, 422 = Validasi (soal bukan bagian sesi jika data dummy)
-        // 429 = Throttled (jika batas 30 req/menit tercapai)
-        const jawabBerhasil = jawabRes.status === 200 || jawabRes.status === 410 || jawabRes.status === 422;
+        // Pencatatan kategori status HTTP
+        rateErrorValidation422.add(jawabRes.status === 422 ? 1 : 0);
+        rateErrorSesi410.add(jawabRes.status === 410 ? 1 : 0);
+        rateErrorRateLimit429.add(jawabRes.status === 429 ? 1 : 0);
+        rateErrorServer5xx.add(jawabRes.status >= 500 ? 1 : 0);
+
+        // Validasi Ketat: Hanya HTTP 200 dengan payload penilaian yang sah
+        const isJawabValid = jawabRes.status === 200 && jawabRes.json('benar') !== undefined;
+        rateJawabanBerhasil.add(isJawabValid ? 1 : 0);
+        countJawabanTerkirim.add(1);
+
         check(jawabRes, {
-            'Server merespons request jawaban (<= 1 detik)': () => waktuKirim <= CONFIG.TARGETS.SOAL_RESPONSE_TIME_MAX_MS,
-            'Status respons valid (bukan 500 error)': (r) => r.status < 500,
+            '[Jawaban] Pengiriman jawaban sukses (HTTP 200)': (r) => r.status === 200,
+            '[Jawaban] Waktu proses server <= 1.0 detik (SLA 1s)': () => kirimDuration <= CONFIG.TARGETS.SOAL_RESPONSE_TIME_MAX_MS,
+            '[Jawaban] Payload memiliki field evaluasi bisnis (benar/salah)': () => isJawabValid,
         });
 
-        jumlahJawabanTerkirim.add(1);
-
-        // B. Menguji Pengambilan / Pemunculan Soal Berikutnya
-        // Dalam alur aktual EDVORA (Inertia.js), soal berikutnya dimuat dari state atau refresh kerjakan
-        const ambilMulai = Date.now();
-        const nextSoalRes = http.get(`${CONFIG.BASE_URL}/latihan/persiapan`, {
+        // TAHAP 4: PENGAMBILAN SOAL BERIKUTNYA SECARA TERPISAH
+        // Menguji pengambilan state soal berikutnya melalui rute pengerjaan
+        const ambilStart = Date.now();
+        const nextSoalRes = http.get(`${CONFIG.BASE_URL}/latihan/kerjakan/${sesiId}`, {
             headers: headersInertia,
-            tags: { name: 'GET_Soal_Berikutnya' },
+            tags: { name: 'METRIC_GET_Soal_Berikutnya' },
         });
-        const waktuAmbil = Date.now() - ambilMulai;
-        waktuAmbilSoalBerikutnya.add(waktuAmbil);
+        const ambilDuration = Date.now() - ambilStart;
+        waktuAmbilSoalBerikutnya.add(ambilDuration);
+
+        const isAmbilValid = nextSoalRes.status === 200;
+        rateAmbilSoalBerhasil.add(isAmbilValid ? 1 : 0);
 
         check(nextSoalRes, {
-            'Pengambilan soal berikutnya selesai (<= 1 detik)': () => waktuAmbil <= CONFIG.TARGETS.SOAL_RESPONSE_TIME_MAX_MS,
-            'Status pengambilan soal berikutnya valid': (r) => r.status === 200 || r.status === 302,
+            '[Soal Berikutnya] Ambil soal berikutnya sukses (HTTP 200)': (r) => r.status === 200,
+            '[Soal Berikutnya] Waktu respons <= 1.0 detik (SLA 1s)': () => ambilDuration <= CONFIG.TARGETS.SOAL_RESPONSE_TIME_MAX_MS,
         });
 
-        const totalSiklus = Date.now() - siklusMulai;
-        totalSiklusSoal.add(totalSiklus);
-        tingkatKeberhasilan.add(jawabBerhasil && nextSoalRes.status < 500);
-    });
+        // Total siklus pengiriman jawaban + pemunculan soal berikutnya
+        totalSiklusSoal.add(kirimDuration + ambilDuration);
+    } else {
+        // Fallback informatif jika data sesi pengerjaan di database belum disiapkan
+        const ambilStart = Date.now();
+        const persiapanRes = http.get(`${CONFIG.BASE_URL}/latihan/persiapan`, {
+            headers: headersInertia,
+            tags: { name: 'METRIC_GET_Soal_Berikutnya' },
+        });
+        const ambilDuration = Date.now() - ambilStart;
+        waktuAmbilSoalBerikutnya.add(ambilDuration);
 
-    // Simulasi Think Time siswa nyata sebelum menjawab soal berikutnya (1 - 2 detik)
+        check(persiapanRes, {
+            '[Soal] Akses menu latihan persiapan selesai (HTTP 200)': (r) => r.status === 200,
+            '[Soal] Waktu respons <= 1.0 detik (SLA 1s)': () => ambilDuration <= CONFIG.TARGETS.SOAL_RESPONSE_TIME_MAX_MS,
+        });
+    }
+
+    // Think time realistis siswa (1–2 detik)
     sleep(1.5);
 }
 
 export function teardown(data) {
     console.log(`[TEARDOWN] Skenario A selesai diuji pada ${new Date().toISOString()}`);
 }
-

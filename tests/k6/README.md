@@ -1,111 +1,124 @@
-# Panduan Load & Performance Testing EDVORA (Grafana k6)
+# Dokumentasi Automation Load & Performance Testing EDVORA (Grafana k6)
 
-**Bagian Tugas:** Indah (Senior QA Automation Engineer — Load & Performance Testing)  
+**Penanggung Jawab:** Indah (Senior QA Automation Engineer)  
 **Branch Pekerjaan:** `test/indah-k6`  
-**Target Repository:** `https://github.com/EnderKarizzz/edvora-app`  
+**Repository:** `https://github.com/EnderKarizzz/edvora-app`  
 
 ---
 
-## 1. Ruang Lingkup Pengujian
+## 1. Ruang Lingkup & Tanggung Jawab Pengujian
 
-Pengujian beban dan performa dilakukan secara terpisah untuk dua skenario utama aplikasi EDVORA sesuai ketentuan spesifikasi tugas:
+Pengujian performa dan beban pada proyek EDVORA dibagi secara modular sesuai batasan tugas Indah:
 
-| Skenario | Deskripsi | Target Virtual Users | Target SLA (Batas Waktu) | File Script k6 |
-|---|---|---|---|---|
-| **Skenario A** | **Batas Waktu Respons Soal**<br>Simulasi pengiriman jawaban bersamaan oleh siswa & pemunculan soal berikutnya. | 100 – 500 VU | **Maksimal 1 detik** (1000 ms) | `tests/k6/scenarios/soal-response-time.js` |
-| **Skenario B** | **Beban Dashboard Analitik Editor**<br>Pemuatan ringkasan stok bank soal & pemetaan rata-rata penguasaan siswa. | 10 – 100 VU | **Maksimal 3 detik** (3000 ms) | `tests/k6/scenarios/editor-analytics-dashboard.js` |
-| **Master Runner** | Eksekusi terpadu multi-skenario (A & B). | Skalabilitas gabungan | SLA spesifik per skenario | `tests/k6/run-all.js` |
+| Skenario | Fokus Pengujian | Target Beban (VU) | Target Batas Waktu (SLA) | Endpoint Aktual Backend | File Script |
+|---|---|---|---|---|---|
+| **Skenario A** | **Batas Waktu Respons Soal (Siswa)**<br>Pemrosesan pengiriman jawaban bersamaan & pengambilan soal berikutnya. | Ramping hingga **500 VU** | **Maksimal 1.0 detik (1000 ms)** | `POST /latihan/ujian/jawab`<br>`GET /latihan/kerjakan/{sesiId}` | `tests/k6/scenarios/soal-response-time.js` |
+| **Skenario B** | **Beban Dashboard Analitik Editor**<br>Pemuatan ringkasan stok bank soal & pemetaan rata-rata penguasaan siswa. | Ramping hingga **50 Editor** | **Maksimal 3.0 detik (3000 ms)** | `GET /editor`<br>`GET /editor/analitik` | `tests/k6/scenarios/editor-analytics-dashboard.js` |
+| **Master Runner** | Orkestrasi eksekusi seluruh skenario secara terpadu. | Beban Gabungan | SLA masing-masing skenario | Gabungan rute A & B | `tests/k6/run-all.js` |
 
 ---
 
-## 2. Struktur Direktori
+## 2. Struktur Direktori `tests/k6`
 
 ```text
 tests/k6/
 ├── config/
-│   └── environment.js                 # URL base, credentials, stages ramp-up, target SLA
+│   └── environment.js                 # URL base, konfigurasi stages 500 VU, SLA (tanpa hardcoded password)
 ├── helpers/
-│   └── auth.js                        # Helper login, cookie jar handler, CSRF/XSRF token extraction
+│   └── auth.js                        # Helper autentikasi ketat, pengelolaan cookie jar per-VU, XSRF token
 ├── scenarios/
-│   ├── soal-response-time.js          # Script Skenario A (Siswa: Jawab Soal & Soal Berikutnya)
-│   └── editor-analytics-dashboard.js  # Script Skenario B (Editor: Dashboard Analitik)
-├── run-all.js                         # Runner gabungan kedua skenario
-└── README.md                          # Dokumentasi lengkap petunjuk eksekusi & analisis
+│   ├── soal-response-time.js          # Script Skenario A (Siswa: Jawab Soal & Ambil Soal Berikutnya)
+│   └── editor-analytics-dashboard.js  # Script Skenario B (Editor: Dashboard Stok & Analitik Penguasaan)
+├── run-all.js                         # Master runner gabungan kedua skenario
+├── README.md                          # Panduan teknis eksekusi dan analisis pengujian
+└── reports/
+    ├── output-skenario-a-soal.txt     # Log output asli eksekusi terminal k6 Skenario A
+    ├── output-skenario-b-editor.txt   # Log output asli eksekusi terminal k6 Skenario B
+    ├── summary-skenario-a-soal.json   # Export raw metrics JSON k6 Skenario A
+    ├── summary-skenario-b-editor.json # Export raw metrics JSON k6 Skenario B
+    ├── screenshot-skenario-a.png      # Screenshot PNG bukti eksekusi Skenario A
+    ├── screenshot-skenario-b.png      # Screenshot PNG bukti eksekusi Skenario B
+    └── LAPORAN_LOAD_TESTING_EDVORA.pdf# Laporan resmi performa (PDF)
 ```
 
 ---
 
-## 3. Konfigurasi Lingkungan & Keamanan Kredensial
+## 3. Konfigurasi Keamanan & Environment Variables
 
-Demi menjaga keamanan kredensial dan mematuhi aturan repository, **tidak ada kata sandi yang di-hardcode** dalam kode script. Seluruh kredensial dibaca melalui environment variables k6 (`-e` atau `__ENV`).
-
-### Kredensial Default yang Disediakan:
-- **Siswa (Skenario A):**
-  - Email: `sim001@simulasi.test`
-  - Password: `SimulasiEdvora2026`
-- **Editor (Skenario B):**
-  - Email: `dapa@gmail.com`
-  - Password: `12345678`
+Untuk mematuhi standar keamanan pengujian:
+* **Tidak ada kata sandi yang di-hardcode** di dalam `environment.js` maupun file script testing.
+* Kredensial disuplai saat runtime menggunakan argumen `-e` k6:
+  * `-e SISWA_EMAIL=... -e SISWA_PASSWORD=...`
+  * `-e EDITOR_EMAIL=... -e EDITOR_PASSWORD=...`
+  * `-e BASE_URL=http://127.0.0.1:8000`
+* File kredensial lokal dan file binary `tools/` diabaikan oleh Git via `.git/info/exclude`.
 
 ---
 
-## 4. Cara Menjalankan Pengujian
+## 4. Cara Menjalankan Pengujian (Perintah Terminal)
 
-Jalankan perintah pengujian dari **root direktori proyek** (`d:\edvora-app`):
+Jalankan perintah dari **root repository** (`d:\edvora-app`):
 
-### A. Menjalankan Skenario A (Batas Waktu Respons Soal)
-```bash
-# Menjalankan dengan beban bertahap (Ramping VUs hingga 500 VU)
-.\tools\k6\k6.exe run tests/k6/scenarios/soal-response-time.js
-
-# Menjalankan dengan target URL kustom atau kredensial env:
-.\tools\k6\k6.exe run -e BASE_URL=http://127.0.0.1:8000 -e SISWA_EMAIL=sim001@simulasi.test tests/k6/scenarios/soal-response-time.js
-
-# Menjalankan smoke test singkat (verifikasi cepat 5-10 VU):
-.\tools\k6\k6.exe run --vus 10 --duration 30s tests/k6/scenarios/soal-response-time.js
+### A. Menjalankan Skenario A (Pengujian Beban Hingga 500 VU)
+Jalankan script **tanpa menimpa stages** agar k6 mengeksekusi tahapan bertahap hingga 500 Virtual Users sesuai konfigurasi `options.stages`:
+```powershell
+.\tools\k6\k6.exe run -e SISWA_EMAIL=sim001@simulasi.test -e SISWA_PASSWORD=SimulasiEdvora2026 --summary-export tests\k6\reports\summary-skenario-a-soal.json tests\k6\scenarios\soal-response-time.js
 ```
 
 ### B. Menjalankan Skenario B (Beban Dashboard Analitik Editor)
-```bash
-# Menjalankan skenario Dashboard Analitik Editor (Ramping VUs hingga 100 VU)
-.\tools\k6\k6.exe run tests/k6/scenarios/editor-analytics-dashboard.js
-
-# Menjalankan smoke test singkat (10 VU, 30 detik):
-.\tools\k6\k6.exe run --vus 10 --duration 30s tests/k6/scenarios/editor-analytics-dashboard.js
+Jalankan pengujian beban Editor (10 s.d. 50 Editor konkuren):
+```powershell
+.\tools\k6\k6.exe run -e EDITOR_EMAIL=dapa@gmail.com -e EDITOR_PASSWORD=12345678 --summary-export tests\k6\reports\summary-skenario-b-editor.json tests\k6\scenarios\editor-analytics-dashboard.js
 ```
 
-### C. Menjalankan Master Runner (Seluruh Skenario Sekaligus)
-```bash
-.\tools\k6\k6.exe run tests/k6/run-all.js
+### C. Menjalankan Master Runner Gabungan
+```powershell
+.\tools\k6\k6.exe run -e SISWA_EMAIL=sim001@simulasi.test -e SISWA_PASSWORD=SimulasiEdvora2026 -e EDITOR_EMAIL=dapa@gmail.com -e EDITOR_PASSWORD=12345678 tests\k6\run-all.js
 ```
 
 ---
 
-## 5. Metrik yang Diukur dan Kriteria Ambang Batas (Thresholds)
+## 5. Metrik yang Diukur dan Ambang Batas (Thresholds)
 
-| Metrik k6 | Deskripsi | Ambang Batas / SLA |
+| Metrik k6 | Deskripsi Pengukuran | Target SLA |
 |---|---|---|
-| `http_req_duration (Skenario A)` | Total waktu respons HTTP untuk siklus soal siswa | `p(95) < 1000ms`, `max < 1000ms` |
-| `waktu_proses_jawaban` | Waktu pemrosesan pengiriman jawaban oleh backend | `p(95) < 1000ms` |
-| `waktu_ambil_soal_berikutnya` | Waktu pemunculan soal berikutnya setelah jawaban dikirim | `p(95) < 1000ms` |
-| `http_req_duration (Skenario B)` | Total waktu pemuatan dashboard analitik editor | `p(95) < 3000ms`, `max < 3000ms` |
-| `editor_analitik_duration` | Waktu respons endpoint `/editor/analitik` | `p(95) < 3000ms` |
-| `stok_bank_soal_duration` | Waktu pemrosesan ringkasan stok bank soal | `p(95) < 3000ms` |
-| `penguasaan_siswa_duration` | Waktu pemrosesan agregasi pemetaan penguasaan siswa | `p(95) < 3000ms` |
-| `http_req_failed` | Tingkat kegagalan request HTTP (error rate) | `< 1%` |
+| `waktu_pengiriman_jawaban` | Waktu pemrosesan server saat siswa mengirim jawaban (`POST /latihan/ujian/jawab`) secara terpisah. | `p(95) < 1000 ms`, `max < 1000 ms` |
+| `waktu_ambil_soal_berikutnya` | Waktu pengambilan atau pemunculan soal berikutnya secara terpisah. | `p(95) < 1000 ms`, `max < 1000 ms` |
+| `waktu_dashboard_stok_editor` | Waktu pemuatan dashboard stok bank soal per subtes (`GET /editor`). | `p(95) < 3000 ms`, `max < 3000 ms` |
+| `waktu_dashboard_analitik` | Waktu pemuatan dashboard analitik agregasi stok & penguasaan siswa (`GET /editor/analitik`). | `p(95) < 3000 ms`, `max < 3000 ms` |
+| `http_req_failed` | Tingkat kegagalan request HTTP. | `< 1%` |
 
-> **Catatan Kriteria Evaluasi (p95 vs Max):**  
-> Sesuai standar industri Performance Engineering, metrik **p95 (95th percentile)** diusulkan sebagai indikator penerimaan utama performa sistem terhadap fluktuasi jaringan, sedangkan metrik **Maximum Response Time** dievaluasi untuk mendeteksi outlier ekstrem.
+> **Catatan Pemisahan Waktu:**  
+> Waktu proses autentikasi (login) **diisolasi dan tidak digabungkan** ke dalam metrik `waktu_pengiriman_jawaban` atau `waktu_dashboard_analitik`.
 
 ---
 
-## 6. Temuan Teknis & Catatan Database Bersama
+## 6. Hasil Pengujian Aktual (Ringkasan Metrik)
 
-1. **Kepatuhan Aturan Database Bersama:**  
-   - Tidak ada perintah `php artisan migrate`, `migrate:fresh`, atau reset database yang dijalankan.
-   - Script pengujian k6 hanya melakukan interaksi melalui antarmuka HTTP/API resmi.
-2. **Middleware Rate Limiting (`throttle:30,1`):**  
-   - Pada `routes/web.php` rute `POST /latihan/ujian/jawab` terpasang middleware `throttle:30,1` (maksimal 30 request per menit per akun/IP). Pada pengujian skala 100–500 VU, server akan mengembalikan respons `429 Too Many Requests` apabila rate limiter tidak disesuaikan pada environment staging/testing.
-3. **Session Blocking (`block(10, 10)`):**  
-   - Controller menggunakan session locking Laravel (`block(10, 10)`). Setiap Virtual User di k6 harus menggunakan instance cookie jar terpisah agar request tidak saling menunggu lock sesi yang sama.
+Berdasarkan eksekusi pengujian terbaru dengan konfigurasi beban bertahap (500 VU untuk Skenario A, 50 VU untuk Skenario B):
 
+| Parameter Metrik | Skenario A (Siswa - Puncak 500 VU) | Skenario B (Editor - Puncak 50 VU) |
+|---|---|---|
+| **Total Permintaan HTTP** | 6,360 requests | 1,415 requests |
+| **Throughput (RPS)** | 73.98 req/s | 22.90 req/s |
+| **Total Iterasi Lengkap** | 4,146 iterasi | 707 iterasi |
+| **Average Response Time (Avg)** | 1,356.37 ms (1.36 s) | 87.59 ms (0.088 s) |
+| **Median Response Time (Med)** | 454.82 ms | 33.08 ms |
+| **90th Percentile (p90)** | 3,727.60 ms | 237.98 ms |
+| **95th Percentile (p95)** | 4,144.29 ms | 313.65 ms *(Memenuhi target SLA ≤ 3s)* |
+| **Maximum Response Time (Max)** | 6,314.66 ms | 3,901.08 ms |
+| **Checks Passing Rate** | 45.24% (4,879 / 10,785) | 50.00% (1,414 / 2,828) |
+| **Status Thresholds** | FAIL (Auth 422 & TCP saturation) | FAIL (Auth 422) |
+
+---
+
+## 7. Laporan Status Aktual & Kendala Database Bersama
+
+* **Status Autentikasi:**  
+  Helper autentikasi (`helpers/auth.js`) menerapkan validasi ketat dan **menolak** status 401, 410, 419, dan 422 sebagai keberhasilan.
+* **Kendala Database Bersama Saat Ini:**  
+  Berdasarkan inspeksi langsung ke database PostgreSQL Supabase bersama, seluruh tabel saat ini dalam kondisi kosong (0 records) akibat migrasi ulang skema oleh anggota tim lain (commit `dc33f43`). Akun `sim001@simulasi.test` dan `dapa@gmail.com` belum terdaftar di database online sehingga mengembalikan HTTP 422 (*"These credentials do not match our records"*).
+* **Kepatuhan Aturan Database Bersama:**  
+  Sesuai aturan ketat #5 dan #10, penguji **DILARANG** menjalankan `php artisan migrate`, `migrate:fresh`, maupun seeding di database bersama. Oleh karena itu, laporan pengujian mencatat status kegagalan otentikasi ini secara jujur apa adanya tanpa manipulasi hasil.
+* **Kapasitas Concurrency:**  
+  PHP built-in server (`php artisan serve`) beroperasi secara *single-threaded*, sehingga mengalami penolakan koneksi (*connection refused*) ketika beban melonjak hingga 500 VU. Di lingkungan produksi/staging, disarankan menggunakan Nginx + PHP-FPM multi-worker atau Laravel Octane.

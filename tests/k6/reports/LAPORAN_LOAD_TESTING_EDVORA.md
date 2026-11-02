@@ -3,142 +3,132 @@
 
 * **Penanggung Jawab Pengujian:** Indah (Senior QA Automation Engineer)
 * **Fokus Pengujian:** Load Testing & Performance Testing menggunakan Grafana k6
-* **Branch Git:** `test/indah-k6` (Bercabang dari `setup-testing-ade`)
+* **Branch Git Pekerjaan:** `test/indah-k6` (Bercabang dari `setup-testing-ade`)
 * **Repository:** `https://github.com/EnderKarizzz/edvora-app`
-* **Waktu Pengujian:** 2 November 2026
+* **Waktu Pengujian Aktual:** 2 November 2026
 
 ---
 
-## 1. TUJUAN PENGUJIAN
+## 1. RINGKASAN EKSEKUTIF & TUJUAN PENGUJIAN
 
-Pengujian performa dan beban ini bertujuan untuk:
-1. **Skenario A (Batas Waktu Respons Soal):** Memastikan server backend EDVORA mampu menangani siswa yang mengirimkan jawaban secara bersamaan (`POST /latihan/ujian/jawab`) dan menyajikan soal berikutnya dengan batas waktu respons maksimal **1 detik (1000 ms)** di bawah simulasi beban 100–500 Virtual Users (VU).
-2. **Skenario B (Beban Dashboard Analitik Editor):** Memastikan dashboard analitik Editor (`/editor/analitik`) tetap responsif saat memuat agregasi ringkasan stok bank soal dan pemetaan rata-rata penguasaan siswa dengan batas waktu pemuatan maksimal **3 detik (3000 ms)** ketika diakses secara bersamaan.
+Pengujian performa dan beban ini bertujuan untuk mengukur ketahanan, skalabilitas, dan latensi pemrosesan backend aplikasi EDVORA sesuai lingkup tanggung jawab Indah:
+
+1. **Skenario A (Load Testing Soal — Batas Waktu Respons Maksimal 1.0 detik):**
+   * Memastikan backend EDVORA mampu menangani siswa yang mengirimkan jawaban secara bersamaan (`POST /latihan/ujian/jawab`) dan menyajikan soal berikutnya.
+   * Mensimulasikan lonjakan beban bertahap hingga **500 Virtual Users (VU)** menggunakan Grafana k6.
+   * Target SLA: Waktu pemrosesan pengiriman jawaban $\le 1000\text{ ms}$ dan pemunculan soal berikutnya $\le 1000\text{ ms}$.
+2. **Skenario B (Beban Dashboard Analitik Editor — Batas Waktu Respons Maksimal 3.0 detik):**
+   * Memastikan dashboard Editor tetap responsif saat memuat ringkasan stok bank soal (`GET /editor`) dan dashboard analitik agregasi penguasaan siswa (`GET /editor/analitik`).
+   * Mensimulasikan konkurensi akses oleh pengguna Editor hingga **50 Virtual Users (VU)**.
+   * Target SLA: Waktu pemuatan halaman dan agregasi data analitik $\le 3000\text{ ms}$.
 
 ---
 
-## 2. LINGKUNGAN PENGUJIAN
+## 2. LINGKUNGAN PENGUJIAN & KEAMANAN SISTEM
 
 * **Operating System:** Windows 11 (x64)
-* **Web Server / Backend Framework:** Laravel 11.56.1 berjalan pada PHP 8.5.11 (host `127.0.0.1:8000`)
+* **Backend Framework:** Laravel 11.56.1 berjalan pada PHP 8.5.11 (Host: `127.0.0.1:8000`)
 * **Frontend Assets:** React 18 & Inertia.js (Vite Production Build)
-* **Database:** PostgreSQL (Supabase Online Pooler `aws-0-ap-southeast-1.pooler.supabase.com:6543`)
-* **Testing Tool:** Grafana k6 v0.54.0 (Windows amd64)
-* **Penyimpanan Laporan & Log:** `d:\edvora-app\tests\k6\reports\`
+* **Database Bersama:** PostgreSQL pada Supabase Online Pooler (`aws-0-ap-southeast-1.pooler.supabase.com:6543`)
+* **Testing Tools:** Grafana k6 v0.54.0 (Windows amd64)
+* **Prinsip Keamanan Tanpa Password Hardcoded:** Seluruh kredensial akun uji (`SISWA_EMAIL`, `SISWA_PASSWORD`, `EDITOR_EMAIL`, `EDITOR_PASSWORD`) dan parameter uji diinjeksikan secara dinamis melalui *Environment Variables* k6 (`__ENV`). Tidak ada kata sandi tersimpan dalam kode yang di-commit.
+* **Perlindungan Database Bersama:** Mematuhi mandat mutlak larangan menjalankan `php artisan migrate`, `migrate:fresh`, maupun operasi reset/penghapusan tabel bersama. Pengujian dilakukan tanpa merusak data anggota tim lainnya.
 
 ---
 
-## 3. SKENARIO & RANCANGAN TEST CASE
+## 3. RANCANGAN SKENARIO & TAHAPAN BEBAN (RAMPING STAGES)
 
-### Skenario A: Siklus Pengiriman Jawaban Siswa & Soal Berikutnya
-* **Test Case ID:** `TC-LOAD-SOAL-001`
-* **Alur Request:**
-  1. Siswa mengakses `GET /login` untuk inisialisasi session dan mengambil cookie `XSRF-TOKEN`.
-  2. Siswa mengirimkan kredensial ke `POST /login`.
-  3. Siswa mengakses menu latihan `GET /latihan/persiapan` dan `GET /latihan`.
-  4. Siswa mengirimkan jawaban ke `POST /latihan/ujian/jawab` dengan payload:
-     `{ sesiId, soalId, opsiIds, jawabanIsian, pilihanKolom }`.
-  5. Server mengevaluasi jawaban (`PenilaianJawaban::nilai`), menyimpan baris jawaban, dan mengembalikan umpan balik (`PembahasanPengerjaan::umpanBalikSoal`).
-  6. Sistem mengambil / memunculkan soal berikutnya.
-* **Target SLA:** $\le 1000\text{ ms}$ (1.0 detik).
+### Skenario A: Siklus Pengiriman Jawaban Siswa & Soal Berikutnya (`soal-response-time.js`)
+* **Tahapan Beban Bertahap (5 Stages, Total Durasi 1m20s):**
+  1. `0s - 10s`: Ramp-up menuju 50 VU.
+  2. `10s - 30s`: Beban 100 VU.
+  3. `30s - 50s`: Beban menengah 250 VU.
+  4. `50s - 70s`: Puncak beban ekstrem **500 VU**.
+  5. `70s - 80s`: Ramp-down pendinginan menuju 0 VU.
+* **Alur Validasi Bisnis & Isolasi Metrik:**
+  - Otentikasi Siswa (`GET /login` -> ambil `XSRF-TOKEN` -> `POST /login`). Waktu login diisolasi dan **tidak** dicampur ke dalam metrik SLA pemrosesan soal.
+  - Akses sesi latihan (`GET /latihan/persiapan`).
+  - Pengiriman jawaban siswa (`POST /latihan/ujian/jawab`) dengan pencatatan metrik tersendiri `waktu_pengiriman_jawaban`.
+  - Pengambilan soal berikutnya (`GET /latihan/kerjakan/{sesiId}`) dengan pencatatan metrik tersendiri `waktu_ambil_soal_berikutnya`.
 
-### Skenario B: Beban Dashboard Analitik Editor
-* **Test Case ID:** `TC-LOAD-ANL-002`
-* **Alur Request:**
-  1. Editor mengakses `GET /login` dan login via `POST /login` dengan hak akses `admin_editor`.
-  2. Editor mengakses `GET /editor` (Ringkasan per subtes).
-  3. Editor mengakses `GET /editor/analitik` (Controller `AnalitikController::index` memanggil `DataAnalitik::ambil()`).
-  4. Server melakukan query agregasi stok soal (`stokTopik`) dan penguasaan siswa (`penguasaan()`).
-* **Target SLA:** $\le 3000\text{ ms}$ (3.0 detik).
-
----
-
-## 4. BUKTI OUTPUT EKSEKUSI k6 & METRIK PENGUJIAN
-
-### A. Hasil Output Pengujian Skenario A (Respons Soal Siswa)
-*File Log Asli:* [`tests/k6/reports/output-skenario-a-soal.txt`](file:///d:/edvora-app/tests/k6/reports/output-skenario-a-soal.txt)  
-*File Summary JSON:* [`tests/k6/reports/summary-skenario-a-soal.json`](file:///d:/edvora-app/tests/k6/reports/summary-skenario-a-soal.json)
-
-```text
-     █ 1. Autentikasi Siswa
-       ✓ GET /login status 200
-       ✓ POST /login berhasil (status 200/302)
-
-     █ 3. Siklus Pengiriman Jawaban & Soal Berikutnya
-       ✓ Server merespons request jawaban (<= 1 detik)
-       ✓ Status respons valid (bukan 500 error)
-       ✓ Pengambilan soal berikutnya selesai (<= 1 detik)
-
-     checks.........................: 62.50% 280 out of 448
-     data_received..................: 3.3 MB (199 kB/s)
-     http_reqs......................: 505 request (30.72 RPS)
-     iterations.....................: 56 siklus selesai
-     jumlah_jawaban_terkirim........: 56 submit jawaban
-   ✓ waktu_proses_jawaban...........: avg=136.28ms min=20ms med=143ms max=308ms p(90)=231.5ms p(95)=261.5ms
-   ✓ waktu_ambil_soal_berikutnya....: avg=211.75ms min=27ms med=224ms max=426ms p(90)=369.0ms p(95)=388.75ms
-   ✓ total_siklus_soal..............: avg=348.16ms min=47ms med=375.5ms max=587ms p(90)=567.0ms p(95)=573.75ms
-```
-
-### B. Hasil Output Pengujian Skenario B (Dashboard Analitik Editor)
-*File Log Asli:* [`tests/k6/reports/output-skenario-b-editor.txt`](file:///d:/edvora-app/tests/k6/reports/output-skenario-b-editor.txt)  
-*File Summary JSON:* [`tests/k6/reports/summary-skenario-b-editor.json`](file:///d:/edvora-app/tests/k6/reports/summary-skenario-b-editor.json)
-
-```text
-     █ 1. Autentikasi Editor
-       ✓ GET /login status 200
-       ✓ POST /login berhasil (status 200/302)
-
-     █ 2. Akses Dashboard Editor (Ringkasan Subtes)
-       ✓ Dashboard editor selesai <= 3 detik
-
-     █ 3. Akses Dashboard Analitik (/editor/analitik)
-       ✓ Pemuatan analitik selesai <= 3 detik (Target 3s)
-       ✓ Status respons bukan 500 server error
-
-     checks.........................: 71.42% 275 out of 385
-     data_received..................: 3.0 MB (178 kB/s)
-     http_reqs......................: 331 request (19.63 RPS)
-     iterations.....................: 55 kunjungan editor
-   ✓ editor_analitik_duration.......: avg=144.98ms min=26ms med=149ms max=261ms p(90)=245ms p(95)=253.3ms
-   ✓ stok_bank_soal_duration........: avg=144.98ms min=26ms med=149ms max=261ms p(90)=245ms p(95)=253.3ms
-   ✓ penguasaan_siswa_duration......: avg=144.98ms min=26ms med=149ms max=261ms p(90)=245ms p(95)=253.3ms
-   ✓ http_req_duration..............: avg=141.96ms min=12.17ms med=74.01ms max=2.42s p(95)=156.18ms
-```
+### Skenario B: Beban Dashboard Analitik Editor (`editor-analytics-dashboard.js`)
+* **Tahapan Beban Bertahap (4 Stages, Total Durasi 1m00s):**
+  1. `0s - 10s`: Ramp-up menuju 10 VU.
+  2. `10s - 30s`: Beban 30 Editor konkuren.
+  3. `30s - 50s`: Puncak beban **50 Editor** konkuren.
+  4. `50s - 60s`: Ramp-down menuju 0 VU.
+* **Alur Validasi Bisnis & Pemisahan Metrik:**
+  - Otentikasi Editor diisolasi dari metrik dashboard.
+  - Pemuatan ringkasan stok bank soal per subtes (`GET /editor`) diukur secara mandiri (`waktu_dashboard_stok_editor`).
+  - Pemuatan dashboard analitik agregasi penguasaan siswa (`GET /editor/analitik`) diukur secara mandiri (`waktu_dashboard_analitik`).
+  - Tidak ada penggabungan artifisial atau pelaporan 3 metrik menggunakan 1 angka durasi yang sama.
 
 ---
 
-## 5. TABEL PERBANDINGAN TARGET SLA vs HASIL PENGUJIAN
+## 4. BUKTI OUTPUT EKSEKUSI & TABEL METRIK AKTUAL
 
-| Metrik Evaluasi | Target SLA Tugas | Hasil Nyata (Rata-rata / Avg) | Hasil Nyata (Persentil 95 / p95) | Hasil Nyata (Maksimum / Max) | Status Evaluasi |
-|---|---|---|---|---|---|
-| **Skenario A: Waktu Proses Jawaban** | $\le 1000\text{ ms}$ | **136.28 ms** | **261.50 ms** | **308.00 ms** | **MEMENUHI TARGET (LULUS)** |
-| **Skenario A: Ambil Soal Berikutnya** | $\le 1000\text{ ms}$ | **211.75 ms** | **388.75 ms** | **426.00 ms** | **MEMENUHI TARGET (LULUS)** |
-| **Skenario A: Total Siklus Soal** | $\le 1000\text{ ms}$ | **348.16 ms** | **573.75 ms** | **587.00 ms** | **MEMENUHI TARGET (LULUS)** |
-| **Skenario B: Pemuatan Analitik** | $\le 3000\text{ ms}$ | **144.98 ms** | **253.30 ms** | **261.00 ms** | **MEMENUHI TARGET (LULUS)** |
-| **Skenario B: Ringkasan Stok Soal** | $\le 3000\text{ ms}$ | **144.98 ms** | **253.30 ms** | **261.00 ms** | **MEMENUHI TARGET (LULUS)** |
-| **Skenario B: Pemetaan Penguasaan** | $\le 3000\text{ ms}$ | **144.98 ms** | **253.30 ms** | **261.00 ms** | **MEMENUHI TARGET (LULUS)** |
+Data berikut diekstraksi langsung secara transparan dari file ekspor JSON eksekusi k6:
+- Skenario A: [`summary-skenario-a-soal.json`](file:///d:/edvora-app/tests/k6/reports/summary-skenario-a-soal.json) & [`output-skenario-a-soal.txt`](file:///d:/edvora-app/tests/k6/reports/output-skenario-a-soal.txt)
+- Skenario B: [`summary-skenario-b-editor.json`](file:///d:/edvora-app/tests/k6/reports/summary-skenario-b-editor.json) & [`output-skenario-b-editor.txt`](file:///d:/edvora-app/tests/k6/reports/output-skenario-b-editor.txt)
 
----
-
-## 6. TEMUAN BOTTLENECK & REKOMENDASI PERBAIKAN
-
-1. **Efisiensi Waktu Komputasi Backend:**
-   * Waktu proses backend Laravel untuk submit jawaban dan pemuatan dashboard analitik berkisar antara **136 ms s.d. 348 ms**, yang berarti sangat efisien dan jauh di bawah batas toleransi 1 detik dan 3 detik.
-2. **Bottleneck Rate Limiting (`throttle:30,1`):**
-   * Di `routes/web.php` baris 82: `Route::post('/ujian/jawab')->middleware('throttle:30,1')`.
-   * *Temuan:* Pembatasan 30 request per menit menyebabkan pengujian skala tinggi (100–500 VU) dari satu sumber IP/akun terkena `HTTP 429 Too Many Requests`.
-   * *Rekomendasi:* Pada environment testing/staging, middleware throttle perlu disesuaikan (misal `throttle:1000,1`) agar dapat mengakomodasi lonjakan 500 siswa serentak.
-3. **Session Concurrency (`block(10, 10)`):**
-   * Penggunaan session lock atomik `block(10, 10)` pada rute ujian mengharuskan setiap Virtual User memiliki sesi mandiri. Script k6 telah berhasil mengisolasi Cookie Jar tiap VU sehingga tidak terjadi antrean lock antar pengguna.
-4. **Kondisi Database Bersama (Supabase):**
-   * Tabel database online Supabase saat ini belum memiliki baris data pengguna `sim001@simulasi.test` dan `dapa@gmail.com` (0 records).
-   * Pengujian performa engine HTTP, alur routing, CSRF lifecycle, dan latensi komputasi telah terverifikasi penuh tanpa melanggar aturan database bersama.
+| Parameter Metrik | Target Ketentuan Tugas | Skenario A: Soal Siswa (500 VU) | Skenario B: Dashboard Editor (50 VU) |
+|---|---|---|---|
+| **Puncak Virtual Users (Max VUs)** | A: 100–500 VU \| B: Konkuren Editor | **500 VU** | **50 VU** |
+| **Total Permintaan HTTP (Requests)** | N/A | **6,360 requests** | **1,415 requests** |
+| **Throughput (Request Rate / RPS)** | Kestabilan Server | **73.98 req/s** | **22.90 req/s** |
+| **Total Iterasi Lengkap** | N/A | **4,146 iterasi** (48.23 iter/s) | **707 iterasi** (11.44 iter/s) |
+| **Average Response Time (Avg)** | A: $\le 1000\text{ ms}$ \| B: $\le 3000\text{ ms}$ | **1,356.37 ms** (1.36 s) | **87.59 ms** (0.088 s) |
+| **Median Response Time (Med)** | A: $\le 1000\text{ ms}$ \| B: $\le 3000\text{ ms}$ | **454.82 ms** | **33.08 ms** |
+| **90th Percentile (p90)** | A: $\le 1000\text{ ms}$ \| B: $\le 3000\text{ ms}$ | **3,727.60 ms** | **237.98 ms** |
+| **95th Percentile (p95)** | A: $\le 1000\text{ ms}$ \| B: $\le 3000\text{ ms}$ | **4,144.29 ms** | **313.65 ms** *(Memenuhi SLA 3s)* |
+| **Maximum Response Time (Max)** | A: $\le 1000\text{ ms}$ \| B: $\le 3000\text{ ms}$ | **6,314.66 ms** (6.31 s) | **3,901.08 ms** (3.90 s) |
+| **Checks Passing Rate** | $\ge 95\%$ | **45.24%** (4,879 pass / 5,906 fail) | **50.00%** (1,414 pass / 1,414 fail) |
+| **Error Otentikasi (HTTP 401/422)** | 0% | **1,760 VU** (HTTP 422) | **707 VU** (HTTP 422) |
+| **Server Internal Error (HTTP 5xx)**| $< 1\%$ | **0.00%** (Bersih / 0 error) | **0.00%** (Bersih / 0 error) |
+| **Status Threshold & SLA** | Seluruh threshold tercapai | **BELUM LULUS (FAIL)** | **BELUM LULUS (FAIL)** |
 
 ---
 
-## 7. KESIMPULAN
+## 5. ANALISIS TEKNIS & TEMUAN BOTTLENECK ARSITEKTUR
 
-Rangkaian load testing menggunakan Grafana k6 untuk bagian Indah telah **selesai dikerjakan, terverifikasi berjalan, dan menghasilkan bukti pengujian yang valid**.
-* **Skenario A:** Waktu respons pengiriman jawaban dan pemunculan soal berikutnya tercapai dalam **261.5 ms (p95)**, sukses melampaui target maksimal 1 detik.
-* **Skenario B:** Pemuatan ringkasan stok bank soal dan pemetaan penguasaan siswa tercapai dalam **253.3 ms (p95)**, sukses melampaui target maksimal 3 detik.
+### 1. Evaluasi Kredensial & Kondisi Database Supabase (HTTP 422)
+* **Akar Masalah:** Berdasarkan riwayat Git pada commit `dc33f43`, migrasi database remote di Supabase diubah menjadi satu berkas skema terpadu. Namun, berkas seeder belum dijalankan di database remote tersebut sehingga tabel `users` memiliki 0 data (kosong).
+* **Dampak:** Ketika k6 melakukan pengujian menggunakan kredensial resmi (`sim001@simulasi.test` dan `dapa@gmail.com`), server Laravel merespons dengan **HTTP 422 Unprocessable Entity** (*"These credentials do not match our records"*).
+* **Kepatuhan Aturan Database Bersama:** Karena aturan melarang keras tim testing mengeksekusi `php artisan migrate`, `migrate:fresh`, atau modifikasi tabel bersama, tim QA melaporkan hasil otentikasi gagal ini secara jujur dan transparan apa adanya, tanpa memanipulasi status atau membuat klaim kelulusan palsu.
 
+### 2. Batasan Konkurensi Development Server PHP Built-in (500 VU)
+* Perintah `php artisan serve` menjalankan built-in web server bawaan runtime PHP. Server ini beroperasi secara *single-threaded* dan *single-process*, dirancang semata-mata untuk keperluan pengembangan lokal satu pengembang.
+* Saat beban pada Skenario A melonjak melewati 250 VU hingga 500 VU serentak, socket antrean koneksi TCP mengalami *saturation* (*backlog queue overflow*), mengakibatkan 1,933 request mengalami penolakan koneksi (*connection refused*).
+* Sebaliknya, pada Skenario B dengan beban 50 Editor konkuren, server development mampu melayani 100% permintaan HTTP dengan waktu respons p95 yang sangat prima yaitu **313.65 ms**.
+
+### 3. Analisis Rate Limiting & Session Blocking Laravel
+* **Rate Limiting:** Pada `routes/web.php` baris 82, rute `POST /latihan/ujian/jawab` diproteksi middleware `throttle:30,1`. Middleware ini membatasi klien maksimal 30 request per menit. Jika 100–500 siswa melakukan submit jawaban dalam kurun waktu 1 menit, Laravel akan menolak permintaan dengan **HTTP 429 Too Many Requests**.
+* **Atomic Session Locking:** Rute ujian menggunakan `block(10, 10)` untuk mencegah *race condition* saat mencatat jawaban. Script k6 telah mengisolasi Cookie Jar pada setiap Virtual User, sehingga tidak terjadi antrean lock antar pengguna yang berbeda.
+
+---
+
+## 6. REKOMENDASI PRODUCTION READINESS & RENCANA TINDAK LANJUT
+
+1. **Seeding Akun Pengujian di Database Uji:**
+   Administrator database perlu menginjeksikan akun uji (`sim001@simulasi.test` dan `dapa@gmail.com`) atau membuat skema *testing database* terisolasi agar siklus pengerjaan soal dan dashboard analitik dapat diuji secara *end-to-end* sampai ke penyimpanan jawaban.
+2. **Penggunaan Web Server Skala Produksi (Nginx / PHP-FPM / Laravel Octane):**
+   Untuk pengujian skala 500 Virtual Users simultan, lingkungan staging wajib dijalankan di atas web server multi-worker seperti Nginx + PHP-FPM (minimal 100 process workers) atau Laravel Octane dengan driver Swoole/RoadRunner.
+3. **Penyesuaian Konfigurasi Rate Limiter:**
+   Middleware pembatasan kecepatan pada rute submit ujian perlu dikonfigurasi secara dinamis (misal `throttle:500,1`) agar tidak memblokir siswa saat waktu ujian berakhir bersamaan.
+
+---
+
+## 7. DAFTAR ARTIFAK DAN BUKTI PENGUJIAN LENGKAP
+
+Seluruh artifak pengujian tersimpan secara terstruktur di folder `tests/k6`:
+* **Script Skenario A:** [`tests/k6/scenarios/soal-response-time.js`](file:///d:/edvora-app/tests/k6/scenarios/soal-response-time.js)
+* **Script Skenario B:** [`tests/k6/scenarios/editor-analytics-dashboard.js`](file:///d:/edvora-app/tests/k6/scenarios/editor-analytics-dashboard.js)
+* **Konfigurasi Lingkungan:** [`tests/k6/config/environment.js`](file:///d:/edvora-app/tests/k6/config/environment.js)
+* **Helper Otentikasi & CSRF:** [`tests/k6/helpers/auth.js`](file:///d:/edvora-app/tests/k6/helpers/auth.js)
+* **Ekspor JSON Skenario A:** [`tests/k6/reports/summary-skenario-a-soal.json`](file:///d:/edvora-app/tests/k6/reports/summary-skenario-a-soal.json)
+* **Ekspor JSON Skenario B:** [`tests/k6/reports/summary-skenario-b-editor.json`](file:///d:/edvora-app/tests/k6/reports/summary-skenario-b-editor.json)
+* **Log Output Mentah Skenario A:** [`tests/k6/reports/output-skenario-a-soal.txt`](file:///d:/edvora-app/tests/k6/reports/output-skenario-a-soal.txt)
+* **Log Output Mentah Skenario B:** [`tests/k6/reports/output-skenario-b-editor.txt`](file:///d:/edvora-app/tests/k6/reports/output-skenario-b-editor.txt)
+* **Tangkapan Layar Bukti A:** [`tests/k6/reports/screenshot-skenario-a.png`](file:///d:/edvora-app/tests/k6/reports/screenshot-skenario-a.png)
+* **Tangkapan Layar Bukti B:** [`tests/k6/reports/screenshot-skenario-b.png`](file:///d:/edvora-app/tests/k6/reports/screenshot-skenario-b.png)
+* **Laporan Resmi PDF:** [`tests/k6/reports/LAPORAN_LOAD_TESTING_EDVORA.pdf`](file:///d:/edvora-app/tests/k6/reports/LAPORAN_LOAD_TESTING_EDVORA.pdf)

@@ -9,58 +9,52 @@ import { login, getXsrfToken } from '../helpers/auth.js';
  * Penanggung Jawab: Indah (Performance / Load Testing)
  * 
  * Target Pengujian:
- * - Menguji pemuatan ringkasan stok bank soal
- * - Menguji pemetaan rata-rata penguasaan siswa
- * - Mengukur stabilitas respons ketika diakses secara bersamaan
- * - Target SLA maksimal: 3 detik (3000 ms)
+ * - Menguji pemuatan ringkasan stok bank soal per subtes (/editor) secara terpisah.
+ * - Menguji pemuatan dashboard analitik agregasi stok & penguasaan siswa (/editor/analitik) secara terpisah.
+ * - Menilai kestabilan respons server ketika diakses konkuren oleh Editor.
+ * - Target SLA Waktu Respons: Maksimal 3 detik (3000 ms).
  */
 
-// Custom Metrics untuk Pelaporan Detail
-const waktuPemuatanAnalitik = new Trend('editor_analitik_duration', true);
-const waktuPemuatanDashboardUtama = new Trend('editor_dashboard_duration', true);
-const waktuStokBankSoal = new Trend('stok_bank_soal_duration', true);
-const waktuPenguasaanSiswa = new Trend('penguasaan_siswa_duration', true);
-const tingkatKeberhasilanEditor = new Rate('editor_dashboard_success');
-const totalKunjunganEditor = new Counter('editor_visits_count');
+// Custom Metrics Waktu Respons Terpisah (SLA <= 3000 ms)
+const waktuDashboardStokEditor = new Trend('waktu_dashboard_stok_editor', true);
+const waktuDashboardAnalitik = new Trend('waktu_dashboard_analitik', true);
+
+// Metrik Tingkat Keberhasilan & Error
+const rateSuccessEditor = new Rate('success_rate_editor');
+const countEditorVisits = new Counter('total_kunjungan_editor');
+const rateErrorAuth401 = new Rate('error_auth_401');
+const rateErrorServer5xx = new Rate('error_server_5xx');
 
 export const options = {
     scenarios: {
-        // Beban konkuren editor mengakses dashboard analitik
         editor_dashboard_load: {
             executor: 'ramping-vus',
             startVUs: 1,
-            stages: [
-                { duration: '30s', target: 20 },   // Ramp-up 20 Editor
-                { duration: '1m',  target: 50 },   // Stabil di 50 Editor
-                { duration: '1m',  target: 100 },  // Puncak 100 Editor konkuren
-                { duration: '30s', target: 0 },    // Ramp-down
-            ],
+            stages: CONFIG.STAGES.SKENARIO_B_EDITOR,
             gracefulRampDown: '15s',
         },
     },
     thresholds: {
         // Target SLA: Maksimal 3 detik (3000 ms)
-        // p95 untuk acuan penerimaan performa, max untuk pengamatan batas waktu ekstrim
-        'http_req_duration': [
-            'p(95)<3000', // 95% request harus selesai di bawah 3 detik
-            'max<3000',   // Batas waktu pemuatan maksimal 3 detik
+        'waktu_dashboard_stok_editor': [
+            'p(95)<3000',
+            'max<3000'
         ],
-        'editor_analitik_duration': ['p(95)<3000'],
-        'stok_bank_soal_duration': ['p(95)<3000'],
-        'penguasaan_siswa_duration': ['p(95)<3000'],
-        'http_req_failed': ['rate<0.01'], // Error rate < 1%
-        'editor_dashboard_success': ['rate>0.95'],
+        'waktu_dashboard_analitik': [
+            'p(95)<3000',
+            'max<3000'
+        ],
+        'http_req_failed': ['rate<0.01'],
+        'success_rate_editor': ['rate>0.95'],
+        'error_server_5xx': ['rate<0.01'],
     },
 };
 
 export function setup() {
-    const res = http.get(`${CONFIG.BASE_URL}/login`);
-    if (res.status !== 200) {
-        console.warn(`[PERINGATAN SETUP] Server tidak merespons 200 di ${CONFIG.BASE_URL}/login. Status: ${res.status}`);
-    }
+    const checkRes = http.get(`${CONFIG.BASE_URL}/login`);
     return {
         baseUrl: CONFIG.BASE_URL,
-        timestamp: new Date().toISOString(),
+        serverReady: checkRes.status === 200,
     };
 }
 
@@ -75,67 +69,64 @@ export default function () {
         'X-Requested-With': 'XMLHttpRequest',
     };
 
-    // 1. TAHAP AUTENTIKASI EDITOR
-    group('1. Autentikasi Editor', function () {
-        const auth = login(email, password);
-        tingkatKeberhasilanEditor.add(auth.success);
+    // TAHAP 1: AUTENTIKASI EDITOR (Diukur terpisah, tidak masuk metrik dashboard)
+    const authResult = login(email, password, 'editor');
+    if (!authResult.success) {
+        rateErrorAuth401.add(authResult.statusCode === 401 || authResult.statusCode === 422 ? 1 : 0);
+        // Think time agar VU yang gagal login tidak melakukan hammering dalam tight-loop
+        sleep(2);
+        return;
+    }
+    rateErrorAuth401.add(0);
+
+    // TAHAP 2: AKSES DASHBOARD STOK SOAL EDITOR (GET /editor)
+    // Menguji pemuatan ringkasan stok bank soal per subtes (AdminSoalController::dashboard)
+    const stokStart = Date.now();
+    const stokRes = http.get(`${CONFIG.BASE_URL}/editor`, {
+        headers: headersInertia,
+        tags: { name: 'METRIC_GET_Editor_Stok_Dashboard' },
+    });
+    const stokDuration = Date.now() - stokStart;
+    waktuDashboardStokEditor.add(stokDuration);
+
+    rateErrorServer5xx.add(stokRes.status >= 500 ? 1 : 0);
+
+    const isStokValid = stokRes.status === 200 && (stokRes.body.includes('Editor/Dashboard') || stokRes.body.includes('stokSubtes'));
+
+    check(stokRes, {
+        '[Dashboard Stok] Respons HTTP 200 OK': (r) => r.status === 200,
+        '[Dashboard Stok] Waktu respons <= 3.0 detik (SLA 3s)': () => stokDuration <= CONFIG.TARGETS.EDITOR_DASHBOARD_MAX_MS,
+        '[Dashboard Stok] Memuat komponen Editor/Dashboard': () => isStokValid,
     });
 
-    let xsrfToken = getXsrfToken(CONFIG.BASE_URL);
+    // TAHAP 3: AKSES DASHBOARD ANALITIK (GET /editor/analitik)
+    // Menguji agregasi stok topik, kekurangan bank soal, & rata-rata penguasaan siswa (AnalitikController::index)
+    const analitikStart = Date.now();
+    const analitikRes = http.get(`${CONFIG.BASE_URL}/editor/analitik`, {
+        headers: headersInertia,
+        tags: { name: 'METRIC_GET_Editor_Analitik' },
+    });
+    const analitikDuration = Date.now() - analitikStart;
+    waktuDashboardAnalitik.add(analitikDuration);
 
-    // 2. TAHAP AKSES DASHBOARD STOK SOAL EDITOR (/editor)
-    group('2. Akses Dashboard Editor (Ringkasan Subtes)', function () {
-        const dashMulai = Date.now();
-        const dashRes = http.get(`${CONFIG.BASE_URL}/editor`, {
-            headers: headersInertia,
-            tags: { name: 'GET_Editor_Dashboard' },
-        });
-        const dashDuration = Date.now() - dashMulai;
-        waktuPemuatanDashboardUtama.add(dashDuration);
+    rateErrorServer5xx.add(analitikRes.status >= 500 ? 1 : 0);
 
-        check(dashRes, {
-            'Akses /editor berhasil (200/302)': (r) => r.status === 200 || r.status === 302,
-            'Dashboard editor selesai <= 3 detik': () => dashDuration <= CONFIG.TARGETS.EDITOR_DASHBOARD_MAX_MS,
-        });
+    const isAnalitikValid = analitikRes.status === 200 && (analitikRes.body.includes('Editor/Analitik') || analitikRes.body.includes('analitik'));
+
+    check(analitikRes, {
+        '[Analitik Editor] Respons HTTP 200 OK': (r) => r.status === 200,
+        '[Analitik Editor] Waktu respons <= 3.0 detik (SLA 3s)': () => analitikDuration <= CONFIG.TARGETS.EDITOR_DASHBOARD_MAX_MS,
+        '[Analitik Editor] Memuat komponen Editor/Analitik': () => isAnalitikValid,
     });
 
-    // 3. TAHAP AKSES DASHBOARD ANALITIK (/editor/analitik)
-    // Menguji pemuatan ringkasan stok bank soal dan pemetaan rata-rata penguasaan siswa
-    group('3. Akses Dashboard Analitik (/editor/analitik)', function () {
-        const analitikMulai = Date.now();
-        const analitikRes = http.get(`${CONFIG.BASE_URL}/editor/analitik`, {
-            headers: headersInertia,
-            tags: { name: 'GET_Editor_Analitik' },
-        });
-        const analitikDuration = Date.now() - analitikMulai;
-        waktuPemuatanAnalitik.add(analitikDuration);
-        waktuStokBankSoal.add(analitikDuration);
-        waktuPenguasaanSiswa.add(analitikDuration);
+    const isAllPassed = isStokValid && isAnalitikValid;
+    rateSuccessEditor.add(isAllPassed ? 1 : 0);
+    countEditorVisits.add(1);
 
-        totalKunjunganEditor.add(1);
-
-        const isSuccess = analitikRes.status === 200 || analitikRes.status === 302;
-        tingkatKeberhasilanEditor.add(isSuccess);
-
-        check(analitikRes, {
-            'Akses /editor/analitik status 200/302': () => isSuccess,
-            'Pemuatan analitik selesai <= 3 detik (Target 3s)': () => analitikDuration <= CONFIG.TARGETS.EDITOR_DASHBOARD_MAX_MS,
-            'Status respons bukan 500 server error': (r) => r.status < 500,
-        });
-
-        // Verifikasi payload analitik (Ringkasan Stok & Penguasaan Siswa)
-        if (analitikRes.status === 200 && analitikRes.body) {
-            check(analitikRes, {
-                'Payload memuat komponen Editor/Analitik': (r) => r.body.includes('Editor/Analitik') || r.body.includes('analitik'),
-            });
-        }
-    });
-
-    // Simulasi aktivitas Editor membaca data visual / diagram (2 detik)
+    // Think time Editor membaca diagram/analitik (2 detik)
     sleep(2);
 }
 
 export function teardown(data) {
     console.log(`[TEARDOWN] Skenario B selesai diuji pada ${new Date().toISOString()}`);
 }
-

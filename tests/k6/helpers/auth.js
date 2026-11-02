@@ -3,7 +3,7 @@ import { check } from 'k6';
 import { CONFIG } from '../config/environment.js';
 
 /**
- * Mengambil CSRF token dari cookie Jar k6
+ * Mengambil CSRF token (XSRF-TOKEN) dari cookie jar k6
  * @param {string} url 
  * @returns {string|null} Decoded XSRF-TOKEN
  */
@@ -17,29 +17,48 @@ export function getXsrfToken(url = CONFIG.BASE_URL) {
 }
 
 /**
- * Melakukan autentikasi (Login) ke sistem EDVORA
+ * Melakukan autentikasi (Login) ke sistem EDVORA secara ketat.
+ * Tidak mentolerir status 401, 410, 419, 422, atau redirect kembali ke /login.
+ * 
  * @param {string} email 
  * @param {string} password 
- * @returns {object} { success: boolean, res: Response, xsrfToken: string }
+ * @param {string} expectedRole 'siswa' | 'editor'
+ * @returns {object} { success: boolean, statusCode: number, error: string|null, xsrfToken: string|null }
  */
-export function login(email, password) {
-    const loginPageUrl = `${CONFIG.BASE_URL}/login`;
+export function login(email, password, expectedRole = 'siswa') {
+    const loginUrl = `${CONFIG.BASE_URL}/login`;
 
-    // 1. Ambil halaman login untuk memicu pembuatan session awal & XSRF cookie
-    const getRes = http.get(loginPageUrl, {
+    if (!email || !password) {
+        return {
+            success: false,
+            statusCode: 0,
+            error: 'Kredensial email atau password belum ditentukan di environment variables.',
+            xsrfToken: null,
+        };
+    }
+
+    // 1. Ambil halaman login untuk memicu pembuatan cookie session & XSRF awal
+    const getRes = http.get(loginUrl, {
         headers: {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
         },
-        tags: { name: 'GET_Login_Page' },
+        tags: { name: 'AUTH_Get_Login_Page' },
     });
 
-    check(getRes, {
-        'GET /login status 200': (r) => r.status === 200,
+    const isGetOk = check(getRes, {
+        '[Auth] Halaman login dapat diakses (200 OK)': (r) => r.status === 200,
     });
+
+    if (!isGetOk) {
+        return {
+            success: false,
+            statusCode: getRes.status,
+            error: `Gagal mengakses halaman login (HTTP ${getRes.status})`,
+            xsrfToken: null,
+        };
+    }
 
     let xsrfToken = getXsrfToken(CONFIG.BASE_URL);
-
-    // Fallback: coba ekstrak csrf token dari HTML jika tidak ada di cookie jar
     if (!xsrfToken && getRes.body) {
         const metaMatch = getRes.body.match(/<meta\s+name=["']csrf-token["']\s+content=["']([^"']+)["']/i);
         if (metaMatch && metaMatch[1]) {
@@ -56,34 +75,80 @@ export function login(email, password) {
 
     const postHeaders = {
         'Content-Type': 'application/json',
-        'Accept': 'text/html, application/xhtml+xml, application/json',
+        'Accept': 'application/json',
         'X-Requested-With': 'XMLHttpRequest',
     };
-
     if (xsrfToken) {
         postHeaders['X-XSRF-TOKEN'] = xsrfToken;
     }
 
-    // Hindari redirect otomatis agar kita dapat memverifikasi respons 302/200 dari Laravel
-    const postRes = http.post(loginPageUrl, payload, {
+    const postRes = http.post(loginUrl, payload, {
         headers: postHeaders,
-        redirects: 0,
-        tags: { name: 'POST_Login' },
+        redirects: 0, // Tangkap kode respons asli dari Laravel
+        tags: { name: 'AUTH_Post_Login' },
     });
 
-    const isSuccess = postRes.status === 302 || postRes.status === 200 || postRes.status === 409;
-    
+    // 3. Verifikasi Keberhasilan Login secara Ketat
+    // Laravel mengembalikan 302 Redirect ke dashboard jika sukses,
+    // atau 422 Unprocessable Entity jika email/password salah/tidak ditemukan.
+    const is302 = postRes.status === 302;
+    const is200 = postRes.status === 200;
+    const redirectLocation = postRes.headers['Location'] || '';
+    const isRedirectToLogin = redirectLocation.includes('/login');
+
+    const loginCheckPassed = (is302 && !isRedirectToLogin) || (is200 && !postRes.body.includes('errors'));
+
     check(postRes, {
-        'POST /login berhasil (status 200/302)': () => isSuccess,
+        '[Auth] Kredensial valid dan diterima (HTTP 302/200)': () => loginCheckPassed,
+        '[Auth] Tidak terjadi error validasi kredensial (Bukan 422)': (r) => r.status !== 422,
+        '[Auth] Tidak terjadi error CSRF token (Bukan 419)': (r) => r.status !== 419,
     });
 
-    // Perbarui token setelah login jika session berubah
+    if (!loginCheckPassed) {
+        let errDetail = `Login gagal dengan status HTTP ${postRes.status}`;
+        try {
+            const jsonBody = postRes.json();
+            if (jsonBody && jsonBody.message) {
+                errDetail = `${errDetail}: ${jsonBody.message}`;
+            }
+        } catch (_) {}
+        return {
+            success: false,
+            statusCode: postRes.status,
+            error: errDetail,
+            xsrfToken: xsrfToken,
+        };
+    }
+
+    // 4. Verifikasi Akses Nyata ke Endpoint Terproteksi
+    const verifyUrl = expectedRole === 'editor' 
+        ? `${CONFIG.BASE_URL}/editor` 
+        : `${CONFIG.BASE_URL}/dashboard`;
+
+    const verifyHeaders = {
+        'Accept': 'text/html, application/xhtml+xml, application/json',
+        'X-Inertia': 'true',
+        'X-Requested-With': 'XMLHttpRequest',
+    };
+
+    const verifyRes = http.get(verifyUrl, {
+        headers: verifyHeaders,
+        tags: { name: 'AUTH_Verify_Session' },
+    });
+
+    const isSessionValid = verifyRes.status === 200 && !verifyRes.body.includes('"message":"Unauthenticated."');
+
+    check(verifyRes, {
+        '[Auth] Session terautentikasi dapat mengakses endpoint terproteksi (200 OK)': () => isSessionValid,
+        '[Auth] Bukan Unauthenticated (Bukan 401)': (r) => r.status !== 401,
+    });
+
     const updatedToken = getXsrfToken(CONFIG.BASE_URL) || xsrfToken;
 
     return {
-        success: isSuccess,
-        res: postRes,
+        success: isSessionValid,
+        statusCode: verifyRes.status,
+        error: isSessionValid ? null : `Sesi tidak valid saat mengakses ${verifyUrl} (HTTP ${verifyRes.status})`,
         xsrfToken: updatedToken,
     };
 }
-
