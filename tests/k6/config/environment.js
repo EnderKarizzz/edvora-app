@@ -1,15 +1,17 @@
 /**
- * Konfigurasi Lingkungan dan Target Metrik Load Testing EDVORA (k6)
+ * Konfigurasi Lingkungan, Target SLA, dan Beban Pengujian k6 EDVORA
  * Penanggung Jawab: Indah (Load & Performance Testing)
  * 
- * KEAMANAN:
- * Tidak ada kredensial atau password yang di-hardcode dalam script ini.
- * Seluruh kredensial dan URL wajib disuplai melalui Environment Variables k6:
+ * PRINSIP KEAMANAN:
+ * Tidak ada kredensial, email, kata sandi, cookie, atau token yang di-hardcode.
+ * Seluruh parameter dinamis disuplai saat eksekusi via Environment Variables k6 (__ENV):
+ * - BASE_URL
  * - SISWA_EMAIL
  * - SISWA_PASSWORD
  * - EDITOR_EMAIL
  * - EDITOR_PASSWORD
- * - BASE_URL
+ * - SESI_ID (Opsional jika ingin menargetkan sesi pengerjaan spesifik)
+ * - SOAL_ID (Opsional jika ingin menargetkan ID soal spesifik)
  */
 
 export const CONFIG = {
@@ -28,38 +30,37 @@ export const CONFIG = {
         PASSWORD: __ENV.EDITOR_PASSWORD || '',
     },
 
-    // Parameter Data Pengujian Spesifik (opsional dari env)
+    // Parameter ID Spesifik (opsional dari env)
     SESI_ID: __ENV.SESI_ID || '',
-    SUBTES_ID: __ENV.SUBTES_ID || '',
     SOAL_ID: __ENV.SOAL_ID || '',
-    OPSI_ID: __ENV.OPSI_ID || '',
 
-    // Target SLA Performa Berdasarkan Ketentuan Tugas:
-    // A. Pengiriman jawaban & soal berikutnya: maksimal 1 detik (1000 ms)
-    // B. Pemuatan dashboard analitik Editor: maksimal 3 detik (3000 ms)
+    // Target SLA Performa Tugas:
+    // Skenario A: Waktu pengiriman jawaban & pengambilan soal berikutnya maksimal 1 detik (1000 ms)
+    // Skenario B: Waktu respons dashboard analitik Editor maksimal 3 detik (3000 ms)
     TARGETS: {
         SOAL_RESPONSE_TIME_MAX_MS: 1000,
+        SOAL_RESPONSE_TIME_P95_MS: 1000,
         EDITOR_DASHBOARD_MAX_MS: 3000,
+        EDITOR_DASHBOARD_P95_MS: 3000,
     },
 
     // Konfigurasi Beban Pengujian Bertahap (Ramping Stages)
     STAGES: {
         // Skenario A: Pengujian bertahap hingga 500 Virtual Users (VU)
         SKENARIO_A_500_VU: [
-            { duration: '10s', target: 50 },   // Ramp-up ke 50 VU
-            { duration: '20s', target: 100 },  // Beban 100 VU
-            { duration: '20s', target: 250 },  // Beban 250 VU
-            { duration: '20s', target: 500 },  // Puncak beban 500 VU
-            { duration: '10s', target: 0 },    // Ramp-down pendinginan
+            { duration: '15s', target: 100 },  // Tahap 1: Ramp-up ke 100 VU
+            { duration: '30s', target: 250 },  // Tahap 2: Beban menengah 250 VU
+            { duration: '30s', target: 500 },  // Tahap 3: Puncak beban 500 VU
+            { duration: '15s', target: 0 },    // Tahap 4: Ramp-down pendinginan
         ],
-        // Skenario B: Pengujian beban Editor (10 - 50 Editor konkuren)
+        // Skenario B: Pengujian beban Editor konkuren (10 -> 30 -> 50 VU)
         SKENARIO_B_EDITOR: [
-            { duration: '10s', target: 10 },   // Ramp-up 10 editor
-            { duration: '20s', target: 30 },   // Beban 30 editor
-            { duration: '20s', target: 50 },   // Puncak 50 editor
-            { duration: '10s', target: 0 },    // Ramp-down
+            { duration: '10s', target: 10 },   // Tahap 1: Ramp-up 10 editor
+            { duration: '20s', target: 30 },   // Tahap 2: Beban menengah 30 editor
+            { duration: '20s', target: 50 },   // Tahap 3: Puncak beban 50 editor
+            { duration: '10s', target: 0 },    // Tahap 4: Ramp-down
         ],
-        // Smoke Test Ringan (Validasi Fungsional Script)
+        // Smoke Test: Verifikasi fungsional script cepat & aman
         SMOKE_TEST: [
             { duration: '5s', target: 2 },
             { duration: '10s', target: 5 },

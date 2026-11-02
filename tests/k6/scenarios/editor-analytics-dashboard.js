@@ -6,23 +6,23 @@ import { login, getXsrfToken } from '../helpers/auth.js';
 
 /**
  * SKENARIO B: Load Testing — Beban Dashboard Analitik Editor
- * Penanggung Jawab: Indah (Performance / Load Testing)
+ * Penanggung Jawab: Indah (Load & Performance Testing)
  * 
  * Target Pengujian:
- * - Menguji pemuatan ringkasan stok bank soal per subtes (/editor) secara terpisah.
- * - Menguji pemuatan dashboard analitik agregasi stok & penguasaan siswa (/editor/analitik) secara terpisah.
- * - Menilai kestabilan respons server ketika diakses konkuren oleh Editor.
- * - Target SLA Waktu Respons: Maksimal 3 detik (3000 ms).
+ * - Menguji pemuatan ringkasan stok bank soal per subtes (GET /editor) secara mandiri.
+ * - Menguji pemuatan dashboard analitik agregasi stok & rata-rata penguasaan siswa (GET /editor/analitik) secara mandiri.
+ * - Mengukur waktu respons masing-masing endpoint dengan target SLA maksimal 3 detik (3000 ms).
+ * - Mensimulasikan konkurensi akses oleh pengguna Editor (10 -> 30 -> 50 VU).
  */
 
 // Custom Metrics Waktu Respons Terpisah (SLA <= 3000 ms)
 const waktuDashboardStokEditor = new Trend('waktu_dashboard_stok_editor', true);
 const waktuDashboardAnalitik = new Trend('waktu_dashboard_analitik', true);
 
-// Metrik Tingkat Keberhasilan & Error
+// Metrik Tingkat Keberhasilan Bisnis & Error Terisolasi
 const rateSuccessEditor = new Rate('success_rate_editor');
 const countEditorVisits = new Counter('total_kunjungan_editor');
-const rateErrorAuth401 = new Rate('error_auth_401');
+const rateErrorAuth = new Rate('error_auth_401');
 const rateErrorServer5xx = new Rate('error_server_5xx');
 
 export const options = {
@@ -35,7 +35,7 @@ export const options = {
         },
     },
     thresholds: {
-        // Target SLA: Maksimal 3 detik (3000 ms)
+        // Target SLA: Maksimal 3000 ms (3 detik)
         'waktu_dashboard_stok_editor': [
             'p(95)<3000',
             'max<3000'
@@ -69,22 +69,27 @@ export default function () {
         'X-Requested-With': 'XMLHttpRequest',
     };
 
-    // TAHAP 1: AUTENTIKASI EDITOR (Diukur terpisah, tidak masuk metrik dashboard)
+    // TAHAP 1: AUTENTIKASI EDITOR
+    // Waktu login diukur tersendiri dan TIDAK dicampur ke dalam metrik dashboard
     const authResult = login(email, password, 'editor');
     if (!authResult.success) {
-        rateErrorAuth401.add(authResult.statusCode === 401 || authResult.statusCode === 422 ? 1 : 0);
-        // Think time agar VU yang gagal login tidak melakukan hammering dalam tight-loop
+        if (authResult.statusCode === 401 || authResult.statusCode === 422) {
+            rateErrorAuth.add(1);
+        } else {
+            rateErrorAuth.add(0);
+        }
+        // Jeda waktu agar VU yang gagal login tidak melakukan tight-loop hammering
         sleep(2);
         return;
     }
-    rateErrorAuth401.add(0);
+    rateErrorAuth.add(0);
 
-    // TAHAP 2: AKSES DASHBOARD STOK SOAL EDITOR (GET /editor)
-    // Menguji pemuatan ringkasan stok bank soal per subtes (AdminSoalController::dashboard)
+    // TAHAP 2: AKSES RINGKASAN STOK BANK SOAL EDITOR (GET /editor)
+    // AdminSoalController::dashboard -> Memuat stok subtes, published, draft, review
     const stokStart = Date.now();
     const stokRes = http.get(`${CONFIG.BASE_URL}/editor`, {
         headers: headersInertia,
-        tags: { name: 'METRIC_GET_Editor_Stok_Dashboard' },
+        tags: { name: 'METRIC_GET_Editor_Stok_Bank_Soal' },
     });
     const stokDuration = Date.now() - stokStart;
     waktuDashboardStokEditor.add(stokDuration);
@@ -96,15 +101,20 @@ export default function () {
     check(stokRes, {
         '[Dashboard Stok] Respons HTTP 200 OK': (r) => r.status === 200,
         '[Dashboard Stok] Waktu respons <= 3.0 detik (SLA 3s)': () => stokDuration <= CONFIG.TARGETS.EDITOR_DASHBOARD_MAX_MS,
-        '[Dashboard Stok] Memuat komponen Editor/Dashboard': () => isStokValid,
+        '[Dashboard Stok] Komponen Editor/Dashboard berhasil dimuat': () => isStokValid,
+        '[Dashboard Stok] Bukan 403 Forbidden Hak Akses': (r) => r.status !== 403,
     });
 
-    // TAHAP 3: AKSES DASHBOARD ANALITIK (GET /editor/analitik)
-    // Menguji agregasi stok topik, kekurangan bank soal, & rata-rata penguasaan siswa (AnalitikController::index)
+    // Pacing time singkat antar perpindahan tab dashboard
+    sleep(1);
+
+    // TAHAP 3: AKSES DASHBOARD ANALITIK TERPADU (GET /editor/analitik)
+    // AnalitikController::index -> Memuat ringkasan stok topik dan pemetaan rata-rata penguasaan siswa
+    // Catatan: Karena kedua metrik ini berasal dari satu endpoint controller, dicatat sebagai satu metrik analitik terpadu
     const analitikStart = Date.now();
     const analitikRes = http.get(`${CONFIG.BASE_URL}/editor/analitik`, {
         headers: headersInertia,
-        tags: { name: 'METRIC_GET_Editor_Analitik' },
+        tags: { name: 'METRIC_GET_Editor_Analitik_Terpadu' },
     });
     const analitikDuration = Date.now() - analitikStart;
     waktuDashboardAnalitik.add(analitikDuration);
@@ -113,20 +123,24 @@ export default function () {
 
     const isAnalitikValid = analitikRes.status === 200 && (analitikRes.body.includes('Editor/Analitik') || analitikRes.body.includes('analitik'));
 
-    check(analitikRes, {
-        '[Analitik Editor] Respons HTTP 200 OK': (r) => r.status === 200,
-        '[Analitik Editor] Waktu respons <= 3.0 detik (SLA 3s)': () => analitikDuration <= CONFIG.TARGETS.EDITOR_DASHBOARD_MAX_MS,
-        '[Analitik Editor] Memuat komponen Editor/Analitik': () => isAnalitikValid,
-    });
-
     const isAllPassed = isStokValid && isAnalitikValid;
     rateSuccessEditor.add(isAllPassed ? 1 : 0);
-    countEditorVisits.add(1);
 
-    // Think time Editor membaca diagram/analitik (2 detik)
+    check(analitikRes, {
+        '[Dashboard Analitik] Respons HTTP 200 OK': (r) => r.status === 200,
+        '[Dashboard Analitik] Waktu respons <= 3.0 detik (SLA 3s)': () => analitikDuration <= CONFIG.TARGETS.EDITOR_DASHBOARD_MAX_MS,
+        '[Dashboard Analitik] Data analitik penguasaan siswa & stok termuat': () => isAnalitikValid,
+        '[Dashboard Analitik] Bukan 500 Internal Server Error': (r) => r.status < 500,
+    });
+
+    if (isAllPassed) {
+        countEditorVisits.add(1);
+    }
+
+    // Pacing time sebelum iterasi berikutnya
     sleep(2);
 }
 
-export function teardown(data) {
+export function teardown() {
     console.log(`[TEARDOWN] Skenario B selesai diuji pada ${new Date().toISOString()}`);
 }

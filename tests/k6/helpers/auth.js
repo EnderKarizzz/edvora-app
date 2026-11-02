@@ -17,13 +17,22 @@ export function getXsrfToken(url = CONFIG.BASE_URL) {
 }
 
 /**
- * Melakukan autentikasi (Login) ke sistem EDVORA secara ketat.
- * Tidak mentolerir status 401, 410, 419, 422, atau redirect kembali ke /login.
+ * Autentikasi ketat untuk Siswa atau Editor
+ * 
+ * Verifikasi bertahap:
+ * 1. GET /login -> Memastikan halaman login dapat diakses dan cookie session terinisialisasi.
+ * 2. POST /login -> Mengirimkan kredensial dengan proteksi X-XSRF-TOKEN.
+ * 3. Verifikasi respons:
+ *    - Menolak HTTP 401, 410, 419 (CSRF mismatch), dan 422 (kredensial tidak cocok).
+ *    - Menolak redirect yang mengarah kembali ke /login.
+ * 4. Verifikasi sesi nyata:
+ *    - Mengakses endpoint terproteksi (/dashboard untuk Siswa, /editor untuk Editor).
+ *    - Hanya dinyatakan sukses bila endpoint terproteksi merespons HTTP 200 OK.
  * 
  * @param {string} email 
  * @param {string} password 
- * @param {string} expectedRole 'siswa' | 'editor'
- * @returns {object} { success: boolean, statusCode: number, error: string|null, xsrfToken: string|null }
+ * @param {'siswa'|'editor'} expectedRole 
+ * @returns {{ success: boolean, statusCode: number, error: string|null, xsrfToken: string|null }}
  */
 export function login(email, password, expectedRole = 'siswa') {
     const loginUrl = `${CONFIG.BASE_URL}/login`;
@@ -32,12 +41,12 @@ export function login(email, password, expectedRole = 'siswa') {
         return {
             success: false,
             statusCode: 0,
-            error: 'Kredensial email atau password belum ditentukan di environment variables.',
+            error: 'Kredensial email atau password belum ditentukan via Environment Variables k6.',
             xsrfToken: null,
         };
     }
 
-    // 1. Ambil halaman login untuk memicu pembuatan cookie session & XSRF awal
+    // 1. Akses halaman login untuk inisialisasi cookie session & XSRF token
     const getRes = http.get(loginUrl, {
         headers: {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -84,27 +93,25 @@ export function login(email, password, expectedRole = 'siswa') {
 
     const postRes = http.post(loginUrl, payload, {
         headers: postHeaders,
-        redirects: 0, // Tangkap kode respons asli dari Laravel
+        redirects: 0, // Jangan ikuti redirect otomatis agar kita menangkap status 302/422 Laravel
         tags: { name: 'AUTH_Post_Login' },
     });
 
-    // 3. Verifikasi Keberhasilan Login secara Ketat
-    // Laravel mengembalikan 302 Redirect ke dashboard jika sukses,
-    // atau 422 Unprocessable Entity jika email/password salah/tidak ditemukan.
+    // 3. Verifikasi respons POST login
     const is302 = postRes.status === 302;
     const is200 = postRes.status === 200;
     const redirectLocation = postRes.headers['Location'] || '';
     const isRedirectToLogin = redirectLocation.includes('/login');
 
-    const loginCheckPassed = (is302 && !isRedirectToLogin) || (is200 && !postRes.body.includes('errors'));
+    const loginCredsAccepted = (is302 && !isRedirectToLogin) || (is200 && !postRes.body.includes('errors'));
 
     check(postRes, {
-        '[Auth] Kredensial valid dan diterima (HTTP 302/200)': () => loginCheckPassed,
+        '[Auth] Kredensial valid dan diterima (HTTP 302/200)': () => loginCredsAccepted,
         '[Auth] Tidak terjadi error validasi kredensial (Bukan 422)': (r) => r.status !== 422,
         '[Auth] Tidak terjadi error CSRF token (Bukan 419)': (r) => r.status !== 419,
     });
 
-    if (!loginCheckPassed) {
+    if (!loginCredsAccepted) {
         let errDetail = `Login gagal dengan status HTTP ${postRes.status}`;
         try {
             const jsonBody = postRes.json();
@@ -120,7 +127,7 @@ export function login(email, password, expectedRole = 'siswa') {
         };
     }
 
-    // 4. Verifikasi Akses Nyata ke Endpoint Terproteksi
+    // 4. Verifikasi sesi nyata ke endpoint terproteksi sesuai role
     const verifyUrl = expectedRole === 'editor' 
         ? `${CONFIG.BASE_URL}/editor` 
         : `${CONFIG.BASE_URL}/dashboard`;
@@ -133,7 +140,7 @@ export function login(email, password, expectedRole = 'siswa') {
 
     const verifyRes = http.get(verifyUrl, {
         headers: verifyHeaders,
-        tags: { name: 'AUTH_Verify_Session' },
+        tags: { name: 'AUTH_Verify_Protected_Endpoint' },
     });
 
     const isSessionValid = verifyRes.status === 200 && !verifyRes.body.includes('"message":"Unauthenticated."');

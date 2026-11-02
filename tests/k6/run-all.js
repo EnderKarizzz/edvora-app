@@ -5,7 +5,7 @@ import scenarioB from './scenarios/editor-analytics-dashboard.js';
 
 /**
  * Master Runner Load Testing EDVORA (k6)
- * Mengorkestrasi eksekusi pengujian untuk Skenario A (Siswa) dan Skenario B (Editor).
+ * Menjalankan Skenario A (Siswa) dan Skenario B (Editor) dalam satu orkestrasi pengujian k6.
  */
 
 export const options = {
@@ -43,12 +43,12 @@ export function setup() {
     };
 }
 
-export function runScenarioA() {
-    scenarioA();
+export function runScenarioA(data) {
+    scenarioA(data);
 }
 
-export function runScenarioB() {
-    scenarioB();
+export function runScenarioB(data) {
+    scenarioB(data);
 }
 
 export default function () {
