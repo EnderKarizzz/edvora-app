@@ -50,6 +50,21 @@ class EditorQuestionImportTest extends TestCase
         $this->assertSame(0, Soal::where('subtes_id', $subtes->id)->count());
     }
 
+    public function test_upload_rejects_501_questions_without_saving_any_questions(): void
+    {
+        [$editor, $subtes, $topik] = $this->buatKonteks();
+        $file = $this->buatFileExcel($subtes->kode_subtes, $topik, 501);
+
+        $response = $this->actingAs($editor)->post(route('editor.soal.upload', $subtes->kode_subtes), [
+            'file' => $file,
+        ]);
+
+        $response->assertUnprocessable()
+            ->assertJsonPath('valid', false);
+
+        $this->assertSame(0, Soal::where('subtes_id', $subtes->id)->count());
+    }
+
     /** @return array{User, Subtes, string} */
     private function buatKonteks(): array
     {
