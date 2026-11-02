@@ -1,0 +1,265 @@
+{
+    "root_group": {
+        "name": "",
+        "path": "",
+        "id": "d41d8cd98f00b204e9800998ecf8427e",
+        "groups": {
+            "1. Autentikasi Editor": {
+                "checks": {
+                    "GET /login status 200": {
+                        "name": "GET /login status 200",
+                        "path": "::1. Autentikasi Editor::GET /login status 200",
+                        "id": "19226165fa8eb8791d6d03a69b8e650d",
+                        "passes": 55,
+                        "fails": 0
+                    },
+                    "POST /login berhasil (status 200/302)": {
+                        "name": "POST /login berhasil (status 200/302)",
+                        "path": "::1. Autentikasi Editor::POST /login berhasil (status 200/302)",
+                        "id": "cfbfd3a66717a348b778b0bf0746b372",
+                        "passes": 55,
+                        "fails": 0
+                    }
+                },
+                "name": "1. Autentikasi Editor",
+                "path": "::1. Autentikasi Editor",
+                "id": "fc10cc9d8a22039418602ed2caff16ef",
+                "groups": {}
+            },
+            "2. Akses Dashboard Editor (Ringkasan Subtes)": {
+                "name": "2. Akses Dashboard Editor (Ringkasan Subtes)",
+                "path": "::2. Akses Dashboard Editor (Ringkasan Subtes)",
+                "id": "b348bc105bf07703aa95dc727f3aca98",
+                "groups": {},
+                "checks": {
+                        "Akses /editor berhasil (200/302)": {
+                            "name": "Akses /editor berhasil (200/302)",
+                            "path": "::2. Akses Dashboard Editor (Ringkasan Subtes)::Akses /editor berhasil (200/302)",
+                            "id": "c8a403b973e1baa74f9924611369c1a1",
+                            "passes": 0,
+                            "fails": 55
+                        },
+                        "Dashboard editor selesai <= 3 detik": {
+                            "name": "Dashboard editor selesai <= 3 detik",
+                            "path": "::2. Akses Dashboard Editor (Ringkasan Subtes)::Dashboard editor selesai <= 3 detik",
+                            "id": "6ce21200314cea8a7aaedd405eb6d491",
+                            "passes": 55,
+                            "fails": 0
+                        }
+                    }
+            },
+            "3. Akses Dashboard Analitik (/editor/analitik)": {
+                "path": "::3. Akses Dashboard Analitik (/editor/analitik)",
+                "id": "b0a0147bf655a9f7198194bf4a718c95",
+                "groups": {},
+                "checks": {
+                        "Akses /editor/analitik status 200/302": {
+                            "name": "Akses /editor/analitik status 200/302",
+                            "path": "::3. Akses Dashboard Analitik (/editor/analitik)::Akses /editor/analitik status 200/302",
+                            "id": "4850cdec9227e9864adcec7adad2d580",
+                            "passes": 0,
+                            "fails": 55
+                        },
+                        "Pemuatan analitik selesai <= 3 detik (Target 3s)": {
+                            "name": "Pemuatan analitik selesai <= 3 detik (Target 3s)",
+                            "path": "::3. Akses Dashboard Analitik (/editor/analitik)::Pemuatan analitik selesai <= 3 detik (Target 3s)",
+                            "id": "f916ea2e828ca17b5673cd067ae762e5",
+                            "passes": 55,
+                            "fails": 0
+                        },
+                        "Status respons bukan 500 server error": {
+                            "path": "::3. Akses Dashboard Analitik (/editor/analitik)::Status respons bukan 500 server error",
+                            "id": "deb068abbfa3ed0b075e09dc46242034",
+                            "passes": 55,
+                            "fails": 0,
+                            "name": "Status respons bukan 500 server error"
+                        }
+                    },
+                "name": "3. Akses Dashboard Analitik (/editor/analitik)"
+            }
+        },
+        "checks": {}
+    },
+    "metrics": {
+        "checks": {
+            "passes": 275,
+            "fails": 110,
+            "value": 0.7142857142857143
+        },
+        "iteration_duration": {
+            "avg": 2856.283381818182,
+            "min": 2086.145,
+            "med": 2405.4204,
+            "max": 5079.1905,
+            "p(90)": 5013.8139200000005,
+            "p(95)": 5046.19528
+        },
+        "http_req_connecting": {
+            "max": 2.4401,
+            "p(90)": 0.635,
+            "p(95)": 0.7685,
+            "avg": 0.2553607250755288,
+            "min": 0,
+            "med": 0
+        },
+        "data_sent": {
+            "count": 297745,
+            "rate": 17658.21507468142
+        },
+        "http_req_duration": {
+            "avg": 141.96811903323257,
+            "min": 12.173,
+            "med": 74.0115,
+            "max": 2427.3614,
+            "p(90)": 132.6417,
+            "p(95)": 156.18815,
+            "thresholds": {
+                "p(95)<3000": false,
+                "max<3000": false
+            }
+        },
+        "http_req_duration{expected_response:true}": {
+            "p(90)": 146.1677,
+            "p(95)": 981.3271,
+            "avg": 175.4416742081448,
+            "min": 12.173,
+            "med": 72.6775,
+            "max": 2427.3614
+        },
+        "http_reqs": {
+            "count": 331,
+            "rate": 19.630452869803186
+        },
+        "http_req_blocked": {
+            "min": 0,
+            "med": 0.3478,
+            "max": 2.4401,
+            "p(90)": 0.7271,
+            "p(95)": 0.80165,
+            "avg": 0.31351299093655605
+        },
+        "data_received": {
+            "count": 2999901,
+            "rate": 177913.6410712249
+        },
+        "penguasaan_siswa_duration": {
+            "avg": 144.98181818181817,
+            "min": 26,
+            "med": 149,
+            "max": 261,
+            "p(90)": 245,
+            "p(95)": 253.3,
+            "thresholds": {
+                "p(95)<3000": false
+            }
+        },
+        "stok_bank_soal_duration": {
+            "med": 149,
+            "max": 261,
+            "p(90)": 245,
+            "p(95)": 253.3,
+            "avg": 144.98181818181817,
+            "min": 26,
+            "thresholds": {
+                "p(95)<3000": false
+            }
+        },
+        "http_req_tls_handshaking": {
+            "avg": 0,
+            "min": 0,
+            "med": 0,
+            "max": 0,
+            "p(90)": 0,
+            "p(95)": 0
+        },
+        "vus_max": {
+            "value": 10,
+            "min": 10,
+            "max": 10
+        },
+        "editor_dashboard_success": {
+            "passes": 55,
+            "fails": 55,
+            "thresholds": {
+                "rate>0.95": true
+            },
+            "value": 0.5
+        },
+        "http_req_receiving": {
+            "max": 6.8173,
+            "p(90)": 3.9603,
+            "p(95)": 4.661849999999999,
+            "avg": 1.840628096676738,
+            "min": 0,
+            "med": 1.4078
+        },
+        "vus": {
+            "value": 4,
+            "min": 4,
+            "max": 10
+        },
+        "editor_visits_count": {
+            "count": 55,
+            "rate": 3.261857727610801
+        },
+        "iterations": {
+            "count": 55,
+            "rate": 3.261857727610801
+        },
+        "editor_analitik_duration": {
+            "min": 26,
+            "med": 149,
+            "max": 261,
+            "p(90)": 245,
+            "p(95)": 253.3,
+            "avg": 144.98181818181817,
+            "thresholds": {
+                "p(95)<3000": false
+            }
+        },
+        "http_req_waiting": {
+            "max": 2425.4603,
+            "p(90)": 130.6179,
+            "p(95)": 154.62759999999997,
+            "avg": 140.07670604229605,
+            "min": 7.6996,
+            "med": 72.4708
+        },
+        "http_req_failed": {
+            "passes": 110,
+            "fails": 221,
+            "thresholds": {
+                "rate<0.01": true
+            },
+            "value": 0.3323262839879154
+        },
+        "http_req_sending": {
+            "avg": 0.05078489425981874,
+            "min": 0,
+            "med": 0,
+            "max": 0.8032,
+            "p(90)": 0,
+            "p(95)": 0.53165
+        },
+        "editor_dashboard_duration": {
+            "max": 1975,
+            "p(90)": 279,
+            "p(95)": 817.4999999999989,
+            "avg": 237.07272727272726,
+            "min": 25,
+            "med": 158
+        },
+        "group_duration": {
+            "max": 2585.6836,
+            "p(90)": 279.3367,
+            "p(95)": 1622.7825799999985,
+            "avg": 285.2581896969695,
+            "min": 25.3728,
+            "med": 149.0314
+        }
+    },
+    "setup_data": {
+        "baseUrl": "http://127.0.0.1:8000",
+        "timestamp": "2026-11-02T14:07:42.799Z"
+    }
+}
