@@ -1,5 +1,6 @@
 CLAUDE.md
 /.phpunit.cache
+/tests/load/answer-users.json
 /node_modules
 /public/build
 /public/hot
@@ -7,6 +8,7 @@ CLAUDE.md
 /storage/*.key
 /vendor
 .env
+env testing.env
 .env.backup
 .env.production
 .phpunit.result.cache
