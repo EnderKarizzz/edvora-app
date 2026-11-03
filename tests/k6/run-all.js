@@ -1,11 +1,11 @@
 import http from 'k6/http';
-import { CONFIG } from './config/environment.js';
-import scenarioA from './scenarios/soal-response-time.js';
-import scenarioB from './scenarios/editor-analytics-dashboard.js';
+import { CONFIG, validateConfig } from './config/environment.js';
+import scenarioA, { setup as setupA } from './scenarios/soal-response-time.js';
+import scenarioB, { setup as setupB } from './scenarios/editor-analytics-dashboard.js';
 
 /**
  * Master Runner Load Testing EDVORA (k6)
- * Menjalankan Skenario A (Siswa) dan Skenario B (Editor) dalam satu orkestrasi pengujian k6.
+ * Menjalankan Skenario A (Siswa) dan Skenario B (Editor) secara berurutan dalam satu orkestrasi pengujian k6.
  */
 
 export const options = {
@@ -20,7 +20,7 @@ export const options = {
         skenario_b_editor: {
             executor: 'ramping-vus',
             exec: 'runScenarioB',
-            startTime: '1m45s', // Eksekusi berurutan setelah Skenario A selesai
+            startTime: '1m45s', // Eksekusi berurutan setelah Skenario A selesai dan socket stabil
             startVUs: 1,
             stages: CONFIG.STAGES.SKENARIO_B_EDITOR,
             gracefulRampDown: '15s',
@@ -32,30 +32,48 @@ export const options = {
         'waktu_dashboard_stok_editor': ['p(95)<3000', 'max<3000'],
         'waktu_dashboard_analitik': ['p(95)<3000', 'max<3000'],
         'http_req_failed': ['rate<0.01'],
+        'success_rate_jawaban': ['rate>0.95'],
+        'total_jawaban_terkirim': ['count>0'],
+        'success_rate_editor': ['rate>0.95'],
+        'total_kunjungan_editor': ['count>0'],
     },
 };
 
 export function setup() {
-    const res = http.get(`${CONFIG.BASE_URL}/login`);
+    validateConfig('all');
+
+    let dataA = null;
+    let dataB = null;
+
+    try {
+        dataA = setupA();
+    } catch (e) {
+        console.error(`[SETUP ERROR Skenario A] ${e.message}`);
+    }
+
+    try {
+        dataB = setupB();
+    } catch (e) {
+        console.error(`[SETUP ERROR Skenario B] ${e.message}`);
+    }
+
     return { 
-        status: res.status, 
+        scenarioA: dataA,
+        scenarioB: dataB,
         url: CONFIG.BASE_URL,
-        sesiId: CONFIG.SESI_ID,
-        soalId: CONFIG.SOAL_ID,
-        opsiId: CONFIG.OPSI_ID,
         timestamp: new Date().toISOString() 
     };
 }
 
 export function runScenarioA(data) {
-    scenarioA(data);
+    scenarioA(data ? data.scenarioA : null);
 }
 
 export function runScenarioB(data) {
-    scenarioB(data);
+    scenarioB(data ? data.scenarioB : null);
 }
 
-export default function () {
-    runScenarioA();
-    runScenarioB();
+export default function (data) {
+    runScenarioA(data);
+    runScenarioB(data);
 }

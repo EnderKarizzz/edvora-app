@@ -25,9 +25,26 @@ Write-Host "==========================================================" -Foregro
 Write-Host " MEMULAI AUTOMATION LOAD TESTING EDVORA (GRAFANA k6)     " -ForegroundColor Cyan
 Write-Host "==========================================================" -ForegroundColor Cyan
 Write-Host "Base URL       : $BaseUrl"
-Write-Host "Akun Siswa     : $(if ($SiswaEmail) { $SiswaEmail } else { '[TIDAK DISET - Butuh Environment Variable]' })"
-Write-Host "Akun Editor    : $(if ($EditorEmail) { $EditorEmail } else { '[TIDAK DISET - Butuh Environment Variable]' })"
+Write-Host "Akun Siswa     : $(if ($SiswaEmail) { $SiswaEmail } else { '[TIDAK DISET]' })"
+Write-Host "Akun Editor    : $(if ($EditorEmail) { $EditorEmail } else { '[TIDAK DISET]' })"
 Write-Host ""
+
+# Validasi Variabel Wajib
+if (-not $SiswaEmail -or -not $SiswaPassword) {
+    Write-Host "[ERROR] Konfigurasi kredensial Siswa belum ditentukan!" -ForegroundColor Red
+    Write-Host "Harap tentukan melalui parameter atau environment variables:" -ForegroundColor Yellow
+    Write-Host "  `$env:SISWA_EMAIL = 'siswa@example.test'" -ForegroundColor Yellow
+    Write-Host "  `$env:SISWA_PASSWORD = 'password_siswa'" -ForegroundColor Yellow
+    exit 1
+}
+
+if (-not $EditorEmail -or -not $EditorPassword) {
+    Write-Host "[ERROR] Konfigurasi kredensial Editor belum ditentukan!" -ForegroundColor Red
+    Write-Host "Harap tentukan melalui parameter atau environment variables:" -ForegroundColor Yellow
+    Write-Host "  `$env:EDITOR_EMAIL = 'editor@example.test'" -ForegroundColor Yellow
+    Write-Host "  `$env:EDITOR_PASSWORD = 'password_editor'" -ForegroundColor Yellow
+    exit 1
+}
 
 $k6Bin = ".\tools\k6\k6.exe"
 if (-not (Test-Path $k6Bin)) {

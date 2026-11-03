@@ -1,7 +1,7 @@
 import http from 'k6/http';
 import { check, group, sleep } from 'k6';
 import { Trend, Rate, Counter } from 'k6/metrics';
-import { CONFIG } from '../config/environment.js';
+import { CONFIG, validateConfig } from '../config/environment.js';
 import { login, getXsrfToken } from '../helpers/auth.js';
 
 /**
@@ -15,13 +15,14 @@ import { login, getXsrfToken } from '../helpers/auth.js';
  * - Mensimulasikan konkurensi akses oleh pengguna Editor (10 -> 30 -> 50 VU).
  */
 
-// Custom Metrics Waktu Respons Terpisah (SLA <= 3000 ms)
+// Custom Metrics Waktu Respons Terpisah (Hanya dicatat bila menerima respons HTTP > 0)
 const waktuDashboardStokEditor = new Trend('waktu_dashboard_stok_editor', true);
 const waktuDashboardAnalitik = new Trend('waktu_dashboard_analitik', true);
 
 // Metrik Tingkat Keberhasilan Bisnis & Error Terisolasi
 const rateSuccessEditor = new Rate('success_rate_editor');
 const countEditorVisits = new Counter('total_kunjungan_editor');
+const rateErrorConnection = new Rate('error_koneksi');
 const rateErrorAuth = new Rate('error_auth_401');
 const rateErrorServer5xx = new Rate('error_server_5xx');
 
@@ -38,31 +39,47 @@ export const options = {
         // Target SLA: Maksimal 3000 ms (3 detik)
         'waktu_dashboard_stok_editor': [
             'p(95)<3000',
-            'max<3000'
+            'max<3000',
         ],
         'waktu_dashboard_analitik': [
             'p(95)<3000',
-            'max<3000'
+            'max<3000',
         ],
         'http_req_failed': ['rate<0.01'],
         'success_rate_editor': ['rate>0.95'],
+        'total_kunjungan_editor': ['count>0'],
         'error_server_5xx': ['rate<0.01'],
     },
 };
 
 export function setup() {
+    validateConfig('editor');
+
     const checkRes = http.get(`${CONFIG.BASE_URL}/login`);
+    const auth = login(CONFIG.EDITOR.EMAIL, CONFIG.EDITOR.PASSWORD, 'editor');
+    if (!auth.success) {
+        throw new Error(`[SETUP ERROR] Gagal melakukan autentikasi Editor: ${auth.error}`);
+    }
+
     return {
         baseUrl: CONFIG.BASE_URL,
         serverReady: checkRes.status === 200,
+        valid: auth.success,
     };
 }
 
 // State per-VU untuk menghindari login berulang di setiap iterasi
+let authAttempted = false;
 let isEditorLoggedIn = false;
 let vuCookies = null;
 
-export default function () {
+export default function (setupData) {
+    if (setupData && !setupData.valid) {
+        rateErrorAuth.add(1);
+        sleep(5);
+        return;
+    }
+
     const email = CONFIG.EDITOR.EMAIL;
     const password = CONFIG.EDITOR.PASSWORD;
 
@@ -73,21 +90,28 @@ export default function () {
     // TAHAP 1: AUTENTIKASI EDITOR (Hanya sekali per Virtual User)
     // Cookie jar k6 dipertahankan per-VU untuk seluruh iterasi berikutnya
     const jar = http.cookieJar();
-    if (!isEditorLoggedIn) {
+    if (!authAttempted) {
+        authAttempted = true;
         const authResult = login(email, password, 'editor');
-        if (!authResult.success) {
-            if (authResult.statusCode === 401 || authResult.statusCode === 422) {
-                rateErrorAuth.add(1);
-            } else {
-                rateErrorAuth.add(0);
-            }
+        if (authResult.success) {
+            isEditorLoggedIn = true;
+            vuCookies = authResult.cookies;
+            rateErrorAuth.add(0);
+        } else {
+            isEditorLoggedIn = false;
+            rateErrorAuth.add(1);
             sleep(2);
             return;
         }
-        isEditorLoggedIn = true;
-        vuCookies = authResult.cookies;
-        rateErrorAuth.add(0);
-    } else if (vuCookies) {
+    }
+
+    if (!isEditorLoggedIn) {
+        rateErrorAuth.add(1);
+        sleep(5);
+        return;
+    }
+
+    if (vuCookies) {
         // Pulihkan session cookie ke cookie jar VU jika direset antar-iterasi oleh k6
         for (const cName in vuCookies) {
             if (vuCookies[cName] && vuCookies[cName].length > 0) {
@@ -103,9 +127,15 @@ export default function () {
         tags: { name: 'METRIC_GET_Editor_Stok_Bank_Soal' },
     });
     const stokDuration = stokRes.timings.duration;
-    waktuDashboardStokEditor.add(stokDuration);
 
-    if (stokRes.status === 401) {
+    if (stokRes.status > 0) {
+        waktuDashboardStokEditor.add(stokDuration);
+        rateErrorConnection.add(0);
+    } else {
+        rateErrorConnection.add(1);
+    }
+
+    if (stokRes.status === 401 || stokRes.status === 403) {
         isEditorLoggedIn = false;
         rateErrorAuth.add(1);
     }
@@ -116,7 +146,7 @@ export default function () {
 
     check(stokRes, {
         '[Dashboard Stok] Respons HTTP 200 OK': (r) => r.status === 200,
-        '[Dashboard Stok] Waktu respons <= 3.0 detik (SLA 3s)': () => stokDuration <= CONFIG.TARGETS.EDITOR_DASHBOARD_MAX_MS,
+        '[Dashboard Stok] Waktu respons <= 3.0 detik (SLA 3s)': () => stokRes.status > 0 && stokDuration <= CONFIG.TARGETS.EDITOR_DASHBOARD_MAX_MS,
         '[Dashboard Stok] Komponen Editor/Dashboard berhasil dimuat': () => isStokValid,
         '[Dashboard Stok] Bukan 403 Forbidden Hak Akses': (r) => r.status !== 403,
     });
@@ -131,9 +161,15 @@ export default function () {
         tags: { name: 'METRIC_GET_Editor_Analitik_Terpadu' },
     });
     const analitikDuration = analitikRes.timings.duration;
-    waktuDashboardAnalitik.add(analitikDuration);
 
-    if (analitikRes.status === 401) {
+    if (analitikRes.status > 0) {
+        waktuDashboardAnalitik.add(analitikDuration);
+        rateErrorConnection.add(0);
+    } else {
+        rateErrorConnection.add(1);
+    }
+
+    if (analitikRes.status === 401 || analitikRes.status === 403) {
         isEditorLoggedIn = false;
         rateErrorAuth.add(1);
     }
@@ -147,7 +183,7 @@ export default function () {
 
     check(analitikRes, {
         '[Dashboard Analitik] Respons HTTP 200 OK': (r) => r.status === 200,
-        '[Dashboard Analitik] Waktu respons <= 3.0 detik (SLA 3s)': () => analitikDuration <= CONFIG.TARGETS.EDITOR_DASHBOARD_MAX_MS,
+        '[Dashboard Analitik] Waktu respons <= 3.0 detik (SLA 3s)': () => analitikRes.status > 0 && analitikDuration <= CONFIG.TARGETS.EDITOR_DASHBOARD_MAX_MS,
         '[Dashboard Analitik] Data analitik penguasaan siswa & stok termuat': () => isAnalitikValid,
         '[Dashboard Analitik] Bukan 500 Internal Server Error': (r) => r.status < 500,
     });
@@ -156,7 +192,7 @@ export default function () {
         countEditorVisits.add(1);
     }
 
-    // Pacing time sebelum iterasi berikutnya
+    // Pacing time wajar sebelum iterasi berikutnya
     sleep(2);
 }
 

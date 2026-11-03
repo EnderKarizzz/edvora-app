@@ -132,16 +132,19 @@ Berdasarkan eksekusi pengujian dengan konfigurasi beban bertahap (puncak 500 VU 
 | Parameter Metrik | Skenario A (Siswa — Soal) | Skenario B (Editor — Dashboard) |
 |---|---|---|
 | **Puncak Virtual Users (VU)** | **500 VU** (Ramping stages) | **50 VU** (Ramping stages) |
-| **Total Permintaan HTTP** | **5.031 requests** | **135 requests** |
-| **Throughput (RPS)** | **46,19 req/s** | **1,80 req/s** |
-| **Total Iterasi Lengkap** | **4.431 iterasi** | **14 iterasi** |
-| **Average Response Time (Utama)** | Jawab: **854,03 ms** \| Ambil: **371,63 ms** | Stok: **12.378,20 ms** \| Analitik: **12.778,71 ms** |
-| **Median Response Time (Utama)** | Jawab: **0,00 ms** \| Ambil: **0,00 ms** | Stok: **13.306,76 ms** \| Analitik: **11.765,50 ms** |
-| **90th Percentile (p90)** | Jawab: **0,00 ms** \| Ambil: **0,00 ms** | Stok: **21.883,85 ms** \| Analitik: **23.500,32 ms** |
-| **95th Percentile (p95)** | Jawab: **0,00 ms** \| Ambil: **0,00 ms** | Stok: **22.623,15 ms** \| Analitik: **24.839,47 ms** |
-| **Maximum Response Time** | Jawab: **54.862,72 ms** \| Ambil: **60.001,71 ms** | Stok: **24.530,33 ms** \| Analitik: **25.038,01 ms** |
-| **Success Rate Bisnis** | **2,69%** (9 jawaban berhasil diproses) | **100,00%** (16 kunjungan dashboard sukses) |
-| **Checks Passing Rate** | **10,37%** (789 / 7.609 checks) | **89,55%** (300 / 335 checks) |
+| **Total Permintaan HTTP** | **836 requests** | **114 requests** |
+| **Throughput (RPS)** | **7,68 req/s** | **1,49 req/s** |
+| **Total Iterasi Lengkap** | **2.123 iterasi** | **11 iterasi** |
+| **Average Response Time (Utama)** | Jawab: **33.465,05 ms** \| Ambil: **33.632,90 ms** | Stok: **13.223,32 ms** \| Analitik: **14.110,23 ms** |
+| **Median Response Time (Utama)** | Jawab: **35.530,35 ms** \| Ambil: **33.632,90 ms** | Stok: **12.713,12 ms** \| Analitik: **9.759,16 ms** |
+| **Minimum Response Time** | Jawab: **5.840,77 ms** \| Ambil: **12.574,43 ms** | Stok: **942,40 ms** \| Analitik: **1.594,25 ms** |
+| **90th Percentile (p90)** | Jawab: **48.604,20 ms** \| Ambil: **50.479,67 ms** | Stok: **25.386,10 ms** \| Analitik: **25.569,08 ms** |
+| **95th Percentile (p95)** | Jawab: **49.080,13 ms** \| Ambil: **52.585,52 ms** | Stok: **26.408,22 ms** \| Analitik: **26.580,68 ms** |
+| **Maximum Response Time** | Jawab: **49.556,07 ms** \| Ambil: **54.691,37 ms** | Stok: **27.629,54 ms** \| Analitik: **27.592,27 ms** |
+| **Jumlah Sampel Utama** | Jawab: **9 respons** \| Ambil: **2 respons** | Stok: **17 respons** \| Analitik: **11 respons** |
+| **Success Rate Bisnis** | **8,82%** (9 jawaban berhasil diproses) | **100,00%** (11 kunjungan dashboard sukses) |
+| **HTTP Req Failed Rate** | **63,28%** (529 gagal karena socket backlog) | **0,00%** (0 request gagal) |
+| **Checks Passing Rate** | **56,22%** (1.179 / 2.097 checks) | **92,08%** (279 / 303 checks) |
 | **Target Batas Waktu (SLA)** | **≤ 1.0 detik (1000 ms)** per request | **≤ 3.0 detik (3000 ms)** per request |
 | **Status Evaluasi SLA Akhir** | **FAIL (Exceeded SLA under load)** | **FAIL (Exceeded SLA under load)** |
 

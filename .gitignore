@@ -27,5 +27,6 @@ claude.md
 /tools/
 *.exe
 *.tmp
+*.zip
 *.cookie
 *.session

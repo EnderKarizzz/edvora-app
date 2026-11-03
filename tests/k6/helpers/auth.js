@@ -127,7 +127,7 @@ export function login(email, password, expectedRole = 'siswa') {
         };
     }
 
-    // 4. Verifikasi sesi nyata ke endpoint terproteksi sesuai role
+    // 4. Verifikasi sesi nyata ke endpoint terproteksi sesuai role (tanpa auto-redirect)
     const verifyUrl = expectedRole === 'editor' 
         ? `${CONFIG.BASE_URL}/editor` 
         : `${CONFIG.BASE_URL}/dashboard`;
@@ -138,13 +138,25 @@ export function login(email, password, expectedRole = 'siswa') {
 
     const verifyRes = http.get(verifyUrl, {
         headers: verifyHeaders,
+        redirects: 0, // Jangan ikuti redirect otomatis agar redirect ke /login terdeteksi sebagai kegagalan
         tags: { name: 'AUTH_Verify_Protected_Endpoint' },
     });
 
-    const isSessionValid = verifyRes.status === 200 && !verifyRes.body.includes('"message":"Unauthenticated."');
+    const isRedirectedToLogin = (verifyRes.status === 302 || verifyRes.status === 301) && 
+        ((verifyRes.headers['Location'] || '').includes('/login'));
+
+    const isRolePageMatched = verifyRes.status === 200 && (
+        expectedRole === 'editor' 
+            ? (verifyRes.body.includes('Editor') || verifyRes.body.includes('editor'))
+            : (verifyRes.body.includes('Dashboard') || verifyRes.body.includes('siswa'))
+    );
+
+    const isSessionValid = verifyRes.status === 200 && !isRedirectedToLogin && isRolePageMatched;
 
     check(verifyRes, {
-        '[Auth] Session terautentikasi dapat mengakses endpoint terproteksi (200 OK)': () => isSessionValid,
+        '[Auth] Endpoint terproteksi dapat diakses (200 OK)': () => verifyRes.status === 200,
+        '[Auth] Sesi valid (Tidak dialihkan ke halaman login)': () => !isRedirectedToLogin,
+        '[Auth] Hak akses peran sesuai otorisasi (Bukan 403)': (r) => r.status !== 403,
         '[Auth] Bukan Unauthenticated (Bukan 401)': (r) => r.status !== 401,
     });
 
@@ -155,7 +167,7 @@ export function login(email, password, expectedRole = 'siswa') {
     return {
         success: isSessionValid,
         statusCode: verifyRes.status,
-        error: isSessionValid ? null : `Sesi tidak valid saat mengakses ${verifyUrl} (HTTP ${verifyRes.status})`,
+        error: isSessionValid ? null : `Sesi tidak valid saat mengakses ${verifyUrl} (HTTP ${verifyRes.status}${isRedirectedToLogin ? ' -> Redirect to /login' : ''})`,
         xsrfToken: updatedToken,
         cookies: allCookies,
     };

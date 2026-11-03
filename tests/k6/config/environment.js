@@ -69,3 +69,21 @@ export const CONFIG = {
         ],
     },
 };
+
+/**
+ * Validasi keberadaan konfigurasi wajib sebelum eksekusi dimulai
+ * @param {'siswa'|'editor'|'all'} requiredRole 
+ */
+export function validateConfig(requiredRole = 'all') {
+    const missing = [];
+    if ((requiredRole === 'all' || requiredRole === 'siswa') && (!CONFIG.SISWA.EMAIL || !CONFIG.SISWA.PASSWORD)) {
+        missing.push('SISWA_EMAIL dan SISWA_PASSWORD');
+    }
+    if ((requiredRole === 'all' || requiredRole === 'editor') && (!CONFIG.EDITOR.EMAIL || !CONFIG.EDITOR.PASSWORD)) {
+        missing.push('EDITOR_EMAIL dan EDITOR_PASSWORD');
+    }
+    if (missing.length > 0) {
+        throw new Error(`[CONFIG ERROR] Konfigurasi environment variables wajib belum diset: ${missing.join(', ')}. Harap jalankan dengan '-e VAR=value' atau set environment variable di terminal.`);
+    }
+}
+
