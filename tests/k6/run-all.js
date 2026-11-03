@@ -6,6 +6,7 @@ import scenarioB, { setup as setupB } from './scenarios/editor-analytics-dashboa
 /**
  * Master Runner Load Testing EDVORA (k6)
  * Menjalankan Skenario A (Siswa) dan Skenario B (Editor) secara berurutan dalam satu orkestrasi pengujian k6.
+ * Mencegah konflik nama custom metrics dan bentrok konkurensi antar skenario.
  */
 
 export const options = {
@@ -36,6 +37,8 @@ export const options = {
         'total_jawaban_terkirim': ['count>0'],
         'success_rate_editor': ['rate>0.95'],
         'total_kunjungan_editor': ['count>0'],
+        'error_server_5xx_soal': ['rate<0.01'],
+        'error_server_5xx_editor': ['rate<0.01'],
     },
 };
 

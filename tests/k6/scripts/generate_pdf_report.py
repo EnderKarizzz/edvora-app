@@ -36,19 +36,19 @@ class NumberedCanvas(canvas.Canvas):
         
         # Running Header (pages > 1)
         if self._pageNumber > 1:
-            self.drawString(54, 842 - 36, "LAPORAN AUTOMATION LOAD & PERFORMANCE TESTING EDVORA — k6")
-            self.drawRightString(595 - 54, 842 - 36, "Indah (QA Automation)")
+            self.drawString(44, 842 - 32, "LAPORAN AUTOMATION LOAD & PERFORMANCE TESTING EDVORA — k6")
+            self.drawRightString(595 - 44, 842 - 32, "Indah (QA Automation Engineer)")
             self.setStrokeColor(colors.HexColor("#CBD5E0"))
             self.setLineWidth(0.5)
-            self.line(54, 842 - 42, 595 - 54, 842 - 42)
+            self.line(44, 842 - 36, 595 - 44, 842 - 36)
             
         # Running Footer
         page_str = f"Halaman {self._pageNumber} dari {page_count}"
-        self.drawRightString(595 - 54, 34, page_str)
-        self.drawString(54, 34, "CONFIDENTIAL — EDVORA QA AUTOMATION (Branch: test/indah-k6)")
+        self.drawRightString(595 - 44, 28, page_str)
+        self.drawString(44, 28, "CONFIDENTIAL — EDVORA QA AUTOMATION (Branch: test/indah-k6)")
         self.setStrokeColor(colors.HexColor("#CBD5E0"))
         self.setLineWidth(0.5)
-        self.line(54, 44, 595 - 54, 44)
+        self.line(44, 38, 595 - 44, 38)
         
         self.restoreState()
 
@@ -65,18 +65,43 @@ def build_pdf():
     mA = data_a['metrics']
     mB = data_b['metrics']
     
+    # Dynamically extract metric values from JSON
+    w_jawab = mA.get('waktu_pengiriman_jawaban', {})
+    w_ambil = mA.get('waktu_ambil_soal_berikutnya', {})
+    w_stok = mB.get('waktu_dashboard_stok_editor', {})
+    w_anlt = mB.get('waktu_dashboard_analitik', {})
+    
+    count_jawab_samples = w_jawab.get('count', 0)
+    count_ambil_samples = w_ambil.get('count', 0)
+    count_stok_samples = w_stok.get('count', 0)
+    count_anlt_samples = w_anlt.get('count', 0)
+    
+    total_jawab_valid = mA.get('total_jawaban_terkirim', {}).get('count', 0)
+    total_kunjungan_valid = mB.get('total_kunjungan_editor', {}).get('count', 0)
+    
+    iter_a_count = mA.get('iterations', {}).get('count', 0)
+    iter_b_count = mB.get('iterations', {}).get('count', 0)
+    
+    sla_a_jawab_pass = w_jawab.get('p(95)', 999999) <= 1000 and w_jawab.get('max', 999999) <= 1000 and count_jawab_samples > 0
+    sla_a_ambil_pass = w_ambil.get('p(95)', 999999) <= 1000 and w_ambil.get('max', 999999) <= 1000 and count_ambil_samples > 0
+    sla_b_stok_pass = w_stok.get('p(95)', 999999) <= 3000 and w_stok.get('max', 999999) <= 3000 and count_stok_samples > 0
+    sla_b_anlt_pass = w_anlt.get('p(95)', 999999) <= 3000 and w_anlt.get('max', 999999) <= 3000 and count_anlt_samples > 0
+    
+    status_a = "PASS" if (sla_a_jawab_pass and sla_a_ambil_pass) else "FAIL"
+    status_b = "PASS" if (sla_b_stok_pass and sla_b_anlt_pass) else "FAIL"
+    
     doc = SimpleDocTemplate(
         pdf_path,
         pagesize=A4,
-        leftMargin=44,
-        rightMargin=44,
-        topMargin=46,
-        bottomMargin=46
+        leftMargin=40,
+        rightMargin=40,
+        topMargin=42,
+        bottomMargin=42
     )
     
     styles = getSampleStyleSheet()
     
-    # Professional Color Palette
+    # Palette
     PRIMARY = colors.HexColor("#1A365D")     # Deep Navy
     SECONDARY = colors.HexColor("#2B6CB0")   # Slate Blue
     ACCENT_RED = colors.HexColor("#9B2C2C")  # Dark Crimson (FAIL)
@@ -90,46 +115,46 @@ def build_pdf():
         'DocTitle',
         parent=styles['Normal'],
         fontName='Helvetica-Bold',
-        fontSize=15,
-        leading=19,
+        fontSize=14,
+        leading=18,
         textColor=PRIMARY,
-        spaceAfter=3
+        spaceAfter=2
     )
     subtitle_style = ParagraphStyle(
         'DocSubtitle',
         parent=styles['Normal'],
         fontName='Helvetica',
-        fontSize=9,
-        leading=12,
+        fontSize=8.5,
+        leading=11,
         textColor=SECONDARY,
-        spaceAfter=6
+        spaceAfter=5
     )
     h1_style = ParagraphStyle(
         'Header1',
         parent=styles['Normal'],
         fontName='Helvetica-Bold',
-        fontSize=10,
-        leading=13,
+        fontSize=9.5,
+        leading=12.5,
         textColor=PRIMARY,
-        spaceBefore=9,
-        spaceAfter=3,
+        spaceBefore=7,
+        spaceAfter=2.5,
         keepWithNext=True
     )
     body_style = ParagraphStyle(
         'Body',
         parent=styles['Normal'],
         fontName='Helvetica',
-        fontSize=7.5,
-        leading=10.5,
+        fontSize=7.2,
+        leading=10,
         textColor=TEXT_DARK,
-        spaceAfter=3
+        spaceAfter=2.5
     )
     cell_style = ParagraphStyle(
         'TableCell',
         parent=styles['Normal'],
         fontName='Helvetica',
-        fontSize=6.8,
-        leading=9,
+        fontSize=6.5,
+        leading=8.5,
         textColor=TEXT_DARK
     )
     cell_bold = ParagraphStyle(
@@ -141,16 +166,16 @@ def build_pdf():
         'TableHeaderCell',
         parent=styles['Normal'],
         fontName='Helvetica-Bold',
-        fontSize=6.8,
-        leading=9,
+        fontSize=6.5,
+        leading=8.5,
         textColor=colors.white
     )
     callout_style = ParagraphStyle(
         'CalloutText',
         parent=styles['Normal'],
         fontName='Helvetica',
-        fontSize=7.2,
-        leading=10,
+        fontSize=6.8,
+        leading=9.5,
         textColor=colors.HexColor("#742A2A")
     )
     
@@ -159,11 +184,11 @@ def build_pdf():
     # 1. HALAMAN JUDUL & COVER BLOCK
     story.append(Paragraph("LAPORAN RESMI AUTOMATION LOAD & PERFORMANCE TESTING", title_style))
     story.append(Paragraph("Pengujian Beban & Kinerja Aplikasi Web EDVORA (Laravel 11 & React Inertia.js) Menggunakan Grafana k6", subtitle_style))
-    story.append(HRFlowable(width="100%", thickness=1.5, color=PRIMARY, spaceBefore=0, spaceAfter=5))
+    story.append(HRFlowable(width="100%", thickness=1.5, color=PRIMARY, spaceBefore=0, spaceAfter=4))
     
     meta_data = [
         [
-            Paragraph("<b>Penanggung Jawab:</b> Indah", cell_style),
+            Paragraph("<b>Penanggung Jawab:</b> Indah (Senior QA Automation Engineer)", cell_style),
             Paragraph("<b>Target Beban:</b> Ramping 100–500 VU (Soal) & 50 VU (Editor)", cell_style)
         ],
         [
@@ -183,24 +208,24 @@ def build_pdf():
             Paragraph("<b>Tanggal Pelaksanaan:</b> 3 November 2026", cell_style)
         ]
     ]
-    t_meta = Table(meta_data, colWidths=[250, 257])
+    t_meta = Table(meta_data, colWidths=[255, 260])
     t_meta.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, -1), BG_LIGHT),
         ('BOX', (0, 0), (-1, -1), 0.5, BORDER_COLOR),
         ('INNERGRID', (0, 0), (-1, -1), 0.5, BORDER_COLOR),
-        ('TOPPADDING', (0, 0), (-1, -1), 2),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
-        ('LEFTPADDING', (0, 0), (-1, -1), 5),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 5),
+        ('TOPPADDING', (0, 0), (-1, -1), 1.5),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 1.5),
+        ('LEFTPADDING', (0, 0), (-1, -1), 4),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 4),
     ]))
     story.append(t_meta)
-    story.append(Spacer(1, 4))
+    story.append(Spacer(1, 3))
     
     # 2. PENDAHULUAN
     story.append(Paragraph("1. PENDAHULUAN", h1_style))
     story.append(Paragraph(
         "Aplikasi <b>EDVORA</b> adalah platform simulasi ujian dan latihan soal UTBK berbasis web yang menggabungkan "
-        "arsitektur backend modern <b>Laravel 11</b> dan antarmuka reaktif <b>React (Inertia.js)</b>. "
+        "arsitektur backend <b>Laravel 11</b> dan antarmuka reaktif <b>React (Inertia.js)</b>. "
         "Laporan ini disusun oleh Indah (Senior QA Automation Engineer) untuk mengevaluasi secara objektif "
         "daya tahan serta karakteristik performa backend EDVORA saat menerima konkurensi beban kerja siswa dan editor.",
         body_style
@@ -223,7 +248,7 @@ def build_pdf():
         "• <b>Application Host:</b> Laravel 11.56.1 berjalan pada host lokal (<code>127.0.0.1:8000</code>).<br/>"
         "• <b>Database Server:</b> PostgreSQL pada Supabase Cloud Pooler (<code>aws-0-ap-southeast-1.pooler.supabase.com:6543</code>).<br/>"
         "• <b>Operating System:</b> Windows 11 Enterprise (x64) dengan runtime PHP 8.5.11 NTS.<br/>"
-        "• <b>Keamanan Database:</b> Zero migration policy (`php artisan migrate` dilarang penuh; seluruh data tim aman).",
+        "• <b>Keamanan Database:</b> Zero destructive migration (perintah `php artisan migrate` dilarang penuh; seluruh data tim aman).",
         body_style
     ))
     
@@ -231,18 +256,18 @@ def build_pdf():
     story.append(Paragraph("4. TOOLS YANG DIGUNAKAN", h1_style))
     story.append(Paragraph(
         "• <b>Grafana k6 v0.54.0 (Windows amd64):</b> Load testing runtime engine utama.<br/>"
-        "• <b>PowerShell 5.1 & Node.js v24.11.0:</b> Orchestrator runner dan environment management.<br/>"
-        "• <b>Python 3.12 & ReportLab:</b> Compiler laporan resmi PDF dan analitik metrik otomatis.",
+        "• <b>PowerShell 5.1 & Node.js:</b> Orchestrator runner dan environment variable management.<br/>"
+        "• <b>Python 3.12 & ReportLab:</b> Compiler laporan resmi PDF dan kompilasi analitik metrik otomatis.",
         body_style
     ))
     
     # 6. METODOLOGI
     story.append(Paragraph("5. METODOLOGI PENGUJIAN", h1_style))
     story.append(Paragraph(
-        "• <b>Ramping Stages Concurrency:</b> Beban dinaikkan bertahap (ramp-up), dipertahankan, dan diturunkan untuk mendeteksi titik jenuh.<br/>"
-        "• <b>Session Persistence & No Re-Login Storm:</b> Setiap Virtual User melakukan login sekali, mempertahankan cookie sesi Laravel, dan tidak mengulang login jika koneksi drop.<br/>"
-        "• <b>Pemisahan Pengukuran:</b> Waktu pengiriman jawaban dan pemunculan soal berikutnya diukur secara terpisah menggunakan <code>response.timings.duration</code>.<br/>"
-        "• <b>Filter Sampel Valid:</b> Request tanpa respons (status 0) tidak dicatat ke Trend metric response time guna mencegah distorsi 0 ms.",
+        "• <b>Ramping Stages Concurrency:</b> Beban dinaikkan bertahap (ramp-up), dipertahankan pada puncak beban, dan diturunkan untuk mendeteksi batas ketahanan sistem.<br/>"
+        "• <b>Session Persistence & Anti-Login Storm:</b> Setiap Virtual User melakukan login sekali, mempertahankan cookie sesi Laravel, dan tidak mengulang login jika koneksi drop.<br/>"
+        "• <b>Pemisahan Pengukuran Metrik:</b> Waktu pengiriman jawaban dan pemunculan soal berikutnya diukur secara independen menggunakan <code>response.timings.duration</code>.<br/>"
+        "• <b>Filter Sampel Valid:</b> Request tanpa respons (status 0) tidak dimasukkan ke dalam metrik response time guna mencegah distorsi 0 ms.",
         body_style
     ))
     
@@ -251,7 +276,7 @@ def build_pdf():
     story.append(Paragraph(
         "Alur pengujian Skenario A memodelkan siswa mengerjakan latihan soal fleksibel:<br/>"
         "1. <b>Autentikasi Siswa:</b> <code>POST /login</code> memverifikasi kredensial dan hak akses siswa (diisolasi dari metrik soal).<br/>"
-        "2. <b>Pengiriman Jawaban (<code>POST /latihan/ujian/jawab</code>):</b> Mengirim payload riil <code>{ sesiId, soalId, opsiIds, jawabanIsian, pilihanKolom }</code>. Diukur sebagai <code>waktu_pengiriman_jawaban</code> (SLA ≤ 1000 ms).<br/>"
+        "2. <b>Pengiriman Jawaban (<code>POST /latihan/ujian/jawab</code>):</b> Mengirim payload riil sesuai tipe soal (<code>sesiId, soalId, opsiIds, jawabanIsian, pilihanKolom</code>). Diukur sebagai <code>waktu_pengiriman_jawaban</code> (SLA ≤ 1000 ms).<br/>"
         "3. <b>Pengambilan Soal Berikutnya (<code>GET /latihan/kerjakan/{sesiId}</code>):</b> Memuat komponen soal dan state sesi aktif. Diukur sebagai <code>waktu_ambil_soal_berikutnya</code> (SLA ≤ 1000 ms).<br/>"
         "4. <b>Konfigurasi Beban:</b> Ramping stages: 0→100 VU (15s), 100→250 VU (30s), 250→500 VU (30s), 500→0 VU (15s).",
         body_style
@@ -259,20 +284,19 @@ def build_pdf():
     
     # 8. HASIL SKENARIO A
     story.append(Paragraph("7. HASIL PENGUJIAN SKENARIO A", h1_style))
-    w_jawab = mA.get('waktu_pengiriman_jawaban', {})
-    w_ambil = mA.get('waktu_ambil_soal_berikutnya', {})
-    
     story.append(Paragraph(
-        f"Eksekusi Skenario A menghasilkan total <b>{mA['http_reqs']['count']:,} HTTP requests</b> dengan <b>{mA['iterations']['count']:,} iterasi</b> "
+        f"Eksekusi Skenario A menghasilkan total <b>{mA['http_reqs']['count']:,} HTTP requests</b> dengan <b>{iter_a_count:,} iterasi</b> "
         f"di bawah konkurensi puncak <b>{mA['vus_max']['value']} VU</b>. Throughput tercatat <b>{mA['http_reqs']['rate']:.2f} req/s</b>.<br/>"
-        f"• <b>Waktu Pengiriman Jawaban (POST /latihan/ujian/jawab):</b> Average = <b>{w_jawab.get('avg', 0):.2f} ms</b> ({w_jawab.get('avg', 0)/1000:.2f} s), "
+        f"• <b>Waktu Pengiriman Jawaban (POST /latihan/ujian/jawab):</b> Sampel valid = <b>{count_jawab_samples}</b>, "
+        f"Average = <b>{w_jawab.get('avg', 0):.2f} ms</b> ({w_jawab.get('avg', 0)/1000:.2f} s), "
         f"Median = <b>{w_jawab.get('med', 0):.2f} ms</b>, p90 = <b>{w_jawab.get('p(90)', 0):.2f} ms</b>, "
-        f"p95 = <b>{w_jawab.get('p(95)', 0):.2f} ms</b>, Maximum = <b>{w_jawab.get('max', 0):.2f} ms</b> (SLA ≤ 1000 ms -> <b>FAIL</b>).<br/>"
-        f"• <b>Waktu Ambil Soal Berikutnya (GET /latihan/kerjakan/&#123;id&#125;):</b> Average = <b>{w_ambil.get('avg', 0):.2f} ms</b> ({w_ambil.get('avg', 0)/1000:.2f} s), "
+        f"p95 = <b>{w_jawab.get('p(95)', 0):.2f} ms</b>, Maximum = <b>{w_jawab.get('max', 0):.2f} ms</b> (SLA ≤ 1000 ms -> <b>{status_a}</b>).<br/>"
+        f"• <b>Waktu Ambil Soal Berikutnya (GET /latihan/kerjakan/&#123;id&#125;):</b> Sampel valid = <b>{count_ambil_samples}</b>, "
+        f"Average = <b>{w_ambil.get('avg', 0):.2f} ms</b> ({w_ambil.get('avg', 0)/1000:.2f} s), "
         f"Median = <b>{w_ambil.get('med', 0):.2f} ms</b>, p90 = <b>{w_ambil.get('p(90)', 0):.2f} ms</b>, "
-        f"p95 = <b>{w_ambil.get('p(95)', 0):.2f} ms</b>, Maximum = <b>{w_ambil.get('max', 0):.2f} ms</b> (SLA ≤ 1000 ms -> <b>FAIL</b>).<br/>"
-        f"• <b>Validasi Proses Bisnis:</b> Sebanyak <b>{mA.get('total_jawaban_terkirim', {}).get('count', 0)} jawaban riil</b> berhasil diverifikasi "
-        f"dan dinilai secara sah oleh backend Laravel sesuai kontrak JSON umpan balik (Zero error 422, Zero error 410, Zero error 429).",
+        f"p95 = <b>{w_ambil.get('p(95)', 0):.2f} ms</b>, Maximum = <b>{w_ambil.get('max', 0):.2f} ms</b> (SLA ≤ 1000 ms -> <b>{status_a}</b>).<br/>"
+        f"• <b>Validasi Proses Bisnis:</b> Sebanyak <b>{total_jawab_valid} jawaban</b> berhasil diverifikasi dan dinilai oleh backend Laravel "
+        f"sesuai kontrak JSON umpan balik. Error HTTP mencapai <b>{mA.get('http_req_failed', {}).get('value', 0)*100:.2f}%</b> akibat saturasi soket.",
         body_style
     ))
     
@@ -289,27 +313,25 @@ def build_pdf():
     
     # 10. HASIL SKENARIO B
     story.append(Paragraph("9. HASIL PENGUJIAN SKENARIO B", h1_style))
-    w_stok = mB.get('waktu_dashboard_stok_editor', {})
-    w_anlt = mB.get('waktu_dashboard_analitik', {})
-    kunjungan_count = mB.get('total_kunjungan_editor', {}).get('count', 0)
-    
     story.append(Paragraph(
-        f"Eksekusi Skenario B menghasilkan total <b>{mB['http_reqs']['count']:,} HTTP requests</b> dengan <b>{mB['iterations']['count']:,} iterasi</b> "
+        f"Eksekusi Skenario B menghasilkan total <b>{mB['http_reqs']['count']:,} HTTP requests</b> dengan <b>{iter_b_count:,} iterasi lengkap</b> "
         f"di bawah konkurensi puncak <b>{mB['vus_max']['value']} Editor</b>. "
-        f"Tingkat kegagalan request HTTP transport tercatat sempurna <b>0.00%</b> (114 dari 114 request berhasil diproses). "
-        f"Success rate alur kerja Editor mencapai <b>100.00%</b> ({kunjungan_count} dari {kunjungan_count} kunjungan lengkap).<br/>"
-        f"• <b>Pemuatan Stok Bank Soal (GET /editor):</b> Average = <b>{w_stok.get('avg', 0):.2f} ms</b> ({w_stok.get('avg', 0)/1000:.2f} s), "
+        f"HTTP request failure rate tercatat <b>{mB.get('http_req_failed', {}).get('value', 0)*100:.2f}%</b> (seluruh request transport terlayani). "
+        f"Namun karena waktu respons per iterasi sangat panjang, hanya <b>{total_kunjungan_valid} kunjungan lengkap</b> yang selesai dalam jendela waktu pengujian.<br/>"
+        f"• <b>Pemuatan Stok Bank Soal (GET /editor):</b> Sampel valid = <b>{count_stok_samples}</b>, "
+        f"Average = <b>{w_stok.get('avg', 0):.2f} ms</b> ({w_stok.get('avg', 0)/1000:.2f} s), "
         f"Median = <b>{w_stok.get('med', 0):.2f} ms</b>, p90 = <b>{w_stok.get('p(90)', 0):.2f} ms</b>, "
-        f"p95 = <b>{w_stok.get('p(95)', 0):.2f} ms</b>, Maximum = <b>{w_stok.get('max', 0):.2f} ms</b> (SLA ≤ 3000 ms -> <b>FAIL</b>).<br/>"
-        f"• <b>Dashboard Analitik Terpadu (GET /editor/analitik):</b> Average = <b>{w_anlt.get('avg', 0):.2f} ms</b> ({w_anlt.get('avg', 0)/1000:.2f} s), "
+        f"p95 = <b>{w_stok.get('p(95)', 0):.2f} ms</b>, Maximum = <b>{w_stok.get('max', 0):.2f} ms</b> (SLA ≤ 3000 ms -> <b>{status_b}</b>).<br/>"
+        f"• <b>Dashboard Analitik Terpadu (GET /editor/analitik):</b> Sampel valid = <b>{count_anlt_samples}</b>, "
+        f"Average = <b>{w_anlt.get('avg', 0):.2f} ms</b> ({w_anlt.get('avg', 0)/1000:.2f} s), "
         f"Median = <b>{w_anlt.get('med', 0):.2f} ms</b>, p90 = <b>{w_anlt.get('p(90)', 0):.2f} ms</b>, "
-        f"p95 = <b>{w_anlt.get('p(95)', 0):.2f} ms</b>, Maximum = <b>{w_anlt.get('max', 0):.2f} ms</b> (SLA ≤ 3000 ms -> <b>FAIL</b>).",
+        f"p95 = <b>{w_anlt.get('p(95)', 0):.2f} ms</b>, Maximum = <b>{w_anlt.get('max', 0):.2f} ms</b> (SLA ≤ 3000 ms -> <b>{status_b}</b>).",
         body_style
     ))
     
     # 11. TABEL PERBANDINGAN TARGET DAN HASIL AKTUAL
     story.append(Paragraph("10. TABEL PERBANDINGAN TARGET DAN HASIL AKTUAL", h1_style))
-    story.append(Paragraph("Berikut adalah tabel komparasi formal antara target ketentuan tugas dan hasil pengujian aktual:", body_style))
+    story.append(Paragraph("Tabel komparasi metrik hasil pengujian aktual terhadap target SLA ketentuan tugas:", body_style))
     
     tabel_wajib_data = [
         [
@@ -334,8 +356,8 @@ def build_pdf():
         ],
         [
             Paragraph("<b>Total Iterasi Lengkap</b>", cell_style),
-            Paragraph(f"{mA['iterations']['count']:,} iterasi", cell_style),
-            Paragraph(f"{mB['iterations']['count']:,} iterasi", cell_style)
+            Paragraph(f"{iter_a_count:,} iterasi", cell_style),
+            Paragraph(f"{iter_b_count:,} iterasi", cell_style)
         ],
         [
             Paragraph("<b>Average Response Time (Utama)</b>", cell_style),
@@ -363,14 +385,14 @@ def build_pdf():
             Paragraph(f"Stok: {w_stok.get('max', 0):.2f} ms | Analitik: {w_anlt.get('max', 0):.2f} ms", cell_style)
         ],
         [
-            Paragraph("<b>Jumlah Sampel Utama</b>", cell_style),
-            Paragraph(f"Jawab: {mA.get('total_jawaban_terkirim', {}).get('count', 0)} respons | Ambil: 2 respons", cell_style),
-            Paragraph(f"Stok: 17 respons | Analitik: 11 respons", cell_style)
+            Paragraph("<b>Jumlah Sampel Respons Valid</b>", cell_style),
+            Paragraph(f"Jawab: {count_jawab_samples} respons | Ambil: {count_ambil_samples} respons", cell_style),
+            Paragraph(f"Stok: {count_stok_samples} respons | Analitik: {count_anlt_samples} respons", cell_style)
         ],
         [
-            Paragraph("<b>Success Rate Bisnis</b>", cell_style),
-            Paragraph(f"{mA.get('success_rate_jawaban', {}).get('value', 0)*100:.2f}% (9 jawaban sah)", cell_style),
-            Paragraph(f"{mB.get('success_rate_editor', {}).get('value', 0)*100:.2f}% (11 kunjungan sukses)", cell_style)
+            Paragraph("<b>Business Success Rate</b>", cell_style),
+            Paragraph(f"{mA.get('success_rate_jawaban', {}).get('value', 0)*100:.2f}% ({total_jawab_valid} jawaban sah)", cell_style),
+            Paragraph(f"{mB.get('success_rate_editor', {}).get('value', 0)*100:.2f}% ({total_kunjungan_valid} kunjungan)", cell_style)
         ],
         [
             Paragraph("<b>HTTP Req Failed Rate</b>", cell_style),
@@ -384,94 +406,84 @@ def build_pdf():
         ],
         [
             Paragraph("<b>Status Evaluasi SLA Akhir</b>", cell_style),
-            Paragraph("<font color='#9B2C2C'><b>FAIL (Exceeded SLA under load)</b></font>", cell_bold),
-            Paragraph("<font color='#9B2C2C'><b>FAIL (Exceeded SLA under load)</b></font>", cell_bold)
+            Paragraph(f"<font color='#9B2C2C'><b>{status_a} (Melebihi SLA target)</b></font>", cell_bold),
+            Paragraph(f"<font color='#9B2C2C'><b>{status_b} (Melebihi SLA target)</b></font>", cell_bold)
         ]
     ]
     
-    t_comp = Table(tabel_wajib_data, colWidths=[140, 183, 184])
+    t_comp = Table(tabel_wajib_data, colWidths=[140, 187, 188])
     t_comp.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), PRIMARY),
         ('GRID', (0, 0), (-1, -1), 0.5, BORDER_COLOR),
         ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, BG_LIGHT]),
-        ('TOPPADDING', (0, 0), (-1, -1), 2),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
-        ('LEFTPADDING', (0, 0), (-1, -1), 4),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 4),
+        ('TOPPADDING', (0, 0), (-1, -1), 1.5),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 1.5),
+        ('LEFTPADDING', (0, 0), (-1, -1), 3.5),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 3.5),
     ]))
     story.append(t_comp)
-    story.append(Spacer(1, 4))
+    story.append(Spacer(1, 3))
     
     # 12. ANALISIS ERROR DAN BOTTLENECK
     story.append(Paragraph("11. ANALISIS ERROR DAN BOTTLENECK (ROOT CAUSE ANALYSIS)", h1_style))
     
     callout_data = [[
         Paragraph(
-            "<b>HASIL ANALISIS TEKNIS: Titik Jenuh Single-Process Server & Latensi Remote Database</b><br/>"
-            "Meskipun validasi proses bisnis, autentikasi session, dan otorisasi role 100% berhasil tanpa error aplikasi, "
-            "kedua skenario melampaui batas SLA target (1s dan 3s). Berdasarkan prinsip kejujuran teknis QA Automation, "
-            "hasil dilaporkan secara transparan sebagai <b>FAIL</b> dengan dua akar masalah struktural teridentifikasi di bawah ini.",
+            "<b>HASIL OBSERVASI METRIK & EVALUASI KEJURUAN:</b><br/>"
+            "Kedua skenario pengujian melampaui ambang batas SLA target (1.000 ms untuk Soal dan 3.000 ms untuk Dashboard). "
+            "Sesuai standar objektivitas QA Automation, hasil dievaluasi sebagai <b>FAIL</b>. "
+            "Berikut disajikan pemisahan terstruktur antara <b>Hasil Observasi</b>, <b>Dugaan Penyebab</b>, dan <b>Rekomendasi</b>.",
             callout_style
         )
     ]]
-    t_call = Table(callout_data, colWidths=[507])
+    t_call = Table(callout_data, colWidths=[515])
     t_call.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor("#FFF5F5")),
         ('BOX', (0, 0), (-1, -1), 1, colors.HexColor("#FEB2B2")),
-        ('TOPPADDING', (0, 0), (-1, -1), 3),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
-        ('LEFTPADDING', (0, 0), (-1, -1), 5),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 5),
+        ('TOPPADDING', (0, 0), (-1, -1), 2.5),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 2.5),
+        ('LEFTPADDING', (0, 0), (-1, -1), 4),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 4),
     ]))
     story.append(t_call)
-    story.append(Spacer(1, 3))
+    story.append(Spacer(1, 2.5))
     
     story.append(Paragraph(
-        "<b>1. Limitasi Arsitektur PHP Built-in Server (php artisan serve):</b><br/>"
-        "Perintah <code>artisan serve</code> menjalankan runtime CLI web server bawaan PHP yang beroperasi secara <i>single-threaded</i> (satu proses tunggal). "
-        "Server memproses setiap request HTTP secara berurutan. Saat 500 siswa (Skenario A) atau 50 editor (Skenario B) "
-        "melakukan request konkuren secara simultan, request menumpuk pada TCP socket backlog sehingga waktu tunggu antrean melonjak hingga puluhan detik.<br/>"
-        "<b>2. Latensi Round-trip Jaringan Database Online Supabase:</b><br/>"
-        "Database PostgreSQL berada di cluster cloud Supabase (AWS region Singapore: <code>aws-0-ap-southeast-1.pooler.supabase.com:6543</code>). "
-        "Setiap transaksi query dari mesin lokal memerlukan latensi round-trip jaringan ~150–250 ms. "
-        "Ketika query dijalankan secara serial pada single thread, throughput terbatasi secara fisik pada ~4–10 req/s.<br/>"
-        "<b>3. Pemuatan Agregasi Tanpa Caching (AnalitikController):</b><br/>"
-        "Endpoint <code>GET /editor/analitik</code> menjalankan query agregasi kalkulasi penguasaan seluruh siswa per subtes "
-        "secara real-time langsung ke tabel database pada setiap request, tanpa layer caching Redis.",
+        "<b>A. Hasil Observasi (Fakta Metrik Aktual):</b><br/>"
+        f"1. Pada Skenario A (500 VU), waktu respons p95 melonjak hingga {w_jawab.get('p(95)', 0):.2f} ms (Jawab) dan {w_ambil.get('p(95)', 0):.2f} ms (Ambil Soal), dengan HTTP req failed {mA.get('http_req_failed', {}).get('value', 0)*100:.2f}% akibat TCP connection drop.<br/>"
+        f"2. Pada Skenario B (50 Editor), seluruh 114 request HTTP transport berhasil (0% failure), namun waktu respons p95 mencapai {w_stok.get('p(95)', 0):.2f} ms (Stok) dan {w_anlt.get('p(95)', 0):.2f} ms (Analitik). Karena durasi per iterasi ~27-54 detik, hanya {iter_b_count} iterasi yang selesai penuh dalam jendela waktu pengujian.<br/>"
+        "<b>B. Dugaan / Hipotesis Penyebab (Root Cause Hypothesis):</b><br/>"
+        "1. <i>Arsitektur Web Server Single-Process:</i> Server pengujian lokal dijalankan melalui <code>php artisan serve</code> yang merupakan CLI web server single-threaded. Konkurensi tinggi menyebabkan request mengantre secara serial pada soket OS.<br/>"
+        "2. <i>Latensi Jaringan Database Cloud Supabase:</i> Server aplikasi lokal berkomunikasi dengan PostgreSQL di cluster Supabase AWS Singapore via internet publik, menghasilkan akumulasi latensi round-trip jaringan per kueri.<br/>"
+        "3. <i>Kalkulasi Agregasi Analitik Real-Time:</i> Endpoint <code>/editor/analitik</code> menjalankan kueri kalkulasi penguasaan topik seluruh siswa secara langsung ke database tanpa layer caching memory.<br/>"
+        "4. <i>Keterbatasan Data Testing Bersama (Skenario A):</i> Demi integritas database bersama, pembuatan ratusan akun siswa massal dilarang. Akibatnya konkurensi VU terpusat pada sesi yang sama dan memicu pembatasan sesi (rate limit dan session locking).",
         body_style
     ))
     
     # 13. KESIMPULAN
     story.append(Paragraph("12. KESIMPULAN RESMI QA AUTOMATION ENGINEER", h1_style))
     story.append(Paragraph(
-        "1. Seluruh script k6 pada folder <code>tests/k6</code> telah berhasil diperbaiki, mematuhi arsitektur aplikasi Laravel EDVORA, "
-        "menggunakan data sesi riil, dan memverifikasi proses bisnis secara ketat.<br/>"
+        "1. Script pengujian k6 pada folder <code>tests/k6</code> telah diperbaiki secara komprehensif, tervalidasi terhadap backend Laravel EDVORA, dan bebas dari kredensial hardcoded.<br/>"
         "2. Skrip pengujian berhasil dijalankan pada beban bertahap hingga <b>500 VU (Skenario A)</b> dan <b>50 VU (Skenario B)</b>.<br/>"
-        "3. Evaluasi SLA performa dilaporkan secara transparan sebagai <b>FAIL</b> karena keterbatasan arsitektur runtime single-process "
-        "pada lingkungan pengujian lokal, dengan rekomendasi implementasi PHP-FPM/Octane dan Redis caching untuk mencapai target SLA di lingkungan produksi.",
+        "3. Evaluasi SLA performa disimpulkan sebagai <b>FAIL</b> karena waktu respons aktual melampaui target (1s dan 3s), dengan faktor pembatas utama berupa arsitektur web server single-process dan latensi jaringan database online.",
         body_style
     ))
     
     # 14. REKOMENDASI
     story.append(Paragraph("13. REKOMENDASI SOLUSI DAN OPTIMASI PERFORMA", h1_style))
     story.append(Paragraph(
-        "• <b>Implementasi Web Server Multi-Worker Produksi:</b> Mengganti <code>php artisan serve</code> dengan web server produksi "
-        "seperti <b>Nginx + PHP-FPM</b> dengan konfigurasi <code>pm = dynamic</code> dan <code>pm.max_children = 500</code>, atau menggunakan "
-        "<b>Laravel Octane</b> (didukung FrankenPHP / RoadRunner / Swoole) yang mempertahankan framework di memori dan menangani ribuan request secara asinkron.<br/>"
-        "• <b>Caching Dashboard Analitik dengan Redis:</b> Menerapkan caching pada <code>DataAnalitik::ambil()</code> dengan TTL 60–120 detik. "
-        "Hal ini akan memotong response time dari ~13-14 detik menjadi di bawah <b>50 ms</b> (penurunan latensi 99.6%).<br/>"
-        "• <b>Database Connection Pooler & Co-location:</b> Menempatkan server backend dan database pada region cloud yang sama "
-        "dengan *private networking* untuk menekan latensi database di bawah 2 ms.",
+        "• <b>Penerapan Web Server Multi-Worker Produksi:</b> Mengganti server single-process dengan <b>Nginx + PHP-FPM</b> (konfigurasi multi-worker) atau <b>Laravel Octane</b> (FrankenPHP / Swoole) agar dapat melayani ratusan request konkuren secara paralel di lingkungan produksi.<br/>"
+        "• <b>Penerapan Layer Caching pada Dashboard Analitik:</b> Mengaktifkan Redis caching pada <code>DataAnalitik::ambil()</code> dengan TTL 60–120 detik guna meniadakan kueri agregasi berulang pada database.<br/>"
+        "• <b>Ko-Lokasi Server Aplikasi dan Database:</b> Menempatkan server backend dan PostgreSQL pada region cloud yang sama melalui koneksi privat berkecepatan tinggi guna meminimalkan latensi round-trip jaringan.",
         body_style
     ))
     
     # 15. BUKTI PENGUJIAN & DAFTAR ARTIFAK
     story.append(Paragraph("14. INTEGRITAS DATABASE DAN STANDAR KEAMANAN", h1_style))
     story.append(Paragraph(
-        "Pengujian dilaksanakan dengan kepatuhan penuh terhadap standar pengujian tim QA EDVORA:<br/>"
-        "• <b>Zero Destructive Migration:</b> Tidak ada perintah <code>php artisan migrate</code>, <code>migrate:fresh</code>, "
-        "maupun *drop table* yang dieksekusi. Data master seluruh tim di Supabase tetap utuh dan aman.<br/>"
-        "• <b>Zero Hardcoded Secrets:</b> Tidak ada kata sandi, cookie, maupun token CSRF yang tersimpan secara statis di dalam repositori.",
+        "Pengujian dilaksanakan dengan kepatuhan penuh terhadap standar keselamatan tim QA EDVORA:<br/>"
+        "• <b>Zero Destructive Action:</b> Tidak ada perintah <code>php artisan migrate</code>, <code>migrate:fresh</code>, maupun modifikasi skema database. Seluruh data tim di Supabase tetap aman dan utuh.<br/>"
+        "• <b>Zero Hardcoded Credentials:</b> Seluruh kredensial dan kata sandi dikelola murni via Environment Variables runtime.",
         body_style
     ))
     
@@ -489,15 +501,15 @@ def build_pdf():
         [Paragraph("Laporan Resmi MD", cell_bold), Paragraph("<code>tests/k6/reports/LAPORAN_LOAD_TESTING_EDVORA.md</code>", cell_style), Paragraph("Dokumen laporan komprehensif versi Markdown.", cell_style)],
         [Paragraph("Laporan Resmi PDF", cell_bold), Paragraph("<code>tests/k6/reports/LAPORAN_LOAD_TESTING_EDVORA.pdf</code>", cell_style), Paragraph("Dokumen laporan resmi PDF 15 Bagian berhalaman dinamis.", cell_style)],
     ]
-    t_art = Table(art_data, colWidths=[110, 192, 205])
+    t_art = Table(art_data, colWidths=[110, 195, 210])
     t_art.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), PRIMARY),
         ('GRID', (0, 0), (-1, -1), 0.5, BORDER_COLOR),
         ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, BG_LIGHT]),
-        ('TOPPADDING', (0, 0), (-1, -1), 2),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
-        ('LEFTPADDING', (0, 0), (-1, -1), 4),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 4),
+        ('TOPPADDING', (0, 0), (-1, -1), 1.5),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 1.5),
+        ('LEFTPADDING', (0, 0), (-1, -1), 3.5),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 3.5),
     ]))
     story.append(t_art)
     

@@ -2,7 +2,7 @@ import http from 'k6/http';
 import { check, group, sleep } from 'k6';
 import { Trend, Rate, Counter } from 'k6/metrics';
 import { CONFIG, validateConfig } from '../config/environment.js';
-import { login, getXsrfToken } from '../helpers/auth.js';
+import { login, getXsrfToken, extractInertiaPageData } from '../helpers/auth.js';
 
 /**
  * SKENARIO A: Load Testing — Batas Waktu Respons Soal
@@ -13,6 +13,14 @@ import { login, getXsrfToken } from '../helpers/auth.js';
  * - Mengukur waktu pengambilan atau pemunculan soal berikutnya (GET /latihan/kerjakan/{sesiId}) secara terpisah.
  * - Target SLA Waktu Respons: Maksimal 1 detik (1000 ms) untuk masing-masing aksi (p95 < 1000 ms dan max < 1000 ms).
  * - Konfigurasi beban bertahap (ramping stages) hingga 500 Virtual Users (VU).
+ * 
+ * KENDALA DATA & ARSITEKTUR BACKEND:
+ * 1. Aplikasi EDVORA memberlakukan unique constraint database PostgreSQL (pengerjaan_fleksibel_berjalan_satu)
+ *    yang membatasi 1 sesi latihan aktif per siswa per subtes.
+ * 2. Laravel Route memberlakukan throttle:30,1 dan atomic session locking block(10,10).
+ * 3. Sesuai instruksi keamanan database bersama, dilarang membuat akun atau sesi massal di database bersama
+ *    tanpa izin koordinator. Bila 500 VU mengakses sesi bersamaan, antrean lock dan rate limit adalah karakteristik
+ *    arsitektur aktual yang diuji secara transparan.
  */
 
 // Custom Metrics Waktu Respons Terpisah (Hanya dicatat bila menerima respons HTTP > 0)
@@ -20,15 +28,15 @@ const waktuPengirimanJawaban = new Trend('waktu_pengiriman_jawaban', true);
 const waktuAmbilSoalBerikutnya = new Trend('waktu_ambil_soal_berikutnya', true);
 const waktuSiklusPenuhSoal = new Trend('total_siklus_soal', true);
 
-// Metrik Keberhasilan Bisnis & Error Terisolasi
+// Metrik Keberhasilan Bisnis & Error Terisolasi (Nama spesifik untuk mencegah konflik pada runner)
 const rateSuccessJawaban = new Rate('success_rate_jawaban');
 const countJawabanTerkirim = new Counter('total_jawaban_terkirim');
-const rateErrorConnection = new Rate('error_koneksi');
-const rateErrorAuth = new Rate('error_auth_401');
+const rateErrorConnection = new Rate('error_koneksi_soal');
+const rateErrorAuth = new Rate('error_auth_siswa');
 const rateErrorValidation = new Rate('error_validation_422');
 const rateErrorSesiHabis = new Rate('error_sesi_habis_410');
 const rateErrorRateLimit = new Rate('error_rate_limited_429');
-const rateErrorServer5xx = new Rate('error_server_5xx');
+const rateErrorServer5xx = new Rate('error_server_5xx_soal');
 
 export const options = {
     scenarios: {
@@ -52,12 +60,12 @@ export const options = {
         'http_req_failed': ['rate<0.01'],
         'success_rate_jawaban': ['rate>0.95'],
         'total_jawaban_terkirim': ['count>0'],
-        'error_server_5xx': ['rate<0.01'],
+        'error_server_5xx_soal': ['rate<0.01'],
     },
 };
 
 /**
- * Setup: Menyiapkan data sesi aktif dan kumpulan soal riil dari database
+ * Setup: Menyiapkan data sesi aktif dan butir soal riil melalui inspeksi data Inertia
  */
 export function setup() {
     validateConfig('siswa');
@@ -71,39 +79,80 @@ export function setup() {
         throw new Error(`[SETUP ERROR] Gagal melakukan autentikasi siswa: ${auth.error}`);
     }
 
-    // Ambil riwayat sesi dan cari sesi berjalan yang memiliki daftar soal valid
+    // 1. Ambil riwayat sesi dan cari sesi berjalan yang valid
     const riwayatRes = http.get(`${CONFIG.BASE_URL}/riwayat`);
     if (riwayatRes.status === 200 && riwayatRes.body) {
-        const cleanBody = riwayatRes.body.replace(/&quot;/g, '"');
-        const regexSesi = /"id":"([0-9a-f-]{36})"[^}]*"status":"berjalan"/gi;
-        let match;
-        while ((match = regexSesi.exec(cleanBody)) !== null) {
-            const candidateSesiId = match[1];
-            const kerjakanRes = http.get(`${CONFIG.BASE_URL}/latihan/kerjakan/${candidateSesiId}`);
-            if (kerjakanRes.status === 200 && kerjakanRes.body && kerjakanRes.body.includes('soalList')) {
-                const cleanKerjakan = kerjakanRes.body.replace(/&quot;/g, '"');
-                // Ekstrak seluruh butir soal beserta opsi jawabannya
-                const soalRegex = /"id":"([0-9a-f-]{36})"[^}]*?"tipe":"([^"]+)"[^}]*?"opsi_jawaban":\s*\[\s*\{\s*"id":"([0-9a-f-]{36})"/gi;
-                let soalMatch;
-                const parsedItems = [];
-                while ((soalMatch = soalRegex.exec(cleanKerjakan)) !== null) {
-                    parsedItems.push({
-                        soalId: soalMatch[1],
-                        tipe: soalMatch[2],
-                        opsiId: soalMatch[3],
-                    });
-                }
-                if (parsedItems.length > 0) {
-                    sesiId = candidateSesiId;
-                    soalItems = parsedItems;
-                    break;
+        const pageData = extractInertiaPageData(riwayatRes.body);
+        let candidateSesiList = [];
+
+        if (pageData && pageData.props) {
+            // Evaluasi daftar pengerjaan dari props riwayat
+            const listPengerjaan = pageData.props.pengerjaan || pageData.props.riwayat || [];
+            if (Array.isArray(listPengerjaan)) {
+                candidateSesiList = listPengerjaan
+                    .filter(p => p && p.status === 'berjalan')
+                    .map(p => p.id);
+            }
+        }
+
+        // Fallback regex jika payload riwayat dikompresi
+        if (candidateSesiList.length === 0) {
+            const cleanBody = riwayatRes.body.replace(/&quot;/g, '"');
+            const regexSesi = /"id":"([0-9a-f-]{36})"[^}]*"status":"berjalan"/gi;
+            let match;
+            while ((match = regexSesi.exec(cleanBody)) !== null) {
+                candidateSesiList.push(match[1]);
+            }
+        }
+
+        if (sesiId && !candidateSesiList.includes(sesiId)) {
+            candidateSesiList.unshift(sesiId);
+        }
+
+        // 2. Periksa kandidat sesi untuk mengekstrak seluruh butir soal riil beserta opsinya
+        for (const candidateId of candidateSesiList) {
+            const kerjakanRes = http.get(`${CONFIG.BASE_URL}/latihan/kerjakan/${candidateId}`);
+            if (kerjakanRes.status === 200 && kerjakanRes.body) {
+                const kerjakanData = extractInertiaPageData(kerjakanRes.body);
+                if (kerjakanData && kerjakanData.props && Array.isArray(kerjakanData.props.soalList)) {
+                    const parsedItems = kerjakanData.props.soalList.map(soal => ({
+                        soalId: soal.id,
+                        tipe: soal.tipe || 'pilihan_ganda',
+                        opsiIds: Array.isArray(soal.opsi_jawaban) ? soal.opsi_jawaban.map(o => o.id) : [],
+                        kolomTabel: soal.kolom_tabel || null,
+                    }));
+
+                    if (parsedItems.length > 0) {
+                        sesiId = candidateId;
+                        soalItems = parsedItems;
+                        break;
+                    }
+                } else {
+                    // Fallback ekstraksi regex jika objek props tidak terurai langsung
+                    const cleanKerjakan = kerjakanRes.body.replace(/&quot;/g, '"');
+                    const soalRegex = /"id":"([0-9a-f-]{36})"[^}]*?"tipe":"([^"]+)"[^}]*?"opsi_jawaban":\s*\[\s*\{\s*"id":"([0-9a-f-]{36})"/gi;
+                    let soalMatch;
+                    const parsedItems = [];
+                    while ((soalMatch = soalRegex.exec(cleanKerjakan)) !== null) {
+                        parsedItems.push({
+                            soalId: soalMatch[1],
+                            tipe: soalMatch[2],
+                            opsiIds: [soalMatch[3]],
+                            kolomTabel: null,
+                        });
+                    }
+                    if (parsedItems.length > 0) {
+                        sesiId = candidateId;
+                        soalItems = parsedItems;
+                        break;
+                    }
                 }
             }
         }
     }
 
     if (!sesiId || soalItems.length === 0) {
-        console.warn('[SETUP WARNING] Tidak ditemukan sesi berjalan dengan butir soal valid. Harap siapkan data sesi latihan.');
+        console.warn('[SETUP WARNING] Tidak ditemukan sesi berjalan dengan butir soal valid. Harap pastikan ada sesi latihan aktif pada database.');
     }
 
     return {
@@ -136,7 +185,7 @@ export default function (setupData) {
     };
 
     // TAHAP 1: AUTENTIKASI SISWA (Hanya sekali per Virtual User)
-    // Jika gagal sekali, tandai VU gagal dan jangan lakukan spam login berulang
+    // Jika gagal sekali, tandai VU gagal dan hindari retry storm
     const jar = http.cookieJar();
     if (!authAttempted) {
         authAttempted = true;
@@ -185,16 +234,40 @@ export default function (setupData) {
     const itemIndex = (__VU + __ITER) % items.length;
     const currentItem = items[itemIndex];
     const soalId = currentItem.soalId;
-    const opsiId = currentItem.opsiId;
+
+    // Format payload jawaban sesuai tipe soal backend Laravel
+    let opsiIds = [];
+    let jawabanIsian = null;
+    let pilihanKolom = null;
+
+    if (currentItem.tipe === 'isian_singkat') {
+        jawabanIsian = '10';
+    } else if (currentItem.tipe === 'majemuk_tabel') {
+        pilihanKolom = {};
+        if (currentItem.opsiIds && currentItem.opsiIds.length > 0) {
+            currentItem.opsiIds.forEach(id => {
+                pilihanKolom[id] = 1;
+            });
+        }
+    } else if (currentItem.tipe === 'pilihan_ganda_kompleks') {
+        opsiIds = currentItem.opsiIds.length > 1 
+            ? currentItem.opsiIds.slice(0, 2) 
+            : currentItem.opsiIds;
+    } else {
+        // pilihan_ganda atau benar_salah
+        opsiIds = currentItem.opsiIds.length > 0 
+            ? [currentItem.opsiIds[0]] 
+            : [];
+    }
 
     // TAHAP 3: PENGIRIMAN JAWABAN SISWA (POST /latihan/ujian/jawab)
     // Diukur terpisah menggunakan response.timings.duration (SLA <= 1000 ms)
     const payloadJawab = JSON.stringify({
         sesiId: sesiId,
         soalId: soalId,
-        opsiIds: opsiId ? [opsiId] : [],
-        jawabanIsian: null,
-        pilihanKolom: null,
+        opsiIds: opsiIds,
+        jawabanIsian: jawabanIsian,
+        pilihanKolom: pilihanKolom,
     });
 
     const jawabRes = http.post(`${CONFIG.BASE_URL}/latihan/ujian/jawab`, payloadJawab, {

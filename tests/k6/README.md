@@ -38,8 +38,8 @@ tests/k6/
 │   ├── summary-skenario-b-editor.json # Export raw metrics JSON k6 Skenario B
 │   ├── screenshot-skenario-a.png      # Screenshot PNG bukti eksekusi Skenario A
 │   ├── screenshot-skenario-b.png      # Screenshot PNG bukti eksekusi Skenario B
-│   ├── LAPORAN_LOAD_TESTING_EDVORA.md # Dokumen laporan resmi versi Markdown
-│   └── LAPORAN_LOAD_TESTING_EDVORA.pdf# Dokumen laporan resmi versi PDF (14 Bagian)
+│   ├── LAPORAN_LOAD_TESTING_EDVORA.md # Dokumen laporan resmi versi Markdown (15 Bagian)
+│   └── LAPORAN_LOAD_TESTING_EDVORA.pdf# Dokumen laporan resmi versi PDF (15 Bagian)
 ├── scripts/
 │   └── generate_pdf_report.py         # Generator laporan resmi PDF berbasis ReportLab
 ├── run-all.js                         # Master runner k6 JavaScript
@@ -72,7 +72,7 @@ Untuk mematuhi standar keamanan pengujian:
   * `-e SISWA_PASSWORD=<password_siswa>`
   * `-e EDITOR_EMAIL=dapa@gmail.com`
   * `-e EDITOR_PASSWORD=<password_editor>`
-* Seluruh file kredensial lokal dan direktori binary `tools/` diabaikan oleh Git via `.git/info/exclude`.
+* Seluruh file kredensial lokal (`.env`), binary executable (`tools/`, `k6.exe`), dan artefak sementara (`*.tmp`, `*.session`, `*.cookie`) telah diabaikan secara formal melalui `.gitignore` di root repositori.
 
 ---
 

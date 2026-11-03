@@ -74,8 +74,10 @@ $cmdA += @(
     "tests\k6\scenarios\soal-response-time.js"
 )
 
-& $k6Bin @cmdA 2>&1 | Tee-Object -FilePath "tests\k6\reports\output-skenario-a-soal.txt"
+$outA = & $k6Bin @cmdA 2>&1
 $exitCodeA = $LASTEXITCODE
+$outA | Out-Host
+$outA | Set-Content -Path "tests\k6\reports\output-skenario-a-soal.txt" -Encoding utf8
 
 if ($exitCodeA -ne 0) {
     Write-Host "[PERINGATAN] Skenario A selesai dengan Exit Code $exitCodeA (Threshold Crossed / Terjadi Evaluasi FAIL)" -ForegroundColor Yellow
@@ -99,8 +101,10 @@ $cmdB = @(
     "tests\k6\scenarios\editor-analytics-dashboard.js"
 )
 
-& $k6Bin @cmdB 2>&1 | Tee-Object -FilePath "tests\k6\reports\output-skenario-b-editor.txt"
+$outB = & $k6Bin @cmdB 2>&1
 $exitCodeB = $LASTEXITCODE
+$outB | Out-Host
+$outB | Set-Content -Path "tests\k6\reports\output-skenario-b-editor.txt" -Encoding utf8
 
 if ($exitCodeB -ne 0) {
     Write-Host "[PERINGATAN] Skenario B selesai dengan Exit Code $exitCodeB (Threshold Crossed / Terjadi Evaluasi FAIL)" -ForegroundColor Yellow

@@ -11,18 +11,18 @@
 
 ## 1. PENDAHULUAN
 
-Aplikasi **EDVORA** adalah platform pembelajaran dan simulasi ujian UTBK berbasis web dengan arsitektur monolitik modern yang memadukan backend framework **Laravel 11** dan frontend reaktif **React (Inertia.js)**. Laporan ini disusun oleh Indah selaku QA Automation Engineer untuk mengevaluasi kesiapan server backend dalam menghadapi akses massal secara simultan tanpa degradasi performa atau timeout.
+Aplikasi **EDVORA** adalah platform simulasi ujian dan latihan soal UTBK berbasis web dengan arsitektur modern yang memadukan backend framework **Laravel 11** dan frontend reaktif **React (Inertia.js)**. Laporan ini disusun oleh Indah selaku Senior QA Automation Engineer untuk mengevaluasi secara objektif kesiapan server backend dalam menghadapi akses massal secara simultan tanpa degradasi performa atau timeout.
 
 ---
 
 ## 2. TUJUAN DAN RUANG LINGKUP PENGUJIAN
 
 ### Tujuan Pengujian:
-1. **Skenario A (Waktu Respons Soal Siswa):** Memastikan sistem mampu memproses pengiriman jawaban siswa secara bersamaan dan menyajikan soal berikutnya dengan batas waktu maksimal **1.0 detik (1000 ms)** pada skala beban 100–500 Virtual Users (VU).
+1. **Skenario A (Waktu Respons Soal Siswa):** Memastikan sistem mampu memproses pengiriman jawaban siswa secara bersamaan dan menyajikan soal berikutnya dengan batas waktu maksimal **1.0 detik (1000 ms)** pada skala beban bertahap 100–500 Virtual Users (VU).
 2. **Skenario B (Beban Dashboard Analitik Editor):** Memastikan pemuatan ringkasan stok bank soal dan analitik agregasi penguasaan siswa tetap responsif dengan batas waktu maksimal **3.0 detik (3000 ms)** di bawah beban 50 Editor konkuren.
 
 ### Ruang Lingkup:
-Sesuai dengan pembagian tanggung jawab tim QA (Quality Assurance), ruang lingkup pengujian beban (Load Testing) pada dokumen ini difokuskan secara eksklusif pada evaluasi performa protokol HTTP dan stabilitas API backend menggunakan **Grafana k6**. Pengujian fungsional komponen (Unit/Feature Testing) PHPUnit serta pengujian antarmuka pengguna (End-to-End/UI Testing) Cypress secara ketat berada di luar cakupan dokumen ini karena ditangani oleh anggota tim lain.
+Sesuai dengan pembagian tanggung jawab tim QA (Quality Assurance), ruang lingkup pengujian beban (Load Testing) pada dokumen ini difokuskan secara eksklusif pada evaluasi performa protokol HTTP dan stabilitas API backend menggunakan **Grafana k6**. Pengujian fungsional komponen (Unit/Feature Testing) PHPUnit oleh Kak Naila serta pengujian antarmuka pengguna (End-to-End/UI Testing) Cypress oleh anggota tim lain secara ketat berada di luar cakupan dokumen ini.
 
 ---
 
@@ -38,7 +38,7 @@ Sesuai dengan pembagian tanggung jawab tim QA (Quality Assurance), ruang lingkup
 ## 4. TOOLS YANG DIGUNAKAN
 
 * **Grafana k6 v0.54.0 (Windows amd64):** Runtime engine load testing berbasis JavaScript ES6 modules.
-* **PowerShell 5.1 & Node.js v24.11.0:** Automation runner dan manajemen environment variable.
+* **PowerShell 5.1 & Node.js:** Automation runner dan manajemen environment variable.
 * **Python 3.12 & ReportLab:** Kompiler otomatis dokumen laporan PDF 15 Bagian berhalaman dinamis.
 
 ---
@@ -46,18 +46,18 @@ Sesuai dengan pembagian tanggung jawab tim QA (Quality Assurance), ruang lingkup
 ## 5. METODOLOGI PENGUJIAN
 
 Pengujian dirancang dengan prinsip pengujian otomasi performa industri terbaik:
-* **Ramping Stages Concurrency:** Beban dinaikkan secara bertahap (*ramp-up*), dipertahankan, dan diturunkan (*ramp-down*) untuk mendeteksi titik jenuh server (*saturation point*).
-* **Session Persistence & No Re-Login Storm:** Setiap Virtual User (VU) melakukan autentikasi sekali pada awal pengujian dan mempertahankan cookie sesi Laravel (`laravel_session`) antar-iterasi. Jika koneksi terputus akibat socket backlog, VU tidak melakukan pengulangan login yang membebani server.
+* **Ramping Stages Concurrency:** Beban dinaikkan secara bertahap (*ramp-up*), dipertahankan pada beban puncak, dan diturunkan (*ramp-down*) untuk mendeteksi titik jenuh server (*saturation point*).
+* **Session Persistence & Anti-Login Storm:** Setiap Virtual User (VU) melakukan autentikasi sekali pada siklus hidupnya dan mempertahankan cookie sesi Laravel (`laravel_session`) antar-iterasi. Jika koneksi terputus akibat socket backlog, VU tidak melakukan spam login yang membebani server.
 * **Pemisahan Pengukuran Response Time:** Pengukuran waktu pengiriman jawaban dan pemunculan soal berikutnya diukur secara terpisah menggunakan `response.timings.duration`. Waktu login diisolasi dan tidak dicampur ke metrik utama.
-* **Filter Sampel Valid:** Request yang gagal memperoleh respons HTTP (status 0 karena timeout/dropped connection) tidak dicatat ke metrik Trend waktu respons untuk mencegah distorsi 0 ms pada nilai rata-rata dan median.
+* **Filter Sampel Valid:** Request yang gagal memperoleh respons HTTP (status 0 karena timeout/dropped connection) tidak dimasukkan ke dalam metrik Trend waktu respons untuk mencegah distorsi 0 ms pada nilai rata-rata dan median.
 
 ---
 
 ## 6. SKENARIO A — RESPONS PENGIRIMAN JAWABAN SISWA
 
 Skenario A mensimulasikan alur kerja siswa mengerjakan latihan ujian fleksibel. Berdasarkan audit kode sumber `routes/web.php` dan `LatihanSoalController.php`, alur pengujian terdiri atas:
-1. **Autentikasi Siswa:** `GET /login` untuk inisialisasi cookie dan CSRF token, diikuti `POST /login` dengan verifikasi sesi nyata. Waktu login diisolasi.
-2. **Pengiriman Jawaban (`POST /latihan/ujian/jawab`):** Siswa mengirimkan payload jawaban riil `{ sesiId, soalId, opsiIds, jawabanIsian, pilihanKolom }`. Server mengevaluasi jawaban via `SesiFleksibel::jawab` dan mengembalikan umpan balik instan. Diukur tersendiri sebagai `waktu_pengiriman_jawaban` (SLA ≤ 1000 ms).
+1. **Autentikasi Siswa:** `POST /login` memverifikasi kredensial dan hak akses siswa secara ketat via parsing objek `data-page` Inertia. Waktu login diisolasi.
+2. **Pengiriman Jawaban (`POST /latihan/ujian/jawab`):** Siswa mengirimkan payload jawaban riil `{ sesiId, soalId, opsiIds, jawabanIsian, pilihanKolom }` sesuai tipe soal. Server mengevaluasi jawaban via `SesiFleksibel::jawab` dan mengembalikan umpan balik instan. Diukur tersendiri sebagai `waktu_pengiriman_jawaban` (SLA ≤ 1000 ms).
 3. **Pengambilan Soal Berikutnya (`GET /latihan/kerjakan/{sesiId}`):** Memuat komponen soal dan state sesi aktif. Diukur tersendiri sebagai `waktu_ambil_soal_berikutnya` (SLA ≤ 1000 ms).
 4. **Konfigurasi Beban:** Ramping bertahap: 0→100 VU (15s), 100→250 VU (30s), 250→500 VU (30s), 500→0 VU (15s).
 
@@ -85,14 +85,14 @@ Eksekusi Skenario A menghasilkan total **836 HTTP requests** dengan **2.123 iter
   * Maximum: **54.691,37 ms** (54,69 s)
   * Sampel Valid: **2 respons nyata**
   * Status Evaluasi: **FAIL** (Melampaui target SLA ≤ 1000 ms di bawah beban 500 VU).
-* **Validasi Proses Bisnis:** Sebanyak **9 jawaban riil** berhasil diverifikasi dan dinilai secara sah oleh backend Laravel sesuai kontrak JSON umpan balik tanpa error 422 (validasi format berhasil), tanpa 410 (sesi aktif valid), dan tanpa 429. Tingkat kegagalan koneksi socket tercatat 94,50% saat server mencapai titik jenuh.
+* **Validasi Proses Bisnis:** Sebanyak **9 jawaban riil** berhasil diverifikasi dan dinilai secara sah oleh backend Laravel sesuai kontrak JSON umpan balik tanpa error 422 (validasi format berhasil), tanpa 410 (sesi aktif valid), dan tanpa 429. Tingkat kegagalan koneksi socket tercatat 63,28% akibat keterbatasan kapasitas antrean koneksi web server lokal saat mencapai beban puncak.
 
 ---
 
 ## 8. SKENARIO B — DASHBOARD ANALITIK EDITOR
 
 Skenario B menguji ketahanan server saat diakses oleh pengguna dengan hak akses Editor (`admin_editor`). Berdasarkan audit rute dan controller (`AdminSoalController.php` dan `AnalitikController.php`):
-1. **Autentikasi Editor:** Validasi kredensial hak akses Editor via `POST /login`.
+1. **Autentikasi Editor:** Validasi kredensial hak akses Editor via `POST /login` dan verifikasi payload Inertia.
 2. **Ringkasan Stok Bank Soal (`GET /editor`):** Menjalankan query agregasi stok soal per subtes (status *published*, *draft*, dan *review*). Diukur mandiri sebagai `waktu_dashboard_stok_editor` (SLA ≤ 3000 ms).
 3. **Dashboard Analitik Terpadu (`GET /editor/analitik`):** Memanggil service `DataAnalitik::ambil()` yang memuat agregasi stok per topik sekaligus pemetaan rata-rata penguasaan siswa per subtes. Diukur mandiri sebagai `waktu_dashboard_analitik` (SLA ≤ 3000 ms).
 4. **Konfigurasi Beban:** Ramping bertahap: 0→10 Editor (10s), 10→30 Editor (20s), 30→50 Editor (20s), 50→0 Editor (10s).
@@ -101,7 +101,7 @@ Skenario B menguji ketahanan server saat diakses oleh pengguna dengan hak akses 
 
 ## 9. HASIL PENGUJIAN SKENARIO B
 
-Eksekusi Skenario B menghasilkan total **114 HTTP requests** dengan **11 iterasi** di bawah konkurensi puncak **50 Editor**. Tingkat kegagalan request HTTP transport tercatat sempurna **0,00%** (114 dari 114 request berhasil diproses). Success rate alur kerja Editor mencapai **100,00%** (11 dari 11 kunjungan lengkap). Checks passing mencapai **92,08%** (279 dari 303 checks).
+Eksekusi Skenario B menghasilkan total **114 HTTP requests** dengan **11 iterasi lengkap** di bawah konkurensi puncak **50 Editor**. Tingkat kegagalan request HTTP transport tercatat sempurna **0,00%** (114 dari 114 request berhasil diproses). Sebanyak **11 kunjungan lengkap** terselesaikan dalam durasi pengujian (sisanya sedang dalam proses eksekusi mengingat durasi per iterasi mencapai ~27–54 detik). Checks passing mencapai **92,08%** (279 dari 303 checks).
 
 * **Pemuatan Stok Bank Soal (`GET /editor`):**
   * Average: **13.223,32 ms** (13,22 s)
@@ -140,49 +140,56 @@ Berikut adalah tabel komparasi formal antara target ketentuan tugas dan hasil pe
 | **90th Percentile (p90)** | Jawab: **48.604,20 ms** \| Ambil: **50.479,67 ms** | Stok: **25.386,10 ms** \| Analitik: **25.569,08 ms** |
 | **95th Percentile (p95)** | Jawab: **49.080,13 ms** \| Ambil: **52.585,52 ms** | Stok: **26.408,22 ms** \| Analitik: **26.580,68 ms** |
 | **Maximum Response Time** | Jawab: **49.556,07 ms** \| Ambil: **54.691,37 ms** | Stok: **27.629,54 ms** \| Analitik: **27.592,27 ms** |
-| **Jumlah Sampel Utama** | Jawab: **9 respons** \| Ambil: **2 respons** | Stok: **17 respons** \| Analitik: **11 respons** |
-| **Success Rate Bisnis** | **8,82%** (9 jawaban berhasil diproses) | **100,00%** (11 kunjungan dashboard sukses) |
-| **HTTP Req Failed Rate** | **63,28%** (529 gagal karena socket backlog) | **0,00%** (0 request gagal) |
+| **Jumlah Sampel Respons Valid** | Jawab: **9 respons** \| Ambil: **2 respons** | Stok: **17 respons** \| Analitik: **11 respons** |
+| **Business Success Rate** | **8,82%** (9 jawaban sah dinilai backend) | **100,00%** (11 kunjungan lengkap berhasil) |
+| **HTTP Req Failed Rate** | **63,28%** (karena TCP socket backlog) | **0,00%** (seluruh request HTTP transport terlayani) |
 | **Target Batas Waktu (SLA)** | **≤ 1.0 detik (1000 ms)** per request | **≤ 3.0 detik (3000 ms)** per request |
-| **Status Evaluasi SLA Akhir** | <span style="color:#9B2C2C">**FAIL (Exceeded SLA under load)**</span> | <span style="color:#9B2C2C">**FAIL (Exceeded SLA under load)**</span> |
+| **Status Evaluasi SLA Akhir** | <span style="color:#9B2C2C">**FAIL (Melebihi SLA target)**</span> | <span style="color:#9B2C2C">**FAIL (Melebihi SLA target)**</span> |
 
 ---
 
 ## 11. ANALISIS ERROR DAN BOTTLENECK (ROOT CAUSE ANALYSIS)
 
-Meskipun validasi proses bisnis, autentikasi session, dan otorisasi role 100% berhasil tanpa error aplikasi, kedua skenario melampaui batas SLA target (1s dan 3s). Berdasarkan prinsip kejujuran teknis QA Automation, hasil dilaporkan secara transparan sebagai **FAIL** dengan tiga akar masalah struktural:
+Berdasarkan data metrik aktual, kedua skenario pengujian melampaui ambang batas SLA target (1s dan 3s). Berdasarkan prinsip objektivitas QA Automation, analisis disusun dengan memisahkan **Fakta Observasi**, **Dugaan Penyebab**, dan **Rekomendasi**:
 
-1. **Limitasi Arsitektur PHP Built-in Server (`php artisan serve`):**  
-   Perintah `artisan serve` menjalankan runtime built-in CLI web server PHP yang beroperasi secara *single-threaded* (satu proses tunggal). Server memproses setiap request HTTP secara berurutan (*sequential*). Saat 500 siswa (Skenario A) atau 50 editor (Skenario B) melakukan request konkuren secara simultan, request masuk ke antrean TCP socket backlog. Waktu tunggu antrean (*waiting time*) melonjak hingga puluhan detik, bukan karena komputasi kode lambat, melainkan karena request harus mengantre giliran eksekusi.
+### A. Hasil Observasi (Fakta Metrik Aktual):
+1. **Skenario A (500 VU):** Response time p95 mencapai 49–52 detik, melampaui batas target 1 detik. Tingkat kegagalan koneksi TCP socket mencapai 63,28% di bawah beban 500 VU.
+2. **Skenario B (50 Editor):** Tidak ada request transport yang gagal (0,00% failed rate), namun response time p95 mencapai 26,41 detik (Stok) dan 26,58 detik (Analitik), melampaui target 3 detik. Karena durasi respons tinggi, hanya 11 iterasi penuh yang selesai dalam durasi pengujian.
+
+### B. Dugaan / Hipotesis Penyebab (Root Cause Analysis):
+1. **Arsitektur Web Server Single-Process (`php artisan serve`):**  
+   Perintah `artisan serve` menjalankan runtime CLI web server bawaan PHP yang beroperasi secara *single-threaded* (satu proses tunggal). Server memproses request HTTP secara berurutan (*sequential*). Saat 500 siswa atau 50 editor mengakses bersamaan, request mengantre pada soket TCP OS, menyebabkan waktu tunggu antrean (*waiting time*) melonjak.
 2. **Latensi Round-trip Jaringan Database Online Supabase:**  
-   Database PostgreSQL berada di cluster cloud Supabase (AWS region Singapore: `aws-0-ap-southeast-1.pooler.supabase.com:6543`). Setiap transaksi query dari mesin lokal memerlukan latensi round-trip jaringan ~150–250 ms. Ketika query dijalankan secara serial pada single thread, throughput terbatasi secara fisik pada ~4–10 req/s.
-3. **Pemuatan Agregasi Tanpa Caching (`AnalitikController`):**  
-   Endpoint `GET /editor/analitik` menjalankan query agregasi kalkulasi penguasaan seluruh siswa per subtes secara real-time langsung ke tabel database pada setiap request, tanpa layer caching Redis.
+   Database PostgreSQL berada di cluster cloud Supabase (AWS region Singapore: `aws-0-ap-southeast-1.pooler.supabase.com:6543`). Komunikasi via internet publik dari mesin lokal menambah latensi round-trip jaringan per kueri.
+3. **Pemuatan Agregasi Analitik Real-Time:**  
+   Endpoint `GET /editor/analitik` menjalankan kalkulasi agregasi penguasaan topik seluruh siswa secara langsung ke database pada setiap request tanpa layer in-memory cache.
+4. **Keterbatasan Isolasi Data Pengujian (Skenario A):**  
+   Demi menjaga keselamatan data bersama, pembuatan akun massal dilarang. Konkurensi 500 VU pada satu akun/sesi pengerjaan memicu proteksi *atomic session locking* (`block(10, 10)`) dan *rate limiting* (`throttle:30,1`) pada Laravel.
 
 ---
 
 ## 12. KESIMPULAN RESMI QA AUTOMATION ENGINEER
 
-1. Seluruh script k6 pada folder `tests/k6` telah berhasil diperbaiki, mematuhi arsitektur aplikasi Laravel EDVORA, menggunakan data sesi riil, memfilter sampel tanpa respons (status 0), dan memverifikasi proses bisnis secara ketat.
+1. Seluruh script k6 pada folder `tests/k6` telah diperbaiki secara menyeluruh, mematuhi arsitektur aplikasi Laravel EDVORA, menggunakan data sesi riil, memfilter sampel tanpa respons (status 0), dan memverifikasi proses bisnis secara ketat.
 2. Skrip pengujian berhasil dijalankan pada beban bertahap hingga **500 VU (Skenario A)** dan **50 VU (Skenario B)**.
-3. Evaluasi SLA performa dilaporkan secara transparan sebagai **FAIL** karena keterbatasan arsitektur runtime single-process pada lingkungan pengujian lokal.
+3. Evaluasi SLA performa disimpulkan secara transparan dan jujur sebagai **FAIL** karena waktu respons melampaui target SLA, dipengaruhi oleh batasan arsitektur web server single-process dan latensi database online pada lingkungan lokal.
 
 ---
 
 ## 13. REKOMENDASI SOLUSI DAN OPTIMASI PERFORMA
 
-* **Implementasi Web Server Multi-Worker Produksi:**  
-  Mengganti `php artisan serve` dengan web server produksi seperti **Nginx + PHP-FPM** dengan konfigurasi `pm = dynamic` dan `pm.max_children = 500`, atau menggunakan **Laravel Octane** (didukung FrankenPHP / RoadRunner / Swoole) yang mempertahankan framework di memori dan menangani ribuan request secara asinkron.
-* **Caching Dashboard Analitik dengan Redis:**  
-  Menerapkan caching pada `DataAnalitik::ambil()` dengan TTL 60–120 detik. Hal ini diprediksi memotong response time dari ~13-14 detik menjadi di bawah **50 ms** (penurunan latensi 99,6%).
-* **Database Connection Pooler & Co-location:**  
-  Menempatkan server backend dan database pada region cloud yang sama dengan *private networking* untuk menekan latensi database di bawah 2 ms.
+* **Penerapan Web Server Multi-Worker Produksi:**  
+  Mengganti `php artisan serve` dengan web server produksi seperti **Nginx + PHP-FPM** (dengan konfigurasi multi-worker) atau **Laravel Octane** (FrankenPHP / Swoole) agar mampu melayani ratusan request konkuren secara paralel.
+* **Penerapan Layer Caching pada Dashboard Analitik:**  
+  Menerapkan Redis caching pada `DataAnalitik::ambil()` dengan TTL 60–120 detik guna meniadakan kalkulasi agregasi berulang pada database.
+* **Ko-Lokasi Server Aplikasi dan Database:**  
+  Menempatkan server backend dan database pada region cloud yang sama melalui koneksi privat berkecepatan tinggi guna meminimalkan latensi round-trip jaringan.
 
 ---
 
 ## 14. INTEGRITAS DATABASE DAN STANDAR KEAMANAN
 
-Pengujian dilaksanakan dengan kepatuhan penuh terhadap standar pengujian tim QA EDVORA:
+Pengujian dilaksanakan dengan kepatuhan penuh terhadap standar keselamatan tim QA EDVORA:
 * **Zero Destructive Migration:** Tidak ada perintah `php artisan migrate`, `migrate:fresh`, maupun *drop table* yang dieksekusi. Data master seluruh tim di Supabase tetap utuh dan aman.
 * **Zero Hardcoded Secrets:** Tidak ada kata sandi, cookie, maupun token CSRF yang tersimpan secara statis di dalam repositori. Seluruh parameter disuplai via environment variable k6 dan diabaikan dari git tracking.
 

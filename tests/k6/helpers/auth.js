@@ -3,6 +3,36 @@ import { check } from 'k6';
 import { CONFIG } from '../config/environment.js';
 
 /**
+ * Mengurai payload data-page Inertia.js baik dari respons HTML Blade maupun JSON langsung.
+ * Menghindari pencarian substring longgar/rapuh.
+ * 
+ * @param {string} body 
+ * @returns {object|null}
+ */
+export function extractInertiaPageData(body) {
+    if (!body || typeof body !== 'string') return null;
+    const trimmed = body.trim();
+    if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+        try {
+            return JSON.parse(trimmed);
+        } catch (_) {}
+    }
+    const match = body.match(/data-page\s*=\s*(["'])([\s\S]*?)\1/);
+    if (match && match[2]) {
+        try {
+            const unescaped = match[2]
+                .replace(/&quot;/g, '"')
+                .replace(/&amp;/g, '&')
+                .replace(/&lt;/g, '<')
+                .replace(/&gt;/g, '>')
+                .replace(/&#039;/g, "'");
+            return JSON.parse(unescaped);
+        } catch (_) {}
+    }
+    return null;
+}
+
+/**
  * Mengambil CSRF token (XSRF-TOKEN) dari cookie jar k6
  * @param {string} url 
  * @returns {string|null} Decoded XSRF-TOKEN
@@ -27,12 +57,13 @@ export function getXsrfToken(url = CONFIG.BASE_URL) {
  *    - Menolak redirect yang mengarah kembali ke /login.
  * 4. Verifikasi sesi nyata:
  *    - Mengakses endpoint terproteksi (/dashboard untuk Siswa, /editor untuk Editor).
- *    - Hanya dinyatakan sukses bila endpoint terproteksi merespons HTTP 200 OK.
+ *    - Memeriksa struktur objek auth.user.role dan component pada payload data Inertia.js.
+ *    - Hanya dinyatakan sukses bila endpoint terproteksi merespons HTTP 200 OK dan role valid.
  * 
  * @param {string} email 
  * @param {string} password 
  * @param {'siswa'|'editor'} expectedRole 
- * @returns {{ success: boolean, statusCode: number, error: string|null, xsrfToken: string|null }}
+ * @returns {{ success: boolean, statusCode: number, error: string|null, xsrfToken: string|null, cookies: object|null }}
  */
 export function login(email, password, expectedRole = 'siswa') {
     const loginUrl = `${CONFIG.BASE_URL}/login`;
@@ -43,6 +74,7 @@ export function login(email, password, expectedRole = 'siswa') {
             statusCode: 0,
             error: 'Kredensial email atau password belum ditentukan via Environment Variables k6.',
             xsrfToken: null,
+            cookies: null,
         };
     }
 
@@ -64,6 +96,7 @@ export function login(email, password, expectedRole = 'siswa') {
             statusCode: getRes.status,
             error: `Gagal mengakses halaman login (HTTP ${getRes.status})`,
             xsrfToken: null,
+            cookies: null,
         };
     }
 
@@ -124,6 +157,7 @@ export function login(email, password, expectedRole = 'siswa') {
             statusCode: postRes.status,
             error: errDetail,
             xsrfToken: xsrfToken,
+            cookies: null,
         };
     }
 
@@ -145,11 +179,27 @@ export function login(email, password, expectedRole = 'siswa') {
     const isRedirectedToLogin = (verifyRes.status === 302 || verifyRes.status === 301) && 
         ((verifyRes.headers['Location'] || '').includes('/login'));
 
-    const isRolePageMatched = verifyRes.status === 200 && (
-        expectedRole === 'editor' 
-            ? (verifyRes.body.includes('Editor') || verifyRes.body.includes('editor'))
-            : (verifyRes.body.includes('Dashboard') || verifyRes.body.includes('siswa'))
-    );
+    // Validasi role struktural melalui objek data-page Inertia (bukan sekadar pencarian kata biasa)
+    const pageData = extractInertiaPageData(verifyRes.body);
+    let isRolePageMatched = false;
+    let actualRole = null;
+
+    if (pageData && pageData.props && pageData.props.auth && pageData.props.auth.user) {
+        actualRole = pageData.props.auth.user.role;
+        const component = pageData.component || '';
+        if (expectedRole === 'editor') {
+            isRolePageMatched = (actualRole === 'admin_editor' || actualRole === 'editor') && component.startsWith('Editor/');
+        } else if (expectedRole === 'siswa') {
+            isRolePageMatched = actualRole === 'siswa' && component === 'Dashboard';
+        }
+    } else if (verifyRes.status === 200 && verifyRes.body) {
+        // Fallback pendukung jika atribut data-page terurai berbeda
+        if (expectedRole === 'editor') {
+            isRolePageMatched = verifyRes.body.includes('"role":"admin_editor"') || verifyRes.body.includes('&quot;role&quot;:&quot;admin_editor&quot;');
+        } else {
+            isRolePageMatched = verifyRes.body.includes('"role":"siswa"') || verifyRes.body.includes('&quot;role&quot;:&quot;siswa&quot;');
+        }
+    }
 
     const isSessionValid = verifyRes.status === 200 && !isRedirectedToLogin && isRolePageMatched;
 
@@ -158,6 +208,7 @@ export function login(email, password, expectedRole = 'siswa') {
         '[Auth] Sesi valid (Tidak dialihkan ke halaman login)': () => !isRedirectedToLogin,
         '[Auth] Hak akses peran sesuai otorisasi (Bukan 403)': (r) => r.status !== 403,
         '[Auth] Bukan Unauthenticated (Bukan 401)': (r) => r.status !== 401,
+        '[Auth] Role pengguna dan komponen halaman tervalidasi': () => isRolePageMatched,
     });
 
     const jar = http.cookieJar();
@@ -167,7 +218,7 @@ export function login(email, password, expectedRole = 'siswa') {
     return {
         success: isSessionValid,
         statusCode: verifyRes.status,
-        error: isSessionValid ? null : `Sesi tidak valid saat mengakses ${verifyUrl} (HTTP ${verifyRes.status}${isRedirectedToLogin ? ' -> Redirect to /login' : ''})`,
+        error: isSessionValid ? null : `Sesi tidak valid saat mengakses ${verifyUrl} (HTTP ${verifyRes.status}${isRedirectedToLogin ? ' -> Redirect to /login' : ''}${!isRolePageMatched ? ' -> Role mismatch' : ''})`,
         xsrfToken: updatedToken,
         cookies: allCookies,
     };

@@ -30,3 +30,5 @@ claude.md
 *.zip
 *.cookie
 *.session
+__pycache__/
+*.py[cod]

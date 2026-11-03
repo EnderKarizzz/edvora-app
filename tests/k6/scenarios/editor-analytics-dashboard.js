@@ -2,7 +2,7 @@ import http from 'k6/http';
 import { check, group, sleep } from 'k6';
 import { Trend, Rate, Counter } from 'k6/metrics';
 import { CONFIG, validateConfig } from '../config/environment.js';
-import { login, getXsrfToken } from '../helpers/auth.js';
+import { login, getXsrfToken, extractInertiaPageData } from '../helpers/auth.js';
 
 /**
  * SKENARIO B: Load Testing — Beban Dashboard Analitik Editor
@@ -19,12 +19,12 @@ import { login, getXsrfToken } from '../helpers/auth.js';
 const waktuDashboardStokEditor = new Trend('waktu_dashboard_stok_editor', true);
 const waktuDashboardAnalitik = new Trend('waktu_dashboard_analitik', true);
 
-// Metrik Tingkat Keberhasilan Bisnis & Error Terisolasi
+// Metrik Tingkat Keberhasilan Bisnis & Error Terisolasi (Nama spesifik untuk mencegah konflik pada runner)
 const rateSuccessEditor = new Rate('success_rate_editor');
 const countEditorVisits = new Counter('total_kunjungan_editor');
-const rateErrorConnection = new Rate('error_koneksi');
-const rateErrorAuth = new Rate('error_auth_401');
-const rateErrorServer5xx = new Rate('error_server_5xx');
+const rateErrorConnection = new Rate('error_koneksi_editor');
+const rateErrorAuth = new Rate('error_auth_editor');
+const rateErrorServer5xx = new Rate('error_server_5xx_editor');
 
 export const options = {
     scenarios: {
@@ -48,7 +48,7 @@ export const options = {
         'http_req_failed': ['rate<0.01'],
         'success_rate_editor': ['rate>0.95'],
         'total_kunjungan_editor': ['count>0'],
-        'error_server_5xx': ['rate<0.01'],
+        'error_server_5xx_editor': ['rate<0.01'],
     },
 };
 
@@ -142,7 +142,11 @@ export default function (setupData) {
 
     rateErrorServer5xx.add(stokRes.status >= 500 ? 1 : 0);
 
-    const isStokValid = stokRes.status === 200 && (stokRes.body.includes('Editor/Dashboard') || stokRes.body.includes('stokSubtes'));
+    const stokData = extractInertiaPageData(stokRes.body);
+    const isStokValid = stokRes.status === 200 && (
+        (stokData && stokData.component === 'Editor/Dashboard') ||
+        (stokRes.body && (stokRes.body.includes('Editor/Dashboard') || stokRes.body.includes('stokSubtes')))
+    );
 
     check(stokRes, {
         '[Dashboard Stok] Respons HTTP 200 OK': (r) => r.status === 200,
@@ -176,7 +180,11 @@ export default function (setupData) {
 
     rateErrorServer5xx.add(analitikRes.status >= 500 ? 1 : 0);
 
-    const isAnalitikValid = analitikRes.status === 200 && (analitikRes.body.includes('Editor/Analitik') || analitikRes.body.includes('analitik'));
+    const analitikData = extractInertiaPageData(analitikRes.body);
+    const isAnalitikValid = analitikRes.status === 200 && (
+        (analitikData && analitikData.component === 'Editor/Analitik') ||
+        (analitikRes.body && (analitikRes.body.includes('Editor/Analitik') || analitikRes.body.includes('analitik')))
+    );
 
     const isAllPassed = isStokValid && isAnalitikValid;
     rateSuccessEditor.add(isAllPassed ? 1 : 0);
@@ -185,7 +193,7 @@ export default function (setupData) {
         '[Dashboard Analitik] Respons HTTP 200 OK': (r) => r.status === 200,
         '[Dashboard Analitik] Waktu respons <= 3.0 detik (SLA 3s)': () => analitikRes.status > 0 && analitikDuration <= CONFIG.TARGETS.EDITOR_DASHBOARD_MAX_MS,
         '[Dashboard Analitik] Data analitik penguasaan siswa & stok termuat': () => isAnalitikValid,
-        '[Dashboard Analitik] Bukan 500 Internal Server Error': (r) => r.status < 500,
+        '[Dashboard Analitik] Bukan 5xx Server Error': (r) => r.status < 500,
     });
 
     if (isAllPassed) {
