@@ -1,6 +1,6 @@
 # Dokumentasi Automation Load & Performance Testing EDVORA (Grafana k6)
 
-**Penanggung Jawab:** Indah (Senior QA Automation Engineer)  
+**Penanggung Jawab:** Indah   
 **Branch Git:** `test/indah-k6` (Bercabang dari `setup-testing-ade`)  
 **Repository:** `https://github.com/EnderKarizzz/edvora-app`  
 
@@ -83,19 +83,19 @@ Jalankan perintah dari **root repository** (`d:\edvora-app`):
 ### A. Uji Cepat Fungsional (Smoke Test)
 Untuk memvalidasi fungsionalitas script secara cepat tanpa membebani server:
 ```powershell
-.\tools\k6\k6.exe run --vus 2 --duration 10s -e SISWA_EMAIL=sim001@simulasi.test -e SISWA_PASSWORD=SimulasiEdvora2026 tests\k6\scenarios\soal-response-time.js
+.\tools\k6\k6.exe run --vus 2 --duration 10s -e SISWA_EMAIL=sim001@simulasi.test -e SISWA_PASSWORD=$env:SISWA_PASSWORD tests\k6\scenarios\soal-response-time.js
 ```
 
 ### B. Menjalankan Skenario A (Pengujian Beban Hingga 500 VU)
 Jalankan script **tanpa parameter `--vus` atau `--duration` di CLI** agar k6 mengeksekusi tahapan beban bertahap hingga 500 VU sesuai konfigurasi `options.stages`:
 ```powershell
-.\tools\k6\k6.exe run -e SISWA_EMAIL=sim001@simulasi.test -e SISWA_PASSWORD=SimulasiEdvora2026 --summary-export tests\k6\reports\summary-skenario-a-soal.json tests\k6\scenarios\soal-response-time.js 2>&1 | Tee-Object -FilePath tests\k6\reports\output-skenario-a-soal.txt
+.\tools\k6\k6.exe run -e SISWA_EMAIL=sim001@simulasi.test -e SISWA_PASSWORD=$env:SISWA_PASSWORD --summary-export tests\k6\reports\summary-skenario-a-soal.json tests\k6\scenarios\soal-response-time.js 2>&1 | Tee-Object -FilePath tests\k6\reports\output-skenario-a-soal.txt
 ```
 
 ### C. Menjalankan Skenario B (Beban Dashboard Analitik Editor)
 Jalankan pengujian beban Editor (tahapan 10 s.d. 50 Editor konkuren):
 ```powershell
-.\tools\k6\k6.exe run -e EDITOR_EMAIL=dapa@gmail.com -e EDITOR_PASSWORD=12345678 --summary-export tests\k6\reports\summary-skenario-b-editor.json tests\k6\scenarios\editor-analytics-dashboard.js 2>&1 | Tee-Object -FilePath tests\k6\reports\output-skenario-b-editor.txt
+.\tools\k6\k6.exe run -e EDITOR_EMAIL=dapa@gmail.com -e EDITOR_PASSWORD=$env:EDITOR_PASSWORD --summary-export tests\k6\reports\summary-skenario-b-editor.json tests\k6\scenarios\editor-analytics-dashboard.js 2>&1 | Tee-Object -FilePath tests\k6\reports\output-skenario-b-editor.txt
 ```
 
 ### D. Menjalankan Seluruh Pengujian Secara Berurutan
@@ -105,7 +105,7 @@ powershell -ExecutionPolicy Bypass -File tests\k6\run-all.ps1
 ```
 Atau menggunakan runner master k6:
 ```powershell
-.\tools\k6\k6.exe run -e SISWA_EMAIL=sim001@simulasi.test -e SISWA_PASSWORD=SimulasiEdvora2026 -e EDITOR_EMAIL=dapa@gmail.com -e EDITOR_PASSWORD=12345678 tests\k6\run-all.js
+.\tools\k6\k6.exe run -e SISWA_EMAIL=sim001@simulasi.test -e SISWA_PASSWORD=$env:SISWA_PASSWORD -e EDITOR_EMAIL=dapa@gmail.com -e EDITOR_PASSWORD=$env:EDITOR_PASSWORD tests\k6\run-all.js
 ```
 
 ---
@@ -132,16 +132,16 @@ Berdasarkan eksekusi pengujian dengan konfigurasi beban bertahap (puncak 500 VU 
 | Parameter Metrik | Skenario A (Siswa — Soal) | Skenario B (Editor — Dashboard) |
 |---|---|---|
 | **Puncak Virtual Users (VU)** | **500 VU** (Ramping stages) | **50 VU** (Ramping stages) |
-| **Total Permintaan HTTP** | **4.523 requests** | **121 requests** |
-| **Throughput (RPS)** | **41,39 req/s** | **1,61 req/s** |
-| **Total Iterasi Lengkap** | **4.249 iterasi** | **7 iterasi** |
-| **Average Response Time (Utama)** | Jawab: **9.997,53 ms** \| Ambil: **7.074,68 ms** | Stok: **14.778,08 ms** \| Analitik: **14.025,00 ms** |
-| **Median Response Time (Utama)** | Jawab: **1,00 ms** \| Ambil: **1,00 ms** | Stok: **15.450,00 ms** \| Analitik: **15.117,00 ms** |
-| **90th Percentile (p90)** | Jawab: **34.083,40 ms** \| Ambil: **23.528,00 ms** | Stok: **21.897,40 ms** \| Analitik: **21.120,00 ms** |
-| **95th Percentile (p95)** | Jawab: **38.075,10 ms** \| Ambil: **60.000,10 ms** | Stok: **22.702,40 ms** \| Analitik: **22.197,00 ms** |
-| **Maximum Response Time** | Jawab: **42.846,00 ms** \| Ambil: **60.001,00 ms** | Stok: **23.489,00 ms** \| Analitik: **23.274,00 ms** |
-| **Success Rate Bisnis** | **36,84%** (7 jawaban berhasil diproses) | **100,00%** (7 kunjungan dashboard sukses) |
-| **Checks Passing Rate** | **14,81%** (748 / 5.048 checks) | **92,83%** (246 / 265 checks) |
+| **Total Permintaan HTTP** | **5.031 requests** | **135 requests** |
+| **Throughput (RPS)** | **46,19 req/s** | **1,80 req/s** |
+| **Total Iterasi Lengkap** | **4.431 iterasi** | **14 iterasi** |
+| **Average Response Time (Utama)** | Jawab: **854,03 ms** \| Ambil: **371,63 ms** | Stok: **12.378,20 ms** \| Analitik: **12.778,71 ms** |
+| **Median Response Time (Utama)** | Jawab: **0,00 ms** \| Ambil: **0,00 ms** | Stok: **13.306,76 ms** \| Analitik: **11.765,50 ms** |
+| **90th Percentile (p90)** | Jawab: **0,00 ms** \| Ambil: **0,00 ms** | Stok: **21.883,85 ms** \| Analitik: **23.500,32 ms** |
+| **95th Percentile (p95)** | Jawab: **0,00 ms** \| Ambil: **0,00 ms** | Stok: **22.623,15 ms** \| Analitik: **24.839,47 ms** |
+| **Maximum Response Time** | Jawab: **54.862,72 ms** \| Ambil: **60.001,71 ms** | Stok: **24.530,33 ms** \| Analitik: **25.038,01 ms** |
+| **Success Rate Bisnis** | **2,69%** (9 jawaban berhasil diproses) | **100,00%** (16 kunjungan dashboard sukses) |
+| **Checks Passing Rate** | **10,37%** (789 / 7.609 checks) | **89,55%** (300 / 335 checks) |
 | **Target Batas Waktu (SLA)** | **≤ 1.0 detik (1000 ms)** per request | **≤ 3.0 detik (3000 ms)** per request |
 | **Status Evaluasi SLA Akhir** | **FAIL (Exceeded SLA under load)** | **FAIL (Exceeded SLA under load)** |
 

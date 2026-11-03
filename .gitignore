@@ -22,3 +22,10 @@ yarn-error.log
 /graphify-out
 claude.md
 /kebutuhan-konteks
+
+# Testing binaries & temporary load test artifacts
+/tools/
+*.exe
+*.tmp
+*.cookie
+*.session

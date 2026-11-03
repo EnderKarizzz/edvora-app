@@ -148,6 +148,8 @@ export function login(email, password, expectedRole = 'siswa') {
         '[Auth] Bukan Unauthenticated (Bukan 401)': (r) => r.status !== 401,
     });
 
+    const jar = http.cookieJar();
+    const allCookies = jar.cookiesForURL(CONFIG.BASE_URL);
     const updatedToken = getXsrfToken(CONFIG.BASE_URL) || xsrfToken;
 
     return {
@@ -155,5 +157,6 @@ export function login(email, password, expectedRole = 'siswa') {
         statusCode: verifyRes.status,
         error: isSessionValid ? null : `Sesi tidak valid saat mengakses ${verifyUrl} (HTTP ${verifyRes.status})`,
         xsrfToken: updatedToken,
+        cookies: allCookies,
     };
 }

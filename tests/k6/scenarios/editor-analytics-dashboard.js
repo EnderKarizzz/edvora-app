@@ -6,7 +6,7 @@ import { login, getXsrfToken } from '../helpers/auth.js';
 
 /**
  * SKENARIO B: Load Testing — Beban Dashboard Analitik Editor
- * Penanggung Jawab: Indah (Load & Performance Testing)
+ * Penanggung Jawab: Indah (Senior QA Automation Engineer)
  * 
  * Target Pengujian:
  * - Menguji pemuatan ringkasan stok bank soal per subtes (GET /editor) secara mandiri.
@@ -58,6 +58,10 @@ export function setup() {
     };
 }
 
+// State per-VU untuk menghindari login berulang di setiap iterasi
+let isEditorLoggedIn = false;
+let vuCookies = null;
+
 export default function () {
     const email = CONFIG.EDITOR.EMAIL;
     const password = CONFIG.EDITOR.PASSWORD;
@@ -66,30 +70,45 @@ export default function () {
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
     };
 
-    // TAHAP 1: AUTENTIKASI EDITOR
-    // Waktu login diukur tersendiri dan TIDAK dicampur ke dalam metrik dashboard
-    const authResult = login(email, password, 'editor');
-    if (!authResult.success) {
-        if (authResult.statusCode === 401 || authResult.statusCode === 422) {
-            rateErrorAuth.add(1);
-        } else {
-            rateErrorAuth.add(0);
+    // TAHAP 1: AUTENTIKASI EDITOR (Hanya sekali per Virtual User)
+    // Cookie jar k6 dipertahankan per-VU untuk seluruh iterasi berikutnya
+    const jar = http.cookieJar();
+    if (!isEditorLoggedIn) {
+        const authResult = login(email, password, 'editor');
+        if (!authResult.success) {
+            if (authResult.statusCode === 401 || authResult.statusCode === 422) {
+                rateErrorAuth.add(1);
+            } else {
+                rateErrorAuth.add(0);
+            }
+            sleep(2);
+            return;
         }
-        // Jeda waktu agar VU yang gagal login tidak melakukan tight-loop hammering
-        sleep(2);
-        return;
+        isEditorLoggedIn = true;
+        vuCookies = authResult.cookies;
+        rateErrorAuth.add(0);
+    } else if (vuCookies) {
+        // Pulihkan session cookie ke cookie jar VU jika direset antar-iterasi oleh k6
+        for (const cName in vuCookies) {
+            if (vuCookies[cName] && vuCookies[cName].length > 0) {
+                jar.set(CONFIG.BASE_URL, cName, vuCookies[cName][0]);
+            }
+        }
     }
-    rateErrorAuth.add(0);
 
     // TAHAP 2: AKSES RINGKASAN STOK BANK SOAL EDITOR (GET /editor)
-    // AdminSoalController::dashboard -> Memuat stok subtes, published, draft, review
-    const stokStart = Date.now();
+    // Diukur terpisah menggunakan response.timings.duration (SLA <= 3000 ms)
     const stokRes = http.get(`${CONFIG.BASE_URL}/editor`, {
         headers: headersInertia,
         tags: { name: 'METRIC_GET_Editor_Stok_Bank_Soal' },
     });
-    const stokDuration = Date.now() - stokStart;
+    const stokDuration = stokRes.timings.duration;
     waktuDashboardStokEditor.add(stokDuration);
+
+    if (stokRes.status === 401) {
+        isEditorLoggedIn = false;
+        rateErrorAuth.add(1);
+    }
 
     rateErrorServer5xx.add(stokRes.status >= 500 ? 1 : 0);
 
@@ -106,15 +125,18 @@ export default function () {
     sleep(1);
 
     // TAHAP 3: AKSES DASHBOARD ANALITIK TERPADU (GET /editor/analitik)
-    // AnalitikController::index -> Memuat ringkasan stok topik dan pemetaan rata-rata penguasaan siswa
-    // Catatan: Karena kedua metrik ini berasal dari satu endpoint controller, dicatat sebagai satu metrik analitik terpadu
-    const analitikStart = Date.now();
+    // Diukur terpisah menggunakan response.timings.duration (SLA <= 3000 ms)
     const analitikRes = http.get(`${CONFIG.BASE_URL}/editor/analitik`, {
         headers: headersInertia,
         tags: { name: 'METRIC_GET_Editor_Analitik_Terpadu' },
     });
-    const analitikDuration = Date.now() - analitikStart;
+    const analitikDuration = analitikRes.timings.duration;
     waktuDashboardAnalitik.add(analitikDuration);
+
+    if (analitikRes.status === 401) {
+        isEditorLoggedIn = false;
+        rateErrorAuth.add(1);
+    }
 
     rateErrorServer5xx.add(analitikRes.status >= 500 ? 1 : 0);
 

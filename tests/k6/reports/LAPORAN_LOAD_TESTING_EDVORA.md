@@ -1,11 +1,11 @@
 # LAPORAN RESMI AUTOMATION LOAD & PERFORMANCE TESTING EDVORA
 **Aplikasi Web Berbasis Laravel 11 & React (Inertia.js)**
 
-* **Penanggung Jawab Pengujian:** Indah (Senior QA Automation Engineer)
+* **Penanggung Jawab Pengujian:** Indah 
 * **Fokus Pengujian:** Load Testing & Performance Testing menggunakan Grafana k6
 * **Branch Git Pekerjaan:** `test/indah-k6` (Bercabang dari `setup-testing-ade`)
 * **Repository:** `https://github.com/EnderKarizzz/edvora-app`
-* **Waktu Pelaksanaan Aktual:** 3 November 2026
+* **Waktu Pelaksanaan Aktual:** 2 November 2026
 
 ---
 
@@ -21,7 +21,11 @@ Pengujian ini dirancang secara khusus untuk memenuhi dua sasaran operasional:
 
 ## 2. RUANG LINGKUP PENGUJIAN
 
-Sesuai pembagian tanggung jawab tim QA, pengujian Indah difokuskan **hanya** pada pengujian performa protokol HTTP dan API backend menggunakan Grafana k6. Pengujian unit/feature PHPUnit (tugas Kak Naila) dan E2E Cypress (tugas anggota tim lain) secara ketat berada di luar ruang lingkup ini. Pengujian k6 mengukur efisiensi komputasi backend, latensi database, dan *throughput* jaringan, tanpa mengklaim waktu *rendering* visual antarmuka peramban (browser visual).
+Sesuai dengan pembagian tanggung jawab tim QA (Quality Assurance), ruang lingkup pengujian beban (Load Testing) pada dokumen ini difokuskan secara eksklusif pada evaluasi performa protokol HTTP dan stabilitas API backend (EDVORA). 
+
+Pengujian ini memvalidasi efisiensi komputasi backend, latensi database, serta throughput jaringan pada sisi server saat menerima beban kerja tinggi. Cakupan pengujian dibatasi pada sisi peladen (server-side performance) tanpa mengukur waktu rendering visual pada antarmuka peramban (client-side UI rendering).
+
+Adapun pengujian fungsional komponen (Unit/Feature Testing) dan pengujian antarmuka pengguna (End-to-End/UI Testing) berada di luar ruang lingkup dokumen ini karena ditangani secara terpisah oleh tim QA fungsional lainnya.
 
 ---
 
@@ -57,23 +61,23 @@ Skenario A mensimulasikan alur kerja siswa mengerjakan latihan ujian. Berdasarka
 
 ## 6. HASIL PENGUJIAN SKENARIO A
 
-Eksekusi Skenario A menghasilkan total **4.523 HTTP requests** dengan **4.249 iterasi** di bawah konkurensi puncak **500 VU**. Rata-rata throughput tercatat **41,39 req/s**.
+Eksekusi Skenario A menghasilkan total **5.031 HTTP requests** dengan **4.431 iterasi** di bawah konkurensi puncak **500 VU**. Rata-rata throughput tercatat **46,19 req/s**.
 
 * **Waktu Pengiriman Jawaban (`POST /latihan/ujian/jawab`):**
-  * Average: **9.997,53 ms** (9,99 s)
-  * Median: **1,00 ms**
-  * Percentile 90 (p90): **34.083,40 ms** (34,08 s)
-  * Percentile 95 (p95): **38.075,10 ms** (38,08 s)
-  * Maximum: **42.846,00 ms** (42,85 s)
+  * Average: **854,03 ms**
+  * Median: **0,00 ms**
+  * Percentile 90 (p90): **0,00 ms**
+  * Percentile 95 (p95): **0,00 ms**
+  * Maximum: **54.862,72 ms** (54,86 s)
   * Status Evaluasi: **FAIL** (Melampaui target SLA ≤ 1000 ms di bawah beban 500 VU).
 * **Waktu Ambil Soal Berikutnya (`GET /latihan/kerjakan/{sesiId}`):**
-  * Average: **7.074,68 ms** (7,07 s)
-  * Median: **1,00 ms**
-  * Percentile 90 (p90): **23.528,00 ms** (23,53 s)
-  * Percentile 95 (p95): **60.000,10 ms** (60,00 s)
-  * Maximum: **60.001,00 ms** (60,00 s)
+  * Average: **371,63 ms**
+  * Median: **0,00 ms**
+  * Percentile 90 (p90): **0,00 ms**
+  * Percentile 95 (p95): **0,00 ms**
+  * Maximum: **60.001,71 ms** (60,00 s)
   * Status Evaluasi: **FAIL** (Melampaui target SLA ≤ 1000 ms di bawah beban 500 VU).
-* **Validasi Proses Bisnis:** Sebanyak **7 jawaban riil** berhasil diverifikasi dan dinilai secara sah oleh backend Laravel tanpa error 422 (validasi format berhasil), tanpa 410 (sesi aktif valid), dan tanpa 429.
+* **Validasi Proses Bisnis:** Sebanyak **9 jawaban riil** berhasil diverifikasi dan dinilai secara sah oleh backend Laravel tanpa error 422 (validasi format berhasil), tanpa 410 (sesi aktif valid), dan tanpa 429.
 
 ---
 
@@ -89,21 +93,21 @@ Skenario B menguji ketahanan server saat diakses oleh pengguna dengan hak akses 
 
 ## 8. HASIL PENGUJIAN SKENARIO B
 
-Eksekusi Skenario B menghasilkan total **121 HTTP requests** dengan **7 iterasi** di bawah konkurensi puncak **50 Editor**. Tingkat kegagalan request HTTP transport tercatat sempurna **0,00%** (121 dari 121 request berhasil diproses). Success rate alur kerja Editor mencapai **100,00%** (7 dari 7 kunjungan lengkap). Checks passing mencapai **92,83%** (246 dari 265 checks).
+Eksekusi Skenario B menghasilkan total **135 HTTP requests** dengan **14 iterasi** di bawah konkurensi puncak **50 Editor**. Tingkat kegagalan request HTTP transport tercatat sempurna **0,00%** (135 dari 135 request berhasil diproses). Success rate alur kerja Editor mencapai **100,00%** (16 dari 16 kunjungan lengkap). Checks passing mencapai **89,55%** (300 dari 335 checks).
 
 * **Pemuatan Stok Bank Soal (`GET /editor`):**
-  * Average: **14.778,08 ms** (14,78 s)
-  * Median: **15.450,00 ms** (15,45 s)
-  * Percentile 90 (p90): **21.897,40 ms** (21,90 s)
-  * Percentile 95 (p95): **22.702,40 ms** (22,70 s)
-  * Maximum: **23.489,00 ms** (23,49 s)
+  * Average: **12.378,20 ms** (12,38 s)
+  * Median: **13.306,76 ms** (13,31 s)
+  * Percentile 90 (p90): **21.883,85 ms** (21,88 s)
+  * Percentile 95 (p95): **22.623,15 ms** (22,62 s)
+  * Maximum: **24.530,33 ms** (24,53 s)
   * Status Evaluasi: **FAIL** (Melampaui target SLA ≤ 3000 ms di bawah beban 50 VU).
 * **Dashboard Analitik Terpadu (`GET /editor/analitik`):**
-  * Average: **14.025,00 ms** (14,03 s)
-  * Median: **15.117,00 ms** (15,12 s)
-  * Percentile 90 (p90): **21.120,00 ms** (21,12 s)
-  * Percentile 95 (p95): **22.197,00 ms** (22,20 s)
-  * Maximum: **23.274,00 ms** (23,27 s)
+  * Average: **12.778,71 ms** (12,78 s)
+  * Median: **11.765,50 ms** (11,77 s)
+  * Percentile 90 (p90): **23.500,32 ms** (23,50 s)
+  * Percentile 95 (p95): **24.839,47 ms** (24,84 s)
+  * Maximum: **25.038,01 ms** (25,04 s)
   * Status Evaluasi: **FAIL** (Melampaui target SLA ≤ 3000 ms di bawah beban 50 VU).
 
 ---
@@ -115,15 +119,15 @@ Berikut adalah tabel komparasi formal antara target ketentuan tugas dan hasil pe
 | Parameter Metrik | Skenario A (Siswa — Soal) | Skenario B (Editor — Dashboard) |
 |---|---|---|
 | **Puncak Virtual Users (VU)** | **500 VU** (Ramping stages) | **50 VU** (Ramping stages) |
-| **Total Permintaan HTTP** | **4.523 requests** | **121 requests** |
-| **Throughput (RPS)** | **41,39 req/s** | **1,61 req/s** |
-| **Total Iterasi Lengkap** | **4.249 iterasi** | **7 iterasi** |
-| **Average Response Time (Utama)** | Jawab: **9.997,53 ms** \| Ambil: **7.074,68 ms** | Stok: **14.778,08 ms** \| Analitik: **14.025,00 ms** |
-| **Median Response Time (Utama)** | Jawab: **1,00 ms** \| Ambil: **1,00 ms** | Stok: **15.450,00 ms** \| Analitik: **15.117,00 ms** |
-| **90th Percentile (p90)** | Jawab: **34.083,40 ms** \| Ambil: **23.528,00 ms** | Stok: **21.897,40 ms** \| Analitik: **21.120,00 ms** |
-| **95th Percentile (p95)** | Jawab: **38.075,10 ms** \| Ambil: **60.000,10 ms** | Stok: **22.702,40 ms** \| Analitik: **22.197,00 ms** |
-| **Maximum Response Time** | Jawab: **42.846,00 ms** \| Ambil: **60.001,00 ms** | Stok: **23.489,00 ms** \| Analitik: **23.274,00 ms** |
-| **Success Rate Bisnis** | **36,84%** (7 jawaban berhasil diproses) | **100,00%** (7 kunjungan dashboard sukses) |
+| **Total Permintaan HTTP** | **5.031 requests** | **135 requests** |
+| **Throughput (RPS)** | **46,19 req/s** | **1,80 req/s** |
+| **Total Iterasi Lengkap** | **4.431 iterasi** | **14 iterasi** |
+| **Average Response Time (Utama)** | Jawab: **854,03 ms** \| Ambil: **371,63 ms** | Stok: **12.378,20 ms** \| Analitik: **12.778,71 ms** |
+| **Median Response Time (Utama)** | Jawab: **0,00 ms** \| Ambil: **0,00 ms** | Stok: **13.306,76 ms** \| Analitik: **11.765,50 ms** |
+| **90th Percentile (p90)** | Jawab: **0,00 ms** \| Ambil: **0,00 ms** | Stok: **21.883,85 ms** \| Analitik: **23.500,32 ms** |
+| **95th Percentile (p95)** | Jawab: **0,00 ms** \| Ambil: **0,00 ms** | Stok: **22.623,15 ms** \| Analitik: **24.839,47 ms** |
+| **Maximum Response Time** | Jawab: **54.862,72 ms** \| Ambil: **60.001,71 ms** | Stok: **24.530,33 ms** \| Analitik: **25.038,01 ms** |
+| **Success Rate Bisnis** | **2,69%** (9 jawaban berhasil diproses) | **100,00%** (16 kunjungan dashboard sukses) |
 | **Target Batas Waktu (SLA)** | **≤ 1.0 detik (1000 ms)** per request | **≤ 3.0 detik (3000 ms)** per request |
 | **Status Evaluasi SLA Akhir** | <span style="color:#9B2C2C">**FAIL (Exceeded SLA under load)**</span> | <span style="color:#9B2C2C">**FAIL (Exceeded SLA under load)**</span> |
 

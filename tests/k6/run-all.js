@@ -20,6 +20,7 @@ export const options = {
         skenario_b_editor: {
             executor: 'ramping-vus',
             exec: 'runScenarioB',
+            startTime: '1m45s', // Eksekusi berurutan setelah Skenario A selesai
             startVUs: 1,
             stages: CONFIG.STAGES.SKENARIO_B_EDITOR,
             gracefulRampDown: '15s',

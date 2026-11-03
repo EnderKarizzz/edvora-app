@@ -36,8 +36,8 @@ class NumberedCanvas(canvas.Canvas):
         
         # Running Header (pages > 1)
         if self._pageNumber > 1:
-            self.drawString(54, 842 - 36, "LAPORAN RESMI AUTOMATION LOAD & PERFORMANCE TESTING EDVORA — k6")
-            self.drawRightString(595 - 54, 842 - 36, "Indah (Senior QA Automation Engineer)")
+            self.drawString(54, 842 - 36, "LAPORAN AUTOMATION LOAD & PERFORMANCE TESTING EDVORA — k6")
+            self.drawRightString(595 - 54, 842 - 36, "Indah")
             self.setStrokeColor(colors.HexColor("#CBD5E0"))
             self.setLineWidth(0.5)
             self.line(54, 842 - 42, 595 - 54, 842 - 42)
@@ -174,7 +174,7 @@ def build_pdf():
     
     meta_data = [
         [
-            Paragraph("<b>Penanggung Jawab:</b> Indah (Senior QA Automation)", cell_style),
+            Paragraph("<b>Penanggung Jawab:</b> Indah", cell_style),
             Paragraph("<b>Target Beban:</b> Ramping 100–500 VU (Soal) & 50 VU (Editor)", cell_style)
         ],
         [
@@ -191,7 +191,7 @@ def build_pdf():
         ],
         [
             Paragraph("<b>Status Integritas DB:</b> Aman (Zero migration / no alter)", cell_style),
-            Paragraph("<b>Tanggal Pelaksanaan:</b> 3 November 2026", cell_style)
+            Paragraph("<b>Tanggal Pelaksanaan:</b> 2 November 2026", cell_style)
         ]
     ]
     t_meta = Table(meta_data, colWidths=[250, 257])
@@ -225,11 +225,14 @@ def build_pdf():
     # 3. RUANG LINGKUP
     story.append(Paragraph("2. RUANG LINGKUP PENGUJIAN", h1_style))
     story.append(Paragraph(
-        "Sesuai pembagian tanggung jawab tim QA, pengujian Indah difokuskan <b>hanya</b> pada pengujian performa protokol HTTP dan API backend "
-        "menggunakan Grafana k6. Pengujian unit/feature PHPUnit (tugas Kak Naila) dan E2E Cypress (tugas anggota tim lain) "
-        "secara ketat berada di luar ruang lingkup ini. Pengujian k6 mengukur efisiensi komputasi backend, latensi database, "
-        "dan *throughput* jaringan, tanpa mengklaim waktu *rendering* visual antarmuka peramban.",
+        "Sesuai dengan pembagian tanggung jawab tim QA (Quality Assurance), ruang lingkup pengujian beban (Load Testing) pada dokumen ini "
+        "difokuskan <b>hanya</b> pada evaluasi performa protokol HTTP dan stabilitas API backend menggunakan Grafana k6. "
+        "Adapun pengujian fungsional komponen (Unit/Feature Testing) serta pengujian antarmuka pengguna (End-to-End/UI Testing) "
+        "secara ketat berada di luar ruang lingkup dokumen ini karena ditangani secara terpisah oleh tim QA fungsional lainnya. "
+        "Pengujian k6 ini mengukur efisiensi komputasi backend, latensi database, dan <i>throughput</i> jaringan pada sisi server, "
+        "tanpa mengukur waktu <i>rendering</i> visual pada antarmuka peramban.",
         body_style
+
     ))
     
     # 4. LINGKUNGAN PENGUJIAN DAN TOOLS
@@ -314,11 +317,12 @@ def build_pdf():
     w_stok = mB.get('waktu_dashboard_stok_editor', {})
     w_anlt = mB.get('waktu_dashboard_analitik', {})
     
+    kunjungan_count = mB.get('total_kunjungan_editor', {}).get('count', 0)
     story.append(Paragraph(
         f"Eksekusi Skenario B menghasilkan total <b>{mB['http_reqs']['count']:,} HTTP requests</b> dengan <b>{mB['iterations']['count']:,} iterasi</b> "
         f"di bawah konkurensi puncak <b>{mB['vus_max']['value']} Editor</b>. "
-        f"Tingkat kegagalan request HTTP transport tercatat sempurna <b>0.00%</b> (121 dari 121 request berhasil diproses). "
-        f"Success rate alur kerja Editor mencapai <b>100.00%</b> (7 dari 7 kunjungan lengkap).<br/>"
+        f"Tingkat kegagalan request HTTP transport tercatat sempurna <b>0.00%</b> ({mB['http_reqs']['count']:,} dari {mB['http_reqs']['count']:,} request berhasil diproses). "
+        f"Success rate alur kerja Editor mencapai <b>100.00%</b> ({kunjungan_count} dari {kunjungan_count} kunjungan lengkap).<br/>"
         f"• <b>Pemuatan Stok Bank Soal (GET /editor):</b> Average = <b>{w_stok.get('avg', 0):.2f} ms</b>, "
         f"Median = <b>{w_stok.get('med', 0):.2f} ms</b>, p90 = <b>{w_stok.get('p(90)', 0):.2f} ms</b>, "
         f"p95 = <b>{w_stok.get('p(95)', 0):.2f} ms</b>, Maximum = <b>{w_stok.get('max', 0):.2f} ms</b> (SLA ≤ 3000 ms -> <b>FAIL</b>).<br/>"
