@@ -10,6 +10,12 @@ class RoleAccessTest extends TestCase
 {
     use DatabaseTransactions;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->withoutVite(); 
+    }
+
     public function test_admin_can_access_admin_panel()
     {
         $admin = User::factory()->create(['role' => 'admin']);
