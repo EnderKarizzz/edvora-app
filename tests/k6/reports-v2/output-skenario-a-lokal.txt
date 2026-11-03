@@ -1,0 +1,331 @@
+\"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0073] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0073] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0073] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0073] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0073] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0073] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0073] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0073] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0073] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0073] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Post \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Post \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0074] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/latihan/persiapan\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/latihan/persiapan\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Post \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0075] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0076] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0076] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0076] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0076] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0076] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0076] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0076] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0076] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0076] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0076] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0076] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0076] Request Failed                                error="Get \"http://127.0.0.1:8000/dashboard\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0076] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0076] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0076] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0076] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0076] Request Failed                                error="Post \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0076] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0076] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0076] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0076] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0077] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0077] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0077] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0077] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0077] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0077] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0077] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0077] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0077] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0077] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0077] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0077] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0077] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0077] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0077] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0077] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0077] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0077] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0077] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0077] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0077] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0077] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0077] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0077] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0077] Request Failed                                error="Get \"http://127.0.0.1:8000/dashboard\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0077] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0077] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0077] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0077] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0077] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0078] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0078] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0078] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0078] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0078] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0078] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0078] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0078] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0078] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0078] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0078] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0078] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0078] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0078] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0078] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0078] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0078] Request Failed                                error="Get \"http://127.0.0.1:8000/dashboard\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0078] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0078] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0078] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0078] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0079] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0079] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0079] Request Failed                                error="Post \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0079] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0079] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0079] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0079] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0079] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0079] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0079] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0079] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0080] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0080] Request Failed                                error="Get \"http://127.0.0.1:8000/dashboard\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0080] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0081] Request Failed                                error="Get \"http://127.0.0.1:8000/dashboard\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0081] Request Failed                                error="Post \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0081] Request Failed                                error="Post \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0081] Request Failed                                error="Post \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0082] Request Failed                                error="Get \"http://127.0.0.1:8000/latihan/persiapan\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0083] Request Failed                                error="Post \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0084] Request Failed                                error="Get \"http://127.0.0.1:8000/dashboard\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0084] Request Failed                                error="Post \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0084] Request Failed                                error="Post \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0086] Request Failed                                error="Get \"http://127.0.0.1:8000/latihan/persiapan\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0086] Request Failed                                error="Get \"http://127.0.0.1:8000/latihan/persiapan\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0086] Request Failed                                error="Post \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0087] Request Failed                                error="Get \"http://127.0.0.1:8000/dashboard\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0088] Request Failed                                error="Get \"http://127.0.0.1:8000/dashboard\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0088] Request Failed                                error="Post \"http://127.0.0.1:8000/login\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0089] Request Failed                                error="Post \"http://127.0.0.1:8000/login\": request timeout"
+WARN[0089] Request Failed                                error="Post \"http://127.0.0.1:8000/login\": request timeout"
+WARN[0089] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": request timeout"
+WARN[0089] Request Failed                                error="Post \"http://127.0.0.1:8000/login\": request timeout"
+WARN[0089] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": request timeout"
+WARN[0090] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": request timeout"
+WARN[0090] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": request timeout"
+WARN[0090] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": request timeout"
+WARN[0090] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": request timeout"
+WARN[0090] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": request timeout"
+WARN[0090] Request Failed                                error="Get \"http://127.0.0.1:8000/latihan/persiapan\": request timeout"
+WARN[0090] Request Failed                                error="Get \"http://127.0.0.1:8000/latihan/persiapan\": dial tcp 127.0.0.1:8000: connectex: No connection could be made because the target machine actively refused it."
+WARN[0091] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": request timeout"
+WARN[0091] Request Failed                                error="Post \"http://127.0.0.1:8000/login\": request timeout"
+WARN[0091] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": request timeout"
+WARN[0091] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": request timeout"
+WARN[0091] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": request timeout"
+WARN[0091] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": request timeout"
+WARN[0091] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": request timeout"
+WARN[0091] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": request timeout"
+WARN[0091] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": request timeout"
+WARN[0092] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": request timeout"
+WARN[0092] Request Failed                                error="Get \"http://127.0.0.1:8000/dashboard\": request timeout"
+WARN[0092] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": request timeout"
+WARN[0092] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": request timeout"
+WARN[0092] Request Failed                                error="Post \"http://127.0.0.1:8000/login\": request timeout"
+WARN[0092] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": request timeout"
+WARN[0092] Request Failed                                error="Post \"http://127.0.0.1:8000/login\": request timeout"
+WARN[0092] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": request timeout"
+WARN[0092] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": request timeout"
+WARN[0092] Request Failed                                error="Get \"http://127.0.0.1:8000/login\": request timeout"
+WARN[0093] Request Failed                                error="Get \"http://127.0.0.1:8000/latihan/persiapan\": request timeout"
+WARN[0094] Request Failed                                error="Post \"http://127.0.0.1:8000/login\": request timeout"
+WARN[0095] Request Failed                                error="Get \"http://127.0.0.1:8000/dashboard\": request timeout"
+INFO[0095] [TEARDOWN] Skenario A selesai diuji pada 2026-11-03T16:42:29.699Z  source=console
+
+
+  █ THRESHOLDS 
+
+    error_rate_limited_429
+    ✓ 'rate<0.05' rate=0.00%
+
+    error_server_5xx
+    ✓ 'rate<0.01' rate=0.00%
+
+    http_req_failed
+    ✗ 'rate<0.01' rate=94.85%
+
+    success_rate_jawaban
+    ✓ 'rate>0.95' rate=0.00%
+
+    total_siklus_soal
+    ✓ 'p(95)<1000' p(95)=0s
+    ✓ 'max<1000' max=0s
+
+    waktu_ambil_soal_berikutnya
+    ✗ 'p(95)<1000' p(95)=14.08s
+    ✗ 'max<1000' max=28.16s
+
+    waktu_pengiriman_jawaban
+    ✓ 'p(95)<1000' p(95)=0s
+    ✓ 'max<1000' max=0s
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 3258   34.228313/s
+    checks_succeeded...: 11.72% 382 out of 3258
+    checks_failed......: 88.27% 2876 out of 3258
+
+    ✗ [Auth] Halaman login dapat diakses (200 OK)
+      ↳  3% — ✓ 97 / ✗ 2782
+    ✗ [Auth] Kredensial valid dan diterima (HTTP 302/200)
+      ↳  51% — ✓ 46 / ✗ 43
+    ✓ [Auth] Tidak terjadi error validasi kredensial (Bukan 422)
+    ✓ [Auth] Tidak terjadi error CSRF token (Bukan 419)
+    ✗ [Auth] Session terautentikasi dapat mengakses endpoint terproteksi (200 OK)
+      ↳  30% — ✓ 12 / ✗ 27
+    ✓ [Auth] Bukan Unauthenticated (Bukan 401)
+    ✗ [Siswa] Halaman persiapan latihan respons 200 OK
+      ↳  0% — ✓ 0 / ✗ 12
+    ✗ [Soal] Akses menu latihan persiapan selesai (HTTP 200)
+      ↳  0% — ✓ 0 / ✗ 11
+    ✗ [Soal] Waktu respons <= 1.0 detik (SLA 1s)
+      ↳  90% — ✓ 10 / ✗ 1
+
+    CUSTOM
+    error_auth_401.................: 0.00%  0 out of 2864
+    error_rate_limited_429.........: 0.00%  0 out of 0
+    error_server_5xx...............: 0.00%  0 out of 0
+    success_rate_jawaban...........: 0.00%  0 out of 0
+    total_siklus_soal..............: avg=0s    min=0s       med=0s     max=0s     p(90)=0s     p(95)=0s    
+    waktu_ambil_soal_berikutnya....: avg=2.56s min=0s       med=1ms    max=28.16s p(90)=2ms    p(95)=14.08s
+    waktu_pengiriman_jawaban.......: avg=0s    min=0s       med=0s     max=0s     p(90)=0s     p(95)=0s    
+
+    HTTP
+    http_req_duration..............: avg=2.13s min=0s       med=0s     max=1m0s   p(90)=0s     p(95)=12.88s
+      { expected_response:true }...: avg=27.4s min=166.49ms med=25.56s max=59.26s p(90)=52.63s p(95)=55.68s
+    http_req_failed................: 94.85% 2875 out of 3031
+    http_reqs......................: 3031   31.843467/s
+
+    EXECUTION
+    iteration_duration.............: avg=3.67s min=2s       med=2s     max=1m31s  p(90)=2s     p(95)=2s    
+    iterations.....................: 2846   29.899871/s
+    vus............................: 4      min=4            max=496
+    vus_max........................: 500    min=500          max=500
+
+    NETWORK
+    data_received..................: 3.3 MB 35 kB/s
+    data_sent......................: 146 kB 1.5 kB/s
+
+
+
+
+running (1m35.2s), 000/500 VUs, 2846 complete and 157 interrupted iterations
+load_test_soal ✓ [======================================] 001/500 VUs  1m20s
+ERRO[0095] thresholds on metrics 'http_req_failed, waktu_ambil_soal_berikutnya' have been crossed 
