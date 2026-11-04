@@ -6,7 +6,7 @@ import { parseInertiaData } from './inertia-parser.js';
 /**
  * ============================================================================
  * [DEPRECATED & DISABLED] PUBLIC GET SMOKE TEST K6 — EDVORA
- * Penanggung Jawab: Indah (Senior QA Automation Engineer)
+ * Penanggung Jawab: Indah
  * ============================================================================
  *
  * STATUS KEAMANAN (Stage 5O-AF):
@@ -177,7 +177,7 @@ function generateCustomSummary(data) {
     return `
 ================================================================================
 HASIL PUBLIC GET SMOKE TEST k6 — EDVORA
-Penanggung Jawab: Indah (Senior QA Automation Engineer)
+Penanggung Jawab: Indah
 ================================================================================
 Target URL         : ${TARGET_URL}
 Metode HTTP        : Murni HTTP GET (Hanya 1 request GET /login)

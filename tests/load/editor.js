@@ -7,7 +7,7 @@ import { parseInertiaData } from './inertia-parser.js';
 /**
  * ============================================================================
  * SKENARIO B: LOAD TESTING DASHBOARD STOK BANK SOAL & ANALITIK EDITOR EDVORA
- * Penanggung Jawab: Indah (Senior QA Automation Engineer)
+ * Penanggung Jawab: Indah
  * ============================================================================
  * 
  * TARGET PENELITIAN & SLA:
@@ -663,7 +663,7 @@ function generateCustomSummary(data) {
     return `
 ================================================================================
 HASIL LOAD TESTING SKENARIO B — EDITOR (EDVORA)
-Penanggung Jawab: Indah (Senior QA Automation Engineer)
+Penanggung Jawab: Indah
 ================================================================================
 Target SLA: Response Time <= 3.000 ms | Threshold Error Rate: < 1.00%
 Konfigurasi Beban: Hingga 50 Virtual Users (VU)

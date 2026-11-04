@@ -6,8 +6,7 @@ import { login, getXsrfToken, extractInertiaPageData } from '../helpers/auth.js'
 
 /**
  * [DEPRECATED] SKENARIO A: Load Testing — Batas Waktu Respons Soal (Legacy Runner)
- * Penanggung Jawab: Indah (Senior QA Automation Engineer)
- *
+ * Penanggung Jawab: Indah
  * CATATAN DEPRECATION (Stage 5O-AE):
  * Skenario ini digantikan oleh runner resmi terkonsolidasi: tests/load/student.js.
  * Dilengkapi fail-closed safety guard: menolak port 8000 dan mewajibkan TARGET_ENV=local_isolated.

@@ -6,7 +6,7 @@ import { login, getXsrfToken, extractInertiaPageData } from '../helpers/auth.js'
 
 /**
  * [DEPRECATED] SKENARIO B: Load Testing — Beban Dashboard Analitik Editor (Legacy Runner)
- * Penanggung Jawab: Indah (Senior QA Automation Engineer)
+ * Penanggung Jawab: Indah
  *
  * CATATAN DEPRECATION (Stage 5O-AE):
  * Skenario ini digantikan oleh runner resmi terkonsolidasi: tests/load/editor.js.

@@ -1,7 +1,7 @@
 /**
  * ============================================================================
  * UNIT TEST LOKAL: INERTIA DATA-PAGE PARSER
- * Penanggung Jawab: Indah (Senior QA Automation Engineer)
+ * Penanggung Jawab: Indah
  * ============================================================================
  * 
  * TUJUAN:

@@ -1,7 +1,7 @@
 /**
  * ============================================================================
  * HELPER PARSER INERTIA PAGE DATA (EDVORA LOAD TESTING)
- * Penanggung Jawab: Indah (Senior QA Automation Engineer)
+ * Penanggung Jawab: Indah
  * ============================================================================
  * 
  * Modul ini berfungsi untuk mengurai atribut data-page dari tag HTML Inertia Blade

@@ -12,7 +12,7 @@ import {
 /**
  * ============================================================================
  * UNIT TEST HARNESS: K6 URL GUARD COMPATIBILITY (GOJA ENGINE)
- * Penanggung Jawab: Indah (Senior QA Automation Engineer)
+ * Penanggung Jawab: Indah
  * ============================================================================
  * Memvalidasi parser URL dan safety guards pada runtime Grafana k6 (Goja),
  * tanpa dependensi global URL API, dan 100% tanpa HTTP request (Zero network).

@@ -1,5 +1,5 @@
 # [DEPRECATED] Runner PowerShell Pengujian Otomasi Beban EDVORA (Legacy Runner)
-# Penanggung Jawab: Indah (Senior QA Automation Engineer)
+# Penanggung Jawab: Indah
 #
 # CATATAN DEPRECATION (Stage 5O-AE):
 # Runner ini digantikan oleh runner resmi: tests/load/student.js dan tests/load/editor.js.

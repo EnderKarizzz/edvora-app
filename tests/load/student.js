@@ -7,7 +7,7 @@ import { parseInertiaData } from './inertia-parser.js';
 /**
  * ============================================================================
  * SKENARIO A: LOAD TESTING PENGIRIMAN JAWABAN SISWA & PENGAMBILAN SOAL EDVORA
- * Penanggung Jawab: Indah (Senior QA Automation Engineer)
+ * Penanggung Jawab: Indah
  * ============================================================================
  * 
  * TARGET PENELITIAN & SLA:
@@ -1108,7 +1108,7 @@ function generateCustomSummary(data) {
     return `
 ================================================================================
 HASIL LOAD TESTING SKENARIO A — STUDENT (EDVORA)
-Penanggung Jawab: Indah (Senior QA Automation Engineer)
+Penanggung Jawab: Indah
 ================================================================================
 Target SLA: Response Time <= 1.000 ms | Threshold Error Rate: < 1.00%
 Konfigurasi Beban: Hingga 500 Virtual Users (VU)

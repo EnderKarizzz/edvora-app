@@ -1,6 +1,6 @@
 /**
  * [DEPRECATED] Konfigurasi Lingkungan, Target SLA, dan Beban Pengujian k6 EDVORA (Legacy Runner)
- * Penanggung Jawab: Indah (Load & Performance Testing)
+ * Penanggung Jawab: Indah
  *
  * CATATAN DEPRECATION & KEAMANAN (Stage 5O-AE):
  * Runner pada folder tests/k6/ adalah runner generasi awal yang telah digantikan oleh
