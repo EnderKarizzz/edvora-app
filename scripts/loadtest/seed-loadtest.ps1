@@ -12,7 +12,7 @@ param(
     [ValidateSet('ValidateOnly', 'ExecuteSeed')]
     [string]$Mode = 'ValidateOnly',
 
-    [ValidateSet('smoke', 'small', 'medium', 'large')]
+    [ValidateSet('smoke', 'small', 'medium', 'large', 'checkpoint250', '250vu', 'max500', '500vu')]
     [string]$Stage = 'smoke',
 
     [string]$DatasetPath = $null,
@@ -36,7 +36,13 @@ if (-not $RepoRoot) {
 # Resolve Default Dataset Path di luar repository
 $allowedBaseDir = "D:\pgsql-loadtest\datasets"
 if (-not $DatasetPath) {
-    $DatasetPath = Join-Path $allowedBaseDir "students-$Stage.json"
+    if ($Stage -in @('500vu', 'max500')) {
+        $DatasetPath = Join-Path $allowedBaseDir "students-500vu.json"
+    } elseif ($Stage -in @('250vu', 'checkpoint250')) {
+        $DatasetPath = Join-Path $allowedBaseDir "students-250vu.json"
+    } else {
+        $DatasetPath = Join-Path $allowedBaseDir "students-$Stage.json"
+    }
 }
 
 Write-Output "=== EDVORA FAIL-CLOSED FIXTURE SEED RUNNER ==="

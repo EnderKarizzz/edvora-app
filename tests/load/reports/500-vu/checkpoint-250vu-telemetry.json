@@ -1,0 +1,368 @@
+﻿[
+    {
+        "timestamp":  "2026-11-04 20:34:30",
+        "active_db_connections":  1,
+        "php_worker_count":  48,
+        "php_memory_mb":  1160.3
+    },
+    {
+        "timestamp":  "2026-11-04 20:34:31",
+        "active_db_connections":  3,
+        "php_worker_count":  48,
+        "php_memory_mb":  1567.8
+    },
+    {
+        "timestamp":  "2026-11-04 20:34:33",
+        "active_db_connections":  2,
+        "php_worker_count":  48,
+        "php_memory_mb":  2036.2
+    },
+    {
+        "timestamp":  "2026-11-04 20:34:34",
+        "active_db_connections":  2,
+        "php_worker_count":  48,
+        "php_memory_mb":  2089.3
+    },
+    {
+        "timestamp":  "2026-11-04 20:34:36",
+        "active_db_connections":  3,
+        "php_worker_count":  48,
+        "php_memory_mb":  2119.8
+    },
+    {
+        "timestamp":  "2026-11-04 20:34:38",
+        "active_db_connections":  3,
+        "php_worker_count":  48,
+        "php_memory_mb":  2160.2
+    },
+    {
+        "timestamp":  "2026-11-04 20:34:39",
+        "active_db_connections":  4,
+        "php_worker_count":  48,
+        "php_memory_mb":  2176.8
+    },
+    {
+        "timestamp":  "2026-11-04 20:34:41",
+        "active_db_connections":  3,
+        "php_worker_count":  48,
+        "php_memory_mb":  2177.6
+    },
+    {
+        "timestamp":  "2026-11-04 20:34:42",
+        "active_db_connections":  4,
+        "php_worker_count":  48,
+        "php_memory_mb":  2185.6
+    },
+    {
+        "timestamp":  "2026-11-04 20:34:44",
+        "active_db_connections":  4,
+        "php_worker_count":  48,
+        "php_memory_mb":  2191.8
+    },
+    {
+        "timestamp":  "2026-11-04 20:34:45",
+        "active_db_connections":  3,
+        "php_worker_count":  48,
+        "php_memory_mb":  2190.3
+    },
+    {
+        "timestamp":  "2026-11-04 20:34:47",
+        "active_db_connections":  2,
+        "php_worker_count":  48,
+        "php_memory_mb":  2194.2
+    },
+    {
+        "timestamp":  "2026-11-04 20:34:49",
+        "active_db_connections":  5,
+        "php_worker_count":  48,
+        "php_memory_mb":  2194.5
+    },
+    {
+        "timestamp":  "2026-11-04 20:34:50",
+        "active_db_connections":  5,
+        "php_worker_count":  48,
+        "php_memory_mb":  2199.2
+    },
+    {
+        "timestamp":  "2026-11-04 20:34:52",
+        "active_db_connections":  4,
+        "php_worker_count":  48,
+        "php_memory_mb":  2200
+    },
+    {
+        "timestamp":  "2026-11-04 20:34:53",
+        "active_db_connections":  5,
+        "php_worker_count":  48,
+        "php_memory_mb":  2196.6
+    },
+    {
+        "timestamp":  "2026-11-04 20:34:55",
+        "active_db_connections":  5,
+        "php_worker_count":  48,
+        "php_memory_mb":  2193.3
+    },
+    {
+        "timestamp":  "2026-11-04 20:34:57",
+        "active_db_connections":  10,
+        "php_worker_count":  48,
+        "php_memory_mb":  2204.4
+    },
+    {
+        "timestamp":  "2026-11-04 20:34:58",
+        "active_db_connections":  7,
+        "php_worker_count":  48,
+        "php_memory_mb":  2202.9
+    },
+    {
+        "timestamp":  "2026-11-04 20:35:00",
+        "active_db_connections":  8,
+        "php_worker_count":  48,
+        "php_memory_mb":  2204.6
+    },
+    {
+        "timestamp":  "2026-11-04 20:35:01",
+        "active_db_connections":  10,
+        "php_worker_count":  48,
+        "php_memory_mb":  2200.3
+    },
+    {
+        "timestamp":  "2026-11-04 20:35:03",
+        "active_db_connections":  11,
+        "php_worker_count":  48,
+        "php_memory_mb":  2208.1
+    },
+    {
+        "timestamp":  "2026-11-04 20:35:04",
+        "active_db_connections":  10,
+        "php_worker_count":  48,
+        "php_memory_mb":  2201.3
+    },
+    {
+        "timestamp":  "2026-11-04 20:35:06",
+        "active_db_connections":  17,
+        "php_worker_count":  48,
+        "php_memory_mb":  2207.2
+    },
+    {
+        "timestamp":  "2026-11-04 20:35:08",
+        "active_db_connections":  11,
+        "php_worker_count":  48,
+        "php_memory_mb":  2209.5
+    },
+    {
+        "timestamp":  "2026-11-04 20:35:09",
+        "active_db_connections":  12,
+        "php_worker_count":  48,
+        "php_memory_mb":  2202.6
+    },
+    {
+        "timestamp":  "2026-11-04 20:35:11",
+        "active_db_connections":  15,
+        "php_worker_count":  48,
+        "php_memory_mb":  2202.8
+    },
+    {
+        "timestamp":  "2026-11-04 20:35:12",
+        "active_db_connections":  14,
+        "php_worker_count":  48,
+        "php_memory_mb":  2208.8
+    },
+    {
+        "timestamp":  "2026-11-04 20:35:14",
+        "active_db_connections":  10,
+        "php_worker_count":  48,
+        "php_memory_mb":  2205.5
+    },
+    {
+        "timestamp":  "2026-11-04 20:35:15",
+        "active_db_connections":  20,
+        "php_worker_count":  48,
+        "php_memory_mb":  2203.8
+    },
+    {
+        "timestamp":  "2026-11-04 20:35:17",
+        "active_db_connections":  13,
+        "php_worker_count":  48,
+        "php_memory_mb":  2214.8
+    },
+    {
+        "timestamp":  "2026-11-04 20:35:19",
+        "active_db_connections":  21,
+        "php_worker_count":  48,
+        "php_memory_mb":  2206.5
+    },
+    {
+        "timestamp":  "2026-11-04 20:35:20",
+        "active_db_connections":  18,
+        "php_worker_count":  48,
+        "php_memory_mb":  2220.4
+    },
+    {
+        "timestamp":  "2026-11-04 20:35:22",
+        "active_db_connections":  19,
+        "php_worker_count":  48,
+        "php_memory_mb":  2212.3
+    },
+    {
+        "timestamp":  "2026-11-04 20:35:23",
+        "active_db_connections":  7,
+        "php_worker_count":  48,
+        "php_memory_mb":  2203.9
+    },
+    {
+        "timestamp":  "2026-11-04 20:35:25",
+        "active_db_connections":  19,
+        "php_worker_count":  48,
+        "php_memory_mb":  2210.7
+    },
+    {
+        "timestamp":  "2026-11-04 20:35:26",
+        "active_db_connections":  23,
+        "php_worker_count":  48,
+        "php_memory_mb":  2215.1
+    },
+    {
+        "timestamp":  "2026-11-04 20:35:28",
+        "active_db_connections":  17,
+        "php_worker_count":  48,
+        "php_memory_mb":  2215
+    },
+    {
+        "timestamp":  "2026-11-04 20:35:30",
+        "active_db_connections":  22,
+        "php_worker_count":  48,
+        "php_memory_mb":  2209.4
+    },
+    {
+        "timestamp":  "2026-11-04 20:35:31",
+        "active_db_connections":  23,
+        "php_worker_count":  48,
+        "php_memory_mb":  2207.4
+    },
+    {
+        "timestamp":  "2026-11-04 20:35:33",
+        "active_db_connections":  17,
+        "php_worker_count":  48,
+        "php_memory_mb":  2207.1
+    },
+    {
+        "timestamp":  "2026-11-04 20:35:34",
+        "active_db_connections":  14,
+        "php_worker_count":  48,
+        "php_memory_mb":  2209.7
+    },
+    {
+        "timestamp":  "2026-11-04 20:35:36",
+        "active_db_connections":  10,
+        "php_worker_count":  48,
+        "php_memory_mb":  2199.8
+    },
+    {
+        "timestamp":  "2026-11-04 20:35:38",
+        "active_db_connections":  19,
+        "php_worker_count":  48,
+        "php_memory_mb":  2213.6
+    },
+    {
+        "timestamp":  "2026-11-04 20:35:39",
+        "active_db_connections":  7,
+        "php_worker_count":  48,
+        "php_memory_mb":  2206.3
+    },
+    {
+        "timestamp":  "2026-11-04 20:35:41",
+        "active_db_connections":  12,
+        "php_worker_count":  48,
+        "php_memory_mb":  2207.3
+    },
+    {
+        "timestamp":  "2026-11-04 20:35:42",
+        "active_db_connections":  15,
+        "php_worker_count":  48,
+        "php_memory_mb":  2212.1
+    },
+    {
+        "timestamp":  "2026-11-04 20:35:44",
+        "active_db_connections":  9,
+        "php_worker_count":  48,
+        "php_memory_mb":  2209.8
+    },
+    {
+        "timestamp":  "2026-11-04 20:35:46",
+        "active_db_connections":  14,
+        "php_worker_count":  48,
+        "php_memory_mb":  2213.1
+    },
+    {
+        "timestamp":  "2026-11-04 20:35:47",
+        "active_db_connections":  3,
+        "php_worker_count":  48,
+        "php_memory_mb":  2203.6
+    },
+    {
+        "timestamp":  "2026-11-04 20:35:49",
+        "active_db_connections":  20,
+        "php_worker_count":  48,
+        "php_memory_mb":  2216.5
+    },
+    {
+        "timestamp":  "2026-11-04 20:35:51",
+        "active_db_connections":  15,
+        "php_worker_count":  48,
+        "php_memory_mb":  2214.4
+    },
+    {
+        "timestamp":  "2026-11-04 20:35:52",
+        "active_db_connections":  23,
+        "php_worker_count":  48,
+        "php_memory_mb":  2216.6
+    },
+    {
+        "timestamp":  "2026-11-04 20:35:54",
+        "active_db_connections":  16,
+        "php_worker_count":  48,
+        "php_memory_mb":  2208.1
+    },
+    {
+        "timestamp":  "2026-11-04 20:35:55",
+        "active_db_connections":  13,
+        "php_worker_count":  48,
+        "php_memory_mb":  2208.1
+    },
+    {
+        "timestamp":  "2026-11-04 20:35:57",
+        "active_db_connections":  12,
+        "php_worker_count":  48,
+        "php_memory_mb":  2206.1
+    },
+    {
+        "timestamp":  "2026-11-04 20:35:58",
+        "active_db_connections":  16,
+        "php_worker_count":  48,
+        "php_memory_mb":  2210.5
+    },
+    {
+        "timestamp":  "2026-11-04 20:36:00",
+        "active_db_connections":  29,
+        "php_worker_count":  48,
+        "php_memory_mb":  2214.9
+    },
+    {
+        "timestamp":  "2026-11-04 20:36:02",
+        "active_db_connections":  3,
+        "php_worker_count":  48,
+        "php_memory_mb":  2208
+    },
+    {
+        "timestamp":  "2026-11-04 20:36:03",
+        "active_db_connections":  1,
+        "php_worker_count":  48,
+        "php_memory_mb":  2208
+    },
+    {
+        "timestamp":  "2026-11-04 20:36:05",
+        "active_db_connections":  1,
+        "php_worker_count":  48,
+        "php_memory_mb":  2208
+    }
+]

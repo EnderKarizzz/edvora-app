@@ -129,11 +129,36 @@ function resolvePacingSeconds(rawPacing) {
 }
 const PACING_SECONDS = resolvePacingSeconds(__ENV.PACING_SECONDS);
 
+// Konfigurasi Login Stagger (Configurable via __ENV.LOGIN_STAGGER_SECONDS)
+// Default: 0.1 detik per-VU untuk multi-worker cluster agar ramp-up login halus tanpa storm
+function resolveLoginStaggerSeconds(rawStagger) {
+    if (!rawStagger || typeof rawStagger !== 'string' || rawStagger.trim() === '') {
+        return 0.1;
+    }
+    const val = parseFloat(rawStagger.trim());
+    if (isNaN(val) || !isFinite(val) || val < 0) {
+        return 0.1;
+    }
+    return val;
+}
+const LOGIN_STAGGER_SECONDS = resolveLoginStaggerSeconds(__ENV.LOGIN_STAGGER_SECONDS);
+
 // DAFTAR HOST STAGING TERISOLASI RESMI YANG DIIZINKAN SECARA EKSPLISIT
 const ALLOWED_STAGING_HOSTS = [
     'staging.edvora.internal',
     'isolated-staging.edvora.test',
 ];
+
+// Dukungan pembacaan file dataset k6 eksternal (mengatasi batas 32KB environment variable Windows untuk beban 250+ VU)
+const STUDENT_DATA_FILE = (__ENV.STUDENT_DATA_FILE || '').trim();
+let fileDatasetRaw = null;
+if (STUDENT_DATA_FILE) {
+    try {
+        fileDatasetRaw = open(STUDENT_DATA_FILE);
+    } catch (_) {
+        fileDatasetRaw = null;
+    }
+}
 
 // State global pre-flight check untuk validasi konfigurasi & keunikan dataset
 let globalPreflightChecked = false;
@@ -697,9 +722,9 @@ function authenticateStudent(studentData) {
     }
 
     // Stagger inisialisasi login awal per-VU untuk mencegah login storm instan
-    // pada local single-threaded server tanpa mengganggu alur pengujian sesi
-    if (__VU > 1) {
-        sleep((__VU - 1) * 0.25);
+    // pada server tanpa mengganggu alur pengujian sesi
+    if (__VU > 1 && LOGIN_STAGGER_SECONDS > 0) {
+        sleep((__VU - 1) * LOGIN_STAGGER_SECONDS);
     }
 
     const authStartTime = Date.now();
@@ -806,15 +831,18 @@ export default function () {
             return;
         }
 
-        // Validasi dataset jika disuplai via STUDENT_DATA_JSON
-        const rawDataJson = (__ENV.STUDENT_DATA_JSON || '').trim();
+        // Validasi dataset jika disuplai via STUDENT_DATA_FILE atau STUDENT_DATA_JSON
+        const rawDataJson = fileDatasetRaw || (__ENV.STUDENT_DATA_JSON || '').trim();
         if (rawDataJson) {
             const validation = validateAndParseStudentDataset(rawDataJson);
             if (!validation.valid) {
-                exec.test.abort(`[FATAL DATA] Validasi STUDENT_DATA_JSON gagal: ${validation.error}`);
+                exec.test.abort(`[FATAL DATA] Validasi STUDENT_DATA gagal: ${validation.error}`);
                 return;
             }
             parsedGlobalDataset = validation.dataset;
+        } else if (STUDENT_DATA_FILE && !fileDatasetRaw) {
+            exec.test.abort(`[FATAL DATA] Gagal membaca STUDENT_DATA_FILE pada path: ${STUDENT_DATA_FILE}`);
+            return;
         }
 
         globalPreflightChecked = true;

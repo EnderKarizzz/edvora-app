@@ -1,0 +1,287 @@
+{
+    "root_group": {
+        "path": "",
+        "id": "d41d8cd98f00b204e9800998ecf8427e",
+        "groups": {
+            "Pengambilan Paket Soal Ujian (GET /latihan/kerjakan/{id})": {
+                "id": "23ddb5481c945ffb46e5e534fcf3d2e6",
+                "groups": {},
+                "checks": {
+                        "[Soal] Halaman soal merespons HTTP 200 OK": {
+                            "passes": 5941,
+                            "fails": 0,
+                            "name": "[Soal] Halaman soal merespons HTTP 200 OK",
+                            "path": "::Pengambilan Paket Soal Ujian (GET /latihan/kerjakan/{id})::[Soal] Halaman soal merespons HTTP 200 OK",
+                            "id": "7d2a30f93f876aa941e2f82da00fff71"
+                        },
+                        "[Soal] Durasi pemuatan soal <= 1.000 ms (SLA)": {
+                            "id": "0a5a8d541a52eb79642298a4388a7e3f",
+                            "passes": 268,
+                            "fails": 5673,
+                            "name": "[Soal] Durasi pemuatan soal <= 1.000 ms (SLA)",
+                            "path": "::Pengambilan Paket Soal Ujian (GET /latihan/kerjakan/{id})::[Soal] Durasi pemuatan soal <= 1.000 ms (SLA)"
+                        },
+                        "[Soal] Validasi bisnis payload Inertia Latihan/Ujian valid": {
+                            "name": "[Soal] Validasi bisnis payload Inertia Latihan/Ujian valid",
+                            "path": "::Pengambilan Paket Soal Ujian (GET /latihan/kerjakan/{id})::[Soal] Validasi bisnis payload Inertia Latihan/Ujian valid",
+                            "id": "ef71aa988433e7b79120eef46d133cee",
+                            "passes": 5941,
+                            "fails": 0
+                        },
+                        "[Soal] Tidak dialihkan (Bukan redirect 3xx)": {
+                            "name": "[Soal] Tidak dialihkan (Bukan redirect 3xx)",
+                            "path": "::Pengambilan Paket Soal Ujian (GET /latihan/kerjakan/{id})::[Soal] Tidak dialihkan (Bukan redirect 3xx)",
+                            "id": "22439bcaaab9f31da3d2ac602f6c7e79",
+                            "passes": 5941,
+                            "fails": 0
+                        }
+                    },
+                "name": "Pengambilan Paket Soal Ujian (GET /latihan/kerjakan/{id})",
+                "path": "::Pengambilan Paket Soal Ujian (GET /latihan/kerjakan/{id})"
+            },
+            "Pengiriman Jawaban Siswa (POST /latihan/ujian/jawab)": {
+                "path": "::Pengiriman Jawaban Siswa (POST /latihan/ujian/jawab)",
+                "id": "236ae4e67c21d48f93de250dc413e17d",
+                "groups": {},
+                "checks": {
+                        "[Jawaban] Pengiriman jawaban merespons HTTP 200 OK": {
+                            "name": "[Jawaban] Pengiriman jawaban merespons HTTP 200 OK",
+                            "path": "::Pengiriman Jawaban Siswa (POST /latihan/ujian/jawab)::[Jawaban] Pengiriman jawaban merespons HTTP 200 OK",
+                            "id": "548ecdb99d725c1e0bbef5a71f154664",
+                            "passes": 5941,
+                            "fails": 0
+                        },
+                        "[Jawaban] Durasi pengiriman jawaban <= 1.000 ms (SLA)": {
+                            "passes": 505,
+                            "fails": 5436,
+                            "name": "[Jawaban] Durasi pengiriman jawaban <= 1.000 ms (SLA)",
+                            "path": "::Pengiriman Jawaban Siswa (POST /latihan/ujian/jawab)::[Jawaban] Durasi pengiriman jawaban <= 1.000 ms (SLA)",
+                            "id": "00d7f41b0b747bea65cc1c7cf1de9725"
+                        },
+                        "[Jawaban] Tidak terkena throttle:30,1 (Bukan 429)": {
+                            "passes": 5941,
+                            "fails": 0,
+                            "name": "[Jawaban] Tidak terkena throttle:30,1 (Bukan 429)",
+                            "path": "::Pengiriman Jawaban Siswa (POST /latihan/ujian/jawab)::[Jawaban] Tidak terkena throttle:30,1 (Bukan 429)",
+                            "id": "fea464efa642accf7a144cab9be75548"
+                        },
+                        "[Jawaban] Format respons feedback jawaban valid": {
+                            "name": "[Jawaban] Format respons feedback jawaban valid",
+                            "path": "::Pengiriman Jawaban Siswa (POST /latihan/ujian/jawab)::[Jawaban] Format respons feedback jawaban valid",
+                            "id": "650dc9846f2185050a209a7f66c9830e",
+                            "passes": 5941,
+                            "fails": 0
+                        }
+                    },
+                "name": "Pengiriman Jawaban Siswa (POST /latihan/ujian/jawab)"
+            }
+        },
+        "checks": {},
+        "name": ""
+    },
+    "metrics": {
+        "success_rate_jawaban": {
+            "passes": 5941,
+            "fails": 0,
+            "thresholds": {
+                "rate>0.95": false
+            },
+            "value": 1
+        },
+        "group_duration": {
+            "med": 3854.4282999999996,
+            "max": 24290.3955,
+            "p(90)": 10099.010489999999,
+            "p(95)": 12886.16897499997,
+            "avg": 4978.172105520983,
+            "min": 81.6766
+        },
+        "waktu_autentikasi": {
+            "min": 1061,
+            "med": 18179,
+            "max": 43161,
+            "p(90)": 31649.300000000003,
+            "p(95)": 34760.54999999999,
+            "avg": 18071.56
+        },
+        "iterations": {
+            "rate": 31.06682564138131,
+            "count": 5941
+        },
+        "auth_success_rate": {
+            "passes": 500,
+            "fails": 0,
+            "value": 1
+        },
+        "waktu_login_post": {
+            "min": 669.3304,
+            "med": 6987.59105,
+            "max": 26851.0751,
+            "p(90)": 14677.95751,
+            "p(95)": 16859.162519999994,
+            "avg": 7815.606388600001
+        },
+        "http_req_sending": {
+            "p(95)": 1.0008949999999999,
+            "avg": 35.69609606187414,
+            "min": 0,
+            "med": 0,
+            "max": 4174.0013,
+            "p(90)": 0
+        },
+        "http_req_duration": {
+            "p(90)": 10453.443749999997,
+            "p(95)": 13077.044394999999,
+            "avg": 4948.6965699671255,
+            "min": 72.7173,
+            "med": 3775.74125,
+            "max": 26851.0751,
+            "thresholds": {
+                "p(95)<=1000": true
+            }
+        },
+        "vus_max": {
+            "value": 500,
+            "min": 500,
+            "max": 500
+        },
+        "http_req_tls_handshaking": {
+            "p(90)": 0,
+            "p(95)": 0,
+            "avg": 0,
+            "min": 0,
+            "med": 0,
+            "max": 0
+        },
+        "http_req_blocked": {
+            "max": 1425.5918,
+            "p(90)": 0,
+            "p(95)": 0,
+            "avg": 0.7185264384994774,
+            "min": 0,
+            "med": 0
+        },
+        "waktu_pengiriman_jawaban": {
+            "p(90)": 9623.9454,
+            "p(95)": 12324.7219,
+            "avg": 4513.527837586263,
+            "min": 81.6766,
+            "med": 3392.674,
+            "max": 22842.0851,
+            "thresholds": {
+                "p(95)<=1000": true
+            }
+        },
+        "waktu_pengiriman_jawaban_baru": {
+            "min": 81.6766,
+            "med": 3329.1309,
+            "max": 20729.6123,
+            "p(90)": 9342.06634,
+            "p(95)": 11926.00079999999,
+            "avg": 4429.586221882364,
+            "thresholds": {
+                "p(95)<=1000": true
+            }
+        },
+        "http_reqs": {
+            "count": 13382,
+            "rate": 69.97748876165035
+        },
+        "http_req_receiving": {
+            "med": 0,
+            "max": 8160.5194,
+            "p(90)": 59.12565999999999,
+            "p(95)": 1138.8275749999978,
+            "avg": 153.9341010984906,
+            "min": 0
+        },
+        "waktu_pengiriman_jawaban_ulang": {
+            "p(95)": 12679.597725,
+            "avg": 4597.724164868515,
+            "min": 87.8186,
+            "med": 3466.54275,
+            "max": 22842.0851,
+            "p(90)": 9887.73685,
+            "thresholds": {
+                "p(95)<=1000": true
+            }
+        },
+        "data_received": {
+            "rate": 3599112.4007634944,
+            "count": 688268799
+        },
+        "http_req_connecting": {
+            "max": 584.9318,
+            "p(90)": 0,
+            "p(95)": 0,
+            "avg": 0.29873116126139565,
+            "min": 0,
+            "med": 0
+        },
+        "http_req_failed": {
+            "passes": 0,
+            "fails": 13382,
+            "thresholds": {
+                "rate<0.01": false
+            },
+            "value": 0
+        },
+        "success_rate_ambil_soal": {
+            "fails": 0,
+            "passes": 5941,
+            "thresholds": {
+                "rate>0.95": false
+            },
+            "value": 1
+        },
+        "vus": {
+            "value": 4,
+            "min": 4,
+            "max": 500
+        },
+        "iteration_duration": {
+            "p(95)": 46101.2543,
+            "avg": 15607.72734526177,
+            "min": 3940.0162,
+            "med": 12163.6303,
+            "max": 76096.0329,
+            "p(90)": 23635.7443
+        },
+        "waktu_ambil_soal": {
+            "p(90)": 10222.3323,
+            "p(95)": 12950.1017,
+            "avg": 5117.479593014638,
+            "min": 244.9925,
+            "med": 4000.2651,
+            "max": 23427.2063,
+            "thresholds": {
+                "p(95)<=1000": true
+            }
+        },
+        "http_req_waiting": {
+            "p(90)": 10036.79571,
+            "p(95)": 12806.489449999986,
+            "avg": 4759.066372806739,
+            "min": 59.6147,
+            "med": 3605.2711,
+            "max": 23452.6876
+        },
+        "data_sent": {
+            "count": 15264347,
+            "rate": 79820.70472623159
+        },
+        "http_req_duration{expected_response:true}": {
+            "p(95)": 13077.044394999999,
+            "avg": 4948.6965699671255,
+            "min": 72.7173,
+            "med": 3775.74125,
+            "max": 26851.0751,
+            "p(90)": 10453.443749999997
+        },
+        "checks": {
+            "passes": 36419,
+            "fails": 11109,
+            "value": 0.7662640969533748
+        }
+    }
+}

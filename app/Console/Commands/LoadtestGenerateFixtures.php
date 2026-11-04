@@ -39,7 +39,7 @@ use Throwable;
 class LoadtestGenerateFixtures extends Command
 {
     protected $signature = 'loadtest:seed-fixtures
-                            {--stage=smoke : Stage beban fixture: smoke (1 siswa, 1 sesi), small (5 siswa), medium (25 siswa), large (100 siswa)}
+                            {--stage=smoke : Stage beban fixture: smoke (1 siswa, 1 sesi), small (5 siswa), medium (25 siswa), large (100 siswa), checkpoint250 (250 siswa), max500 (500 siswa)}
                             {--execute : Eksplisit mengeksekusi penulisan database (default: dry-run tanpa mutasi)}
                             {--dataset-path= : Lokasi kustom file dataset JSON target (wajib di bawah D:\pgsql-loadtest\datasets\)}';
 
@@ -83,23 +83,33 @@ class LoadtestGenerateFixtures extends Command
         // ---------------------------------------------------------
         $stage = strtolower((string) $this->option('stage'));
         $validStages = [
-            'smoke'  => 1,
-            'small'  => 5,
-            'medium' => 25,
-            'large'  => 100,
+            'smoke'         => 1,
+            'small'         => 5,
+            'medium'        => 25,
+            'large'         => 100,
+            'checkpoint250' => 250,
+            '250vu'         => 250,
+            'max500'        => 500,
+            '500vu'         => 500,
         ];
 
         if (!array_key_exists($stage, $validStages)) {
-            $this->error("Stage '{$stage}' tidak dikenal. Pilih salah satu dari: smoke, small, medium, large.");
+            $this->error("Stage '{$stage}' tidak dikenal. Pilih salah satu dari: smoke, small, medium, large, checkpoint250, 250vu, max500, 500vu.");
             return self::INVALID;
         }
 
         $studentCount = $validStages[$stage];
 
         // Resolusi dataset path default di luar repository
+        $defaultDatasetFile = match ($stage) {
+            'checkpoint250', '250vu' => 'students-250vu.json',
+            'max500', '500vu' => 'students-500vu.json',
+            default => "students-{$stage}.json",
+        };
+
         $rawDatasetPath = $this->option('dataset-path')
             ? (string) $this->option('dataset-path')
-            : self::ALLOWED_DATASET_BASE_DIR . DIRECTORY_SEPARATOR . "students-{$stage}.json";
+            : self::ALLOWED_DATASET_BASE_DIR . DIRECTORY_SEPARATOR . $defaultDatasetFile;
 
         try {
             $datasetPath = $this->validateAndNormalizeDatasetPath($rawDatasetPath);
@@ -119,16 +129,8 @@ class LoadtestGenerateFixtures extends Command
         // 3. DAFTAR IDENTITAS FIXTURE YANG AKAN DIGUNAKAN
         // ---------------------------------------------------------
         $studentEmails = [];
-        if ($stage === 'small') {
-            for ($s = 2; $s <= 6; $s++) {
-                $studentEmails[] = sprintf('siswa_%03d@simulasi.test', $s);
-            }
-        } elseif ($stage === 'medium') {
-            for ($s = 2; $s <= 26; $s++) {
-                $studentEmails[] = sprintf('siswa_%03d@simulasi.test', $s);
-            }
-        } elseif ($stage === 'large') {
-            for ($s = 2; $s <= 101; $s++) {
+        if ($this->isStaged($stage)) {
+            for ($s = 2; $s <= ($studentCount + 1); $s++) {
                 $studentEmails[] = sprintf('siswa_%03d@simulasi.test', $s);
             }
         } else {
@@ -176,10 +178,10 @@ class LoadtestGenerateFixtures extends Command
         if (!$isExecute) {
             $this->warn('--- STATUS PRE-FLIGHT DRY-RUN (VALIDASI IDENTITAS & READ-ONLY SELECT) ---');
 
-            $univStatus = ($stage === 'small' || $stage === 'medium' || $stage === 'large') ? 'Referensi Smoke Valid (UI-LOAD / CS-LOAD)' : '1 Universitas PTN (UI-LOAD) & 1 Prodi S1 (CS-LOAD)';
-            $subtesStatus = ($stage === 'small' || $stage === 'medium' || $stage === 'large') ? 'Referensi Smoke Valid (PU / Deduktif)' : '1 Subtes (PU) & 1 Topik Deduktif';
-            $editorStatus = ($stage === 'small' || $stage === 'medium' || $stage === 'large') ? 'Referensi Smoke Valid (editor.loadtest@simulasi.test)' : "1 Akun Editor ({$editorEmail})";
-            $soalStatus = ($stage === 'small' || $stage === 'medium' || $stage === 'large') ? 'Referensi Smoke Valid (20 Butir PU-LOAD-001..020)' : '20 Butir Soal PG Published (PU-LOAD-001..020, 5 Opsi A-E)';
+            $univStatus = $this->isStaged($stage) ? 'Referensi Smoke Valid (UI-LOAD / CS-LOAD)' : '1 Universitas PTN (UI-LOAD) & 1 Prodi S1 (CS-LOAD)';
+            $subtesStatus = $this->isStaged($stage) ? 'Referensi Smoke Valid (PU / Deduktif)' : '1 Subtes (PU) & 1 Topik Deduktif';
+            $editorStatus = $this->isStaged($stage) ? 'Referensi Smoke Valid (editor.loadtest@simulasi.test)' : "1 Akun Editor ({$editorEmail})";
+            $soalStatus = $this->isStaged($stage) ? 'Referensi Smoke Valid (20 Butir PU-LOAD-001..020)' : '20 Butir Soal PG Published (PU-LOAD-001..020, 5 Opsi A-E)';
 
             $this->table(
                 ['Entitas Target', 'Status Konflik', 'Rencana Penyiapan Fixture'],
@@ -479,6 +481,14 @@ POWERSHELL;
     }
 
     /**
+     * Memeriksa apakah stage merupakan bagian dari staged load test yang menggunakan master entitas smoke.
+     */
+    private function isStaged(string $stage): bool
+    {
+        return in_array($stage, ['small', 'medium', 'large', 'checkpoint250', '250vu', 'max500', '500vu'], true);
+    }
+
+    /**
      * Memeriksa seluruh identitas fixture secara fail-closed sebelum transaksi atau mutasi dimulai.
      * 
      * @param string[] $studentEmails
@@ -513,27 +523,25 @@ POWERSHELL;
         }
 
         // 3. Periksa akun siswa di tabel users
-        if ($stage === 'medium') {
+        if ($this->isStaged($stage)) {
+            $maxAllowedExisting = match ($stage) {
+                'small' => 1,
+                'medium' => 6,
+                'large' => 26,
+                'checkpoint250', '250vu' => 101,
+                'max500', '500vu' => User::where('email', 'siswa_251@simulasi.test')->exists() ? 251 : 101,
+                default => 0,
+            };
+
             $existingStudents = User::whereIn('email', $studentEmails)->pluck('email')->all();
-            $unexpectedStudents = array_values(array_filter($existingStudents, function ($email) {
+            $unexpectedStudents = array_values(array_filter($existingStudents, function ($email) use ($maxAllowedExisting) {
                 if (preg_match('/siswa_(\d+)/', $email, $m)) {
-                    return (int) $m[1] > 6;
+                    return (int) $m[1] > $maxAllowedExisting;
                 }
                 return true;
             }));
             if (!empty($unexpectedStudents)) {
-                $conflicts[] = "Akun siswa loadtest medium baru sudah terdaftar (" . count($unexpectedStudents) . " akun): " . implode(', ', $unexpectedStudents);
-            }
-        } elseif ($stage === 'large') {
-            $existingStudents = User::whereIn('email', $studentEmails)->pluck('email')->all();
-            $unexpectedStudents = array_values(array_filter($existingStudents, function ($email) {
-                if (preg_match('/siswa_(\d+)/', $email, $m)) {
-                    return (int) $m[1] > 26;
-                }
-                return true;
-            }));
-            if (!empty($unexpectedStudents)) {
-                $conflicts[] = "Akun siswa loadtest large baru sudah terdaftar (" . count($unexpectedStudents) . " akun): " . implode(', ', $unexpectedStudents);
+                $conflicts[] = "Akun siswa loadtest {$stage} baru sudah terdaftar (" . count($unexpectedStudents) . " akun): " . implode(', ', $unexpectedStudents);
             }
         } else {
             $existingStudents = User::whereIn('email', $studentEmails)->pluck('email')->all();
@@ -542,8 +550,8 @@ POWERSHELL;
             }
         }
 
-        if ($stage === 'small' || $stage === 'medium' || $stage === 'large') {
-            // Mode small & medium: verifikasi bahwa master entitas smoke WAJIB ada, valid, dan lengkap (referensi read-only)
+        if ($this->isStaged($stage)) {
+            // Mode staged: verifikasi bahwa master entitas smoke WAJIB ada, valid, dan lengkap (referensi read-only)
             if (!User::where('email', $editorEmail)->exists()) {
                 $conflicts[] = "Akun editor '{$editorEmail}' tidak ditemukan di database.";
             }
@@ -589,37 +597,32 @@ POWERSHELL;
         }
 
         // 10. Periksa sesi latihan aktif milik user siswa yang akan dibuat
-        if ($stage === 'medium') {
-            $newEmails = array_values(array_filter($studentEmails, function ($email) {
+        if ($this->isStaged($stage)) {
+            $maxAllowedExisting = match ($stage) {
+                'small' => 1,
+                'medium' => 6,
+                'large' => 26,
+                'checkpoint250', '250vu' => 101,
+                'max500', '500vu' => User::where('email', 'siswa_251@simulasi.test')->exists() ? 251 : 101,
+                default => 0,
+            };
+
+            $newEmails = array_values(array_filter($studentEmails, function ($email) use ($maxAllowedExisting) {
                 if (preg_match('/siswa_(\d+)/', $email, $m)) {
-                    return (int) $m[1] > 6;
+                    return (int) $m[1] > $maxAllowedExisting;
                 }
                 return false;
             }));
-            $existingSessions = Pengerjaan::where('mode_latihan', 'fleksibel')
-                ->where('status', 'berjalan')
-                ->whereHas('user', function ($q) use ($newEmails) {
-                    $q->whereIn('email', $newEmails);
-                })
-                ->count();
-            if ($existingSessions > 0) {
-                $conflicts[] = "Ditemukan {$existingSessions} sesi fleksibel berjalan milik kandidat siswa baru loadtest (siswa_007..026).";
-            }
-        } elseif ($stage === 'large') {
-            $newEmails = array_values(array_filter($studentEmails, function ($email) {
-                if (preg_match('/siswa_(\d+)/', $email, $m)) {
-                    return (int) $m[1] > 26;
+            if (!empty($newEmails)) {
+                $existingSessions = Pengerjaan::where('mode_latihan', 'fleksibel')
+                    ->where('status', 'berjalan')
+                    ->whereHas('user', function ($q) use ($newEmails) {
+                        $q->whereIn('email', $newEmails);
+                    })
+                    ->count();
+                if ($existingSessions > 0) {
+                    $conflicts[] = "Ditemukan {$existingSessions} sesi fleksibel berjalan milik kandidat siswa baru loadtest ({$stage}).";
                 }
-                return false;
-            }));
-            $existingSessions = Pengerjaan::where('mode_latihan', 'fleksibel')
-                ->where('status', 'berjalan')
-                ->whereHas('user', function ($q) use ($newEmails) {
-                    $q->whereIn('email', $newEmails);
-                })
-                ->count();
-            if ($existingSessions > 0) {
-                $conflicts[] = "Ditemukan {$existingSessions} sesi fleksibel berjalan milik kandidat siswa baru loadtest (siswa_027..101).";
             }
         } else {
             $existingSessions = Pengerjaan::where('mode_latihan', 'fleksibel')
@@ -661,7 +664,7 @@ POWERSHELL;
     ): array {
         $hashedPassword = Hash::make(self::SYNTHETIC_PASSWORD);
 
-        if ($stage === 'small' || $stage === 'medium' || $stage === 'large') {
+        if ($this->isStaged($stage)) {
             // Gunakan referensi master entitas smoke yang sudah ada (READ-ONLY, tanpa modifikasi atau duplikasi)
             $univ = Universitas::where('kode_ptn', $kodePtn)->firstOrFail();
             $prodi = ProgramStudi::where('kode_prodi', $kodeProdi)->firstOrFail();
