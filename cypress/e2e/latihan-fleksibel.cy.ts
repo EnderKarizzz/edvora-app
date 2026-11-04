@@ -1,5 +1,5 @@
 const MIN = 10;
-const MAKS = 20; // batas maksimum sesuai aplikasi (dokumen tugas menulis 25, tapi aplikasi 20)
+const MAKS = 20; // batas maksimum sesuai aplikasi
 
 describe("Latihan Fleksibel - batas jumlah soal", () => {
   const tombolMinus = () =>
@@ -25,14 +25,18 @@ describe("Latihan Fleksibel - batas jumlah soal", () => {
   };
 
   beforeEach(() => {
-    cy.session("siswa", () => {
-      cy.visit("/login");
-      cy.get('input[type="email"]').type("sim001@simulasi.test");
-      cy.get('input[type="password"]').type("SimulasiEdvora2026");
-      cy.get('button[type="submit"]').click();
-      cy.contains("Halo, Siswa Simulasi", { timeout: 30000 }).should("be.visible");
-    });
+    // Bersihkan cookies dan storage agar setiap tes benar-benar fresh
+    cy.clearCookies();
+    cy.clearLocalStorage();
 
+    // Lakukan login segar di setiap awal test
+    cy.visit("/login");
+    cy.get('input[type="email"]').type("sim001@simulasi.test");
+    cy.get('input[type="password"]').type("SimulasiEdvora2026");
+    cy.get('button[type="submit"]').click();
+    cy.contains("Halo, Siswa Simulasi", { timeout: 30000 }).should("be.visible");
+
+    // Kunjungi halaman subtes
     cy.visit("/latihan/subtes/LBI");
     cy.contains("Jumlah Soal", { timeout: 30000 }).should("be.visible");
   });
