@@ -1,0 +1,287 @@
+{
+    "metrics": {
+        "http_reqs": {
+            "count": 35,
+            "rate": 4.4742906047401325
+        },
+        "waktu_autentikasi": {
+            "p(90)": 501.8,
+            "p(95)": 506.4,
+            "avg": 421.8,
+            "min": 344,
+            "med": 391,
+            "max": 511
+        },
+        "waktu_login_post": {
+            "min": 250.2779,
+            "med": 272.0249,
+            "max": 394.1314,
+            "p(90)": 347.96144000000004,
+            "p(95)": 371.04641999999996,
+            "avg": 290.9199
+        },
+        "waktu_pengiriman_jawaban": {
+            "p(95)": 186.91155999999998,
+            "avg": 110.9903,
+            "min": 72.4541,
+            "med": 81.75035,
+            "max": 198.2449,
+            "p(90)": 175.57822,
+            "thresholds": {
+                "p(95)<=1000": false
+            }
+        },
+        "auth_success_rate": {
+            "passes": 5,
+            "fails": 0,
+            "value": 1
+        },
+        "http_req_failed": {
+            "passes": 0,
+            "fails": 35,
+            "thresholds": {
+                "rate<0.01": false
+            },
+            "value": 0
+        },
+        "checks": {
+            "passes": 80,
+            "fails": 0,
+            "value": 1
+        },
+        "waktu_pengiriman_jawaban_baru": {
+            "min": 72.4541,
+            "med": 81.75035,
+            "max": 198.2449,
+            "p(90)": 175.57822,
+            "p(95)": 186.91155999999998,
+            "avg": 110.9903,
+            "thresholds": {
+                "p(95)<=1000": false
+            }
+        },
+        "data_received": {
+            "count": 1510166,
+            "rate": 193054.90129708534
+        },
+        "success_rate_jawaban": {
+            "passes": 10,
+            "fails": 0,
+            "thresholds": {
+                "rate>0.95": false
+            },
+            "value": 1
+        },
+        "waktu_pengiriman_jawaban_ulang": {
+            "avg": 0,
+            "min": 0,
+            "med": 0,
+            "max": 0,
+            "p(90)": 0,
+            "p(95)": 0,
+            "thresholds": {
+                "p(95)<=1000": false
+            }
+        },
+        "iteration_duration": {
+            "avg": 3685.90198,
+            "min": 3164.6801,
+            "med": 3599.9529,
+            "max": 4550.0556,
+            "p(90)": 4318.265909999999,
+            "p(95)": 4434.160754999999
+        },
+        "http_req_duration{expected_response:true}": {
+            "avg": 122.78493142857143,
+            "min": 29.7128,
+            "med": 83.2813,
+            "max": 394.1314,
+            "p(90)": 255.78644,
+            "p(95)": 274.02938
+        },
+        "success_rate_ambil_soal": {
+            "passes": 10,
+            "fails": 0,
+            "thresholds": {
+                "rate>0.95": false
+            },
+            "value": 1
+        },
+        "data_sent": {
+            "count": 35690,
+            "rate": 4562.498048090723
+        },
+        "http_req_tls_handshaking": {
+            "avg": 0,
+            "min": 0,
+            "med": 0,
+            "max": 0,
+            "p(90)": 0,
+            "p(95)": 0
+        },
+        "vus": {
+            "min": 4,
+            "max": 5,
+            "value": 4
+        },
+        "group_duration": {
+            "avg": 111.79887,
+            "min": 72.4541,
+            "med": 88.09530000000001,
+            "max": 208.2408,
+            "p(90)": 193.69084,
+            "p(95)": 199.222925
+        },
+        "iterations": {
+            "count": 10,
+            "rate": 1.2783687442114664
+        },
+        "http_req_blocked": {
+            "p(95)": 0.15116999999999858,
+            "avg": 0.050491428571428576,
+            "min": 0,
+            "med": 0,
+            "max": 1.2633,
+            "p(90)": 0
+        },
+        "http_req_connecting": {
+            "med": 0,
+            "max": 1.2633,
+            "p(90)": 0,
+            "p(95)": 0,
+            "avg": 0.03609428571428572,
+            "min": 0
+        },
+        "waktu_ambil_soal": {
+            "avg": 108.07715,
+            "min": 74.9657,
+            "med": 89.06790000000001,
+            "max": 203.5305,
+            "p(90)": 190.19979,
+            "p(95)": 196.86514499999998,
+            "thresholds": {
+                "p(95)<=1000": false
+            }
+        },
+        "vus_max": {
+            "value": 5,
+            "min": 5,
+            "max": 5
+        },
+        "http_req_sending": {
+            "med": 0,
+            "max": 0.5039,
+            "p(90)": 0,
+            "p(95)": 0,
+            "avg": 0.014397142857142858,
+            "min": 0
+        },
+        "http_req_waiting": {
+            "p(95)": 273.79379,
+            "avg": 121.87958857142856,
+            "min": 28.3025,
+            "med": 82.6374,
+            "max": 394.1314,
+            "p(90)": 255.78644
+        },
+        "http_req_duration": {
+            "p(95)": 274.02938,
+            "avg": 122.78493142857143,
+            "min": 29.7128,
+            "med": 83.2813,
+            "max": 394.1314,
+            "p(90)": 255.78644,
+            "thresholds": {
+                "p(95)<=1000": false
+            }
+        },
+        "http_req_receiving": {
+            "p(95)": 2.0152699999999997,
+            "avg": 0.8909457142857141,
+            "min": 0,
+            "med": 0.9821,
+            "max": 2.3771,
+            "p(90)": 1.79068
+        }
+    },
+    "root_group": {
+        "checks": {},
+        "name": "",
+        "path": "",
+        "id": "d41d8cd98f00b204e9800998ecf8427e",
+        "groups": {
+                "Pengambilan Paket Soal Ujian (GET /latihan/kerjakan/{id})": {
+                    "groups": {},
+                    "checks": {
+                            "[Soal] Halaman soal merespons HTTP 200 OK": {
+                                "name": "[Soal] Halaman soal merespons HTTP 200 OK",
+                                "path": "::Pengambilan Paket Soal Ujian (GET /latihan/kerjakan/{id})::[Soal] Halaman soal merespons HTTP 200 OK",
+                                "id": "7d2a30f93f876aa941e2f82da00fff71",
+                                "passes": 10,
+                                "fails": 0
+                            },
+                            "[Soal] Durasi pemuatan soal <= 1.000 ms (SLA)": {
+                                "name": "[Soal] Durasi pemuatan soal <= 1.000 ms (SLA)",
+                                "path": "::Pengambilan Paket Soal Ujian (GET /latihan/kerjakan/{id})::[Soal] Durasi pemuatan soal <= 1.000 ms (SLA)",
+                                "id": "0a5a8d541a52eb79642298a4388a7e3f",
+                                "passes": 10,
+                                "fails": 0
+                            },
+                            "[Soal] Validasi bisnis payload Inertia Latihan/Ujian valid": {
+                                "fails": 0,
+                                "name": "[Soal] Validasi bisnis payload Inertia Latihan/Ujian valid",
+                                "path": "::Pengambilan Paket Soal Ujian (GET /latihan/kerjakan/{id})::[Soal] Validasi bisnis payload Inertia Latihan/Ujian valid",
+                                "id": "ef71aa988433e7b79120eef46d133cee",
+                                "passes": 10
+                            },
+                            "[Soal] Tidak dialihkan (Bukan redirect 3xx)": {
+                                "name": "[Soal] Tidak dialihkan (Bukan redirect 3xx)",
+                                "path": "::Pengambilan Paket Soal Ujian (GET /latihan/kerjakan/{id})::[Soal] Tidak dialihkan (Bukan redirect 3xx)",
+                                "id": "22439bcaaab9f31da3d2ac602f6c7e79",
+                                "passes": 10,
+                                "fails": 0
+                            }
+                        },
+                    "name": "Pengambilan Paket Soal Ujian (GET /latihan/kerjakan/{id})",
+                    "path": "::Pengambilan Paket Soal Ujian (GET /latihan/kerjakan/{id})",
+                    "id": "23ddb5481c945ffb46e5e534fcf3d2e6"
+                },
+                "Pengiriman Jawaban Siswa (POST /latihan/ujian/jawab)": {
+                    "id": "236ae4e67c21d48f93de250dc413e17d",
+                    "groups": {},
+                    "checks": {
+                            "[Jawaban] Pengiriman jawaban merespons HTTP 200 OK": {
+                                "name": "[Jawaban] Pengiriman jawaban merespons HTTP 200 OK",
+                                "path": "::Pengiriman Jawaban Siswa (POST /latihan/ujian/jawab)::[Jawaban] Pengiriman jawaban merespons HTTP 200 OK",
+                                "id": "548ecdb99d725c1e0bbef5a71f154664",
+                                "passes": 10,
+                                "fails": 0
+                            },
+                            "[Jawaban] Durasi pengiriman jawaban <= 1.000 ms (SLA)": {
+                                "name": "[Jawaban] Durasi pengiriman jawaban <= 1.000 ms (SLA)",
+                                "path": "::Pengiriman Jawaban Siswa (POST /latihan/ujian/jawab)::[Jawaban] Durasi pengiriman jawaban <= 1.000 ms (SLA)",
+                                "id": "00d7f41b0b747bea65cc1c7cf1de9725",
+                                "passes": 10,
+                                "fails": 0
+                            },
+                            "[Jawaban] Tidak terkena throttle:30,1 (Bukan 429)": {
+                                "name": "[Jawaban] Tidak terkena throttle:30,1 (Bukan 429)",
+                                "path": "::Pengiriman Jawaban Siswa (POST /latihan/ujian/jawab)::[Jawaban] Tidak terkena throttle:30,1 (Bukan 429)",
+                                "id": "fea464efa642accf7a144cab9be75548",
+                                "passes": 10,
+                                "fails": 0
+                            },
+                            "[Jawaban] Format respons feedback jawaban valid": {
+                                "name": "[Jawaban] Format respons feedback jawaban valid",
+                                "path": "::Pengiriman Jawaban Siswa (POST /latihan/ujian/jawab)::[Jawaban] Format respons feedback jawaban valid",
+                                "id": "650dc9846f2185050a209a7f66c9830e",
+                                "passes": 10,
+                                "fails": 0
+                            }
+                        },
+                    "name": "Pengiriman Jawaban Siswa (POST /latihan/ujian/jawab)",
+                    "path": "::Pengiriman Jawaban Siswa (POST /latihan/ujian/jawab)"
+                }
+            }
+    }
+}

@@ -1,0 +1,136 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+     execution: local
+        script: d:\edvora-app\tests\load\student.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 100 max VUs, 10m30s max duration (incl. graceful stop):
+              * default: 100 iterations shared among 100 VUs (maxDuration: 10m0s, gracefulStop: 30s)
+
+
+running (00m01.0s), 100/100 VUs, 0 complete and 0 interrupted iterations
+default   [   0% ] 100 VUs  00m01.0s/10m0s  000/100 shared iters
+
+running (00m02.0s), 100/100 VUs, 0 complete and 0 interrupted iterations
+default   [   0% ] 100 VUs  00m02.0s/10m0s  000/100 shared iters
+
+running (00m03.0s), 100/100 VUs, 0 complete and 0 interrupted iterations
+default   [   0% ] 100 VUs  00m03.0s/10m0s  000/100 shared iters
+
+running (00m04.0s), 100/100 VUs, 0 complete and 0 interrupted iterations
+default   [   0% ] 100 VUs  00m04.0s/10m0s  000/100 shared iters
+
+running (00m05.0s), 095/100 VUs, 5 complete and 0 interrupted iterations
+default   [   5% ] 100 VUs  00m05.0s/10m0s  005/100 shared iters
+
+running (00m06.0s), 091/100 VUs, 9 complete and 0 interrupted iterations
+default   [   9% ] 100 VUs  00m06.0s/10m0s  009/100 shared iters
+
+running (00m07.0s), 086/100 VUs, 14 complete and 0 interrupted iterations
+default   [  14% ] 100 VUs  00m07.0s/10m0s  014/100 shared iters
+
+running (00m08.0s), 084/100 VUs, 16 complete and 0 interrupted iterations
+default   [  16% ] 100 VUs  00m08.0s/10m0s  016/100 shared iters
+
+running (00m09.0s), 079/100 VUs, 21 complete and 0 interrupted iterations
+default   [  21% ] 100 VUs  00m09.0s/10m0s  021/100 shared iters
+
+running (00m10.0s), 075/100 VUs, 25 complete and 0 interrupted iterations
+default   [  25% ] 100 VUs  00m10.0s/10m0s  025/100 shared iters
+
+running (00m11.0s), 071/100 VUs, 29 complete and 0 interrupted iterations
+default   [  29% ] 100 VUs  00m11.0s/10m0s  029/100 shared iters
+
+running (00m12.0s), 068/100 VUs, 32 complete and 0 interrupted iterations
+default   [  32% ] 100 VUs  00m12.0s/10m0s  032/100 shared iters
+
+running (00m13.0s), 064/100 VUs, 36 complete and 0 interrupted iterations
+default   [  36% ] 100 VUs  00m13.0s/10m0s  036/100 shared iters
+
+running (00m14.0s), 059/100 VUs, 41 complete and 0 interrupted iterations
+default   [  41% ] 100 VUs  00m14.0s/10m0s  041/100 shared iters
+
+running (00m15.0s), 054/100 VUs, 46 complete and 0 interrupted iterations
+default   [  46% ] 100 VUs  00m15.0s/10m0s  046/100 shared iters
+
+running (00m16.0s), 052/100 VUs, 48 complete and 0 interrupted iterations
+default   [  48% ] 100 VUs  00m16.0s/10m0s  048/100 shared iters
+
+running (00m17.0s), 047/100 VUs, 53 complete and 0 interrupted iterations
+default   [  53% ] 100 VUs  00m17.0s/10m0s  053/100 shared iters
+
+running (00m18.0s), 043/100 VUs, 57 complete and 0 interrupted iterations
+default   [  57% ] 100 VUs  00m18.0s/10m0s  057/100 shared iters
+
+running (00m19.0s), 038/100 VUs, 62 complete and 0 interrupted iterations
+default   [  62% ] 100 VUs  00m19.0s/10m0s  062/100 shared iters
+
+running (00m20.0s), 035/100 VUs, 65 complete and 0 interrupted iterations
+default   [  65% ] 100 VUs  00m20.0s/10m0s  065/100 shared iters
+
+running (00m21.0s), 031/100 VUs, 69 complete and 0 interrupted iterations
+default   [  69% ] 100 VUs  00m21.0s/10m0s  069/100 shared iters
+
+running (00m22.0s), 027/100 VUs, 73 complete and 0 interrupted iterations
+default   [  73% ] 100 VUs  00m22.0s/10m0s  073/100 shared iters
+
+running (00m23.0s), 023/100 VUs, 77 complete and 0 interrupted iterations
+default   [  77% ] 100 VUs  00m23.0s/10m0s  077/100 shared iters
+
+running (00m24.0s), 019/100 VUs, 81 complete and 0 interrupted iterations
+default   [  81% ] 100 VUs  00m24.0s/10m0s  081/100 shared iters
+
+running (00m25.0s), 015/100 VUs, 85 complete and 0 interrupted iterations
+default   [  85% ] 100 VUs  00m25.0s/10m0s  085/100 shared iters
+
+running (00m26.0s), 011/100 VUs, 89 complete and 0 interrupted iterations
+default   [  89% ] 100 VUs  00m26.0s/10m0s  089/100 shared iters
+
+running (00m27.0s), 007/100 VUs, 93 complete and 0 interrupted iterations
+default   [  93% ] 100 VUs  00m27.0s/10m0s  093/100 shared iters
+
+running (00m28.0s), 003/100 VUs, 97 complete and 0 interrupted iterations
+default   [  97% ] 100 VUs  00m28.0s/10m0s  097/100 shared iters
+
+================================================================================
+HASIL LOAD TESTING SKENARIO A — STUDENT (EDVORA)
+Penanggung Jawab: Indah (Senior QA Automation Engineer)
+================================================================================
+Target SLA: Response Time <= 1.000 ms | Threshold Error Rate: < 1.00%
+Konfigurasi Beban: Hingga 500 Virtual Users (VU)
+Pacing Per Iterasi: 2.0 detik
+Status Auth Safety Guard: TERBUKA (Target terverifikasi aman untuk local_isolated (http://127.0.0.1:8001 atau http://localhost:8001).)
+Status Mutation Safety Guard: TERBUKA (Seluruh syarat validasi mutasi lokal terisolasi port 8001 terpenuhi.)
+--------------------------------------------------------------------------------
+Waktu Autentikasi Siswa (Login Lifecycle per-VU):
+  - Siklus Penuh (p95) : 763.90 ms (Max: 836.00 ms)
+  - POST /login  (p95) : 541.89 ms (Max: 610.50 ms)
+
+Waktu Pengambilan / Pemuatan Soal (GET /latihan/kerjakan/{id}):
+  - p95 : 227.75 ms (Target: <= 1.000 ms)
+  - Max : 233.71 ms (Target: <= 1.000 ms)
+
+Waktu Pengiriman Jawaban Siswa — AGREGASI TOTAL (POST /latihan/ujian/jawab):
+  - p95 : 216.86 ms (Target: <= 1.000 ms)
+  - Max : 312.69 ms (Target: <= 1.000 ms)
+
+Waktu Pengiriman Jawaban Siswa — JAWABAN BARU (action: answer_new):
+  - p95 : 216.86 ms (Target: <= 1.000 ms)
+  - Max : 312.69 ms (Target: <= 1.000 ms)
+
+Waktu Pengiriman Jawaban Siswa — JAWABAN ULANG (action: answer_repeat):
+  - p95 : N/A (Target: <= 1.000 ms)
+  - Max : N/A (Target: <= 1.000 ms)
+
+Status Proteksi Integritas Database:
+  - Jumlah Mutasi POST Dicegah (Guard Bypass) : 0 request
+  - Endpoint /latihan/simpan dipanggil        : TIDAK (Dilarang keras)
+================================================================================
+
+running (00m28.7s), 000/100 VUs, 100 complete and 0 interrupted iterations
+default ✓ [ 100% ] 100 VUs  00m28.7s/10m0s  100/100 shared iters

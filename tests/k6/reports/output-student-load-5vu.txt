@@ -1,0 +1,73 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+     execution: local
+        script: d:\edvora-app\tests\load\student.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 5 max VUs, 10m30s max duration (incl. graceful stop):
+              * default: 10 iterations shared among 5 VUs (maxDuration: 10m0s, gracefulStop: 30s)
+
+
+running (00m01.0s), 5/5 VUs, 0 complete and 0 interrupted iterations
+default   [   0% ] 5 VUs  00m01.0s/10m0s  00/10 shared iters
+
+running (00m02.0s), 5/5 VUs, 0 complete and 0 interrupted iterations
+default   [   0% ] 5 VUs  00m02.0s/10m0s  00/10 shared iters
+
+running (00m03.0s), 5/5 VUs, 0 complete and 0 interrupted iterations
+default   [   0% ] 5 VUs  00m03.0s/10m0s  00/10 shared iters
+
+running (00m04.0s), 5/5 VUs, 2 complete and 0 interrupted iterations
+default   [  20% ] 5 VUs  00m04.0s/10m0s  02/10 shared iters
+
+running (00m05.0s), 5/5 VUs, 5 complete and 0 interrupted iterations
+default   [  50% ] 5 VUs  00m05.0s/10m0s  05/10 shared iters
+
+running (00m06.0s), 5/5 VUs, 5 complete and 0 interrupted iterations
+default   [  50% ] 5 VUs  00m06.0s/10m0s  05/10 shared iters
+
+running (00m07.0s), 4/5 VUs, 6 complete and 0 interrupted iterations
+default   [  60% ] 5 VUs  00m07.0s/10m0s  06/10 shared iters
+
+================================================================================
+HASIL LOAD TESTING SKENARIO A — STUDENT (EDVORA)
+Penanggung Jawab: Indah (Senior QA Automation Engineer)
+================================================================================
+Target SLA: Response Time <= 1.000 ms | Threshold Error Rate: < 1.00%
+Konfigurasi Beban: Hingga 500 Virtual Users (VU)
+Pacing Per Iterasi: 2.0 detik
+Status Auth Safety Guard: TERBUKA (Target terverifikasi aman untuk local_isolated (http://127.0.0.1:8001 atau http://localhost:8001).)
+Status Mutation Safety Guard: TERBUKA (Seluruh syarat validasi mutasi lokal terisolasi port 8001 terpenuhi.)
+--------------------------------------------------------------------------------
+Waktu Autentikasi Siswa (Login Lifecycle per-VU):
+  - Siklus Penuh (p95) : 506.40 ms (Max: 511.00 ms)
+  - POST /login  (p95) : 371.05 ms (Max: 394.13 ms)
+
+Waktu Pengambilan / Pemuatan Soal (GET /latihan/kerjakan/{id}):
+  - p95 : 196.87 ms (Target: <= 1.000 ms)
+  - Max : 203.53 ms (Target: <= 1.000 ms)
+
+Waktu Pengiriman Jawaban Siswa — AGREGASI TOTAL (POST /latihan/ujian/jawab):
+  - p95 : 186.91 ms (Target: <= 1.000 ms)
+  - Max : 198.24 ms (Target: <= 1.000 ms)
+
+Waktu Pengiriman Jawaban Siswa — JAWABAN BARU (action: answer_new):
+  - p95 : 186.91 ms (Target: <= 1.000 ms)
+  - Max : 198.24 ms (Target: <= 1.000 ms)
+
+Waktu Pengiriman Jawaban Siswa — JAWABAN ULANG (action: answer_repeat):
+  - p95 : N/A (Target: <= 1.000 ms)
+  - Max : N/A (Target: <= 1.000 ms)
+
+Status Proteksi Integritas Database:
+  - Jumlah Mutasi POST Dicegah (Guard Bypass) : 0 request
+  - Endpoint /latihan/simpan dipanggil        : TIDAK (Dilarang keras)
+================================================================================
+
+running (00m07.8s), 0/5 VUs, 10 complete and 0 interrupted iterations
+default ✓ [ 100% ] 5 VUs  00m07.8s/10m0s  10/10 shared iters

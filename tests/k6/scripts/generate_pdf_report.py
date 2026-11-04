@@ -37,7 +37,7 @@ class NumberedCanvas(canvas.Canvas):
         # Running Header (pages > 1)
         if self._pageNumber > 1:
             self.drawString(44, 842 - 32, "LAPORAN AUTOMATION LOAD & PERFORMANCE TESTING EDVORA — k6")
-            self.drawRightString(595 - 44, 842 - 32, "Indah (QA Automation Engineer)")
+            self.drawRightString(595 - 44, 842 - 32, "Indah")
             self.setStrokeColor(colors.HexColor("#CBD5E0"))
             self.setLineWidth(0.5)
             self.line(44, 842 - 36, 595 - 44, 842 - 36)
@@ -188,7 +188,7 @@ def build_pdf():
     
     meta_data = [
         [
-            Paragraph("<b>Penanggung Jawab:</b> Indah (Senior QA Automation Engineer)", cell_style),
+            Paragraph("<b>Penanggung Jawab:</b> Indah", cell_style),
             Paragraph("<b>Target Beban:</b> Ramping 100–500 VU (Soal) & 50 VU (Editor)", cell_style)
         ],
         [
@@ -226,7 +226,7 @@ def build_pdf():
     story.append(Paragraph(
         "Aplikasi <b>EDVORA</b> adalah platform simulasi ujian dan latihan soal UTBK berbasis web yang menggabungkan "
         "arsitektur backend <b>Laravel 11</b> dan antarmuka reaktif <b>React (Inertia.js)</b>. "
-        "Laporan ini disusun oleh Indah (Senior QA Automation Engineer) untuk mengevaluasi secara objektif "
+        "Laporan ini disusun untuk mengevaluasi secara objektif "
         "daya tahan serta karakteristik performa backend EDVORA saat menerima konkurensi beban kerja siswa dan editor.",
         body_style
     ))
@@ -238,7 +238,7 @@ def build_pdf():
         "1. Memastikan server mampu memproses pengiriman jawaban siswa secara bersamaan dan menyajikan soal berikutnya dengan batas waktu maksimal <b>1.0 detik (1000 ms)</b> pada skala beban bertahap 100–500 VU.<br/>"
         "2. Memastikan dashboard analitik Editor tetap responsif memuat ringkasan stok bank soal dan analitik agregasi penguasaan siswa dengan batas waktu maksimal <b>3.0 detik (3000 ms)</b> pada skala beban 50 Editor.<br/>"
         "<b>Ruang Lingkup:</b> Pengujian difokuskan secara eksklusif pada protokol HTTP dan API backend menggunakan Grafana k6. "
-        "Pengujian fungsional PHPUnit (Kak Naila) dan pengujian antarmuka pengguna Cypress (anggota tim lain) berada di luar ruang lingkup dokumen ini.",
+        "Pengujian fungsional PHPUnit dan pengujian antarmuka pengguna Cypress berada di luar ruang lingkup dokumen ini.",
         body_style
     ))
     

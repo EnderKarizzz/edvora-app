@@ -1,0 +1,79 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+     execution: local
+        script: d:\edvora-app\tests\load\student.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 25 max VUs, 10m30s max duration (incl. graceful stop):
+              * default: 25 iterations shared among 25 VUs (maxDuration: 10m0s, gracefulStop: 30s)
+
+
+running (00m01.0s), 25/25 VUs, 0 complete and 0 interrupted iterations
+default   [   0% ] 25 VUs  00m01.0s/10m0s  00/25 shared iters
+
+running (00m02.0s), 25/25 VUs, 0 complete and 0 interrupted iterations
+default   [   0% ] 25 VUs  00m02.0s/10m0s  00/25 shared iters
+
+running (00m03.0s), 25/25 VUs, 0 complete and 0 interrupted iterations
+default   [   0% ] 25 VUs  00m03.0s/10m0s  00/25 shared iters
+
+running (00m04.0s), 23/25 VUs, 2 complete and 0 interrupted iterations
+default   [   8% ] 25 VUs  00m04.0s/10m0s  02/25 shared iters
+
+running (00m05.0s), 18/25 VUs, 7 complete and 0 interrupted iterations
+default   [  28% ] 25 VUs  00m05.0s/10m0s  07/25 shared iters
+
+running (00m06.0s), 15/25 VUs, 10 complete and 0 interrupted iterations
+default   [  40% ] 25 VUs  00m06.0s/10m0s  10/25 shared iters
+
+running (00m07.0s), 11/25 VUs, 14 complete and 0 interrupted iterations
+default   [  56% ] 25 VUs  00m07.0s/10m0s  14/25 shared iters
+
+running (00m08.0s), 07/25 VUs, 18 complete and 0 interrupted iterations
+default   [  72% ] 25 VUs  00m08.0s/10m0s  18/25 shared iters
+
+running (00m09.0s), 03/25 VUs, 22 complete and 0 interrupted iterations
+default   [  88% ] 25 VUs  00m09.0s/10m0s  22/25 shared iters
+
+================================================================================
+HASIL LOAD TESTING SKENARIO A — STUDENT (EDVORA)
+Penanggung Jawab: Indah (Senior QA Automation Engineer)
+================================================================================
+Target SLA: Response Time <= 1.000 ms | Threshold Error Rate: < 1.00%
+Konfigurasi Beban: Hingga 500 Virtual Users (VU)
+Pacing Per Iterasi: 2.0 detik
+Status Auth Safety Guard: TERBUKA (Target terverifikasi aman untuk local_isolated (http://127.0.0.1:8001 atau http://localhost:8001).)
+Status Mutation Safety Guard: TERBUKA (Seluruh syarat validasi mutasi lokal terisolasi port 8001 terpenuhi.)
+--------------------------------------------------------------------------------
+Waktu Autentikasi Siswa (Login Lifecycle per-VU):
+  - Siklus Penuh (p95) : 450.80 ms (Max: 492.00 ms)
+  - POST /login  (p95) : 340.31 ms (Max: 385.73 ms)
+
+Waktu Pengambilan / Pemuatan Soal (GET /latihan/kerjakan/{id}):
+  - p95 : 201.33 ms (Target: <= 1.000 ms)
+  - Max : 206.54 ms (Target: <= 1.000 ms)
+
+Waktu Pengiriman Jawaban Siswa — AGREGASI TOTAL (POST /latihan/ujian/jawab):
+  - p95 : 182.93 ms (Target: <= 1.000 ms)
+  - Max : 187.76 ms (Target: <= 1.000 ms)
+
+Waktu Pengiriman Jawaban Siswa — JAWABAN BARU (action: answer_new):
+  - p95 : 182.93 ms (Target: <= 1.000 ms)
+  - Max : 187.76 ms (Target: <= 1.000 ms)
+
+Waktu Pengiriman Jawaban Siswa — JAWABAN ULANG (action: answer_repeat):
+  - p95 : N/A (Target: <= 1.000 ms)
+  - Max : N/A (Target: <= 1.000 ms)
+
+Status Proteksi Integritas Database:
+  - Jumlah Mutasi POST Dicegah (Guard Bypass) : 0 request
+  - Endpoint /latihan/simpan dipanggil        : TIDAK (Dilarang keras)
+================================================================================
+
+running (00m09.6s), 00/25 VUs, 25 complete and 0 interrupted iterations
+default ✓ [ 100% ] 25 VUs  00m09.6s/10m0s  25/25 shared iters
