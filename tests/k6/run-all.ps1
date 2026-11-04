@@ -1,8 +1,14 @@
-# Runner PowerShell Pengujian Otomasi Beban EDVORA (Grafana k6)
+# [DEPRECATED] Runner PowerShell Pengujian Otomasi Beban EDVORA (Legacy Runner)
 # Penanggung Jawab: Indah (Senior QA Automation Engineer)
-# 
+#
+# CATATAN DEPRECATION (Stage 5O-AE):
+# Runner ini digantikan oleh runner resmi: tests/load/student.js dan tests/load/editor.js.
+# Proteksi fail-closed diberlakukan: hanya port 8001 dengan TARGET_ENV=local_isolated yang diizinkan.
+#
 # PANDUAN PENGGUNAAN:
 # Kredensial disuplai via parameter CLI atau Environment Variables Windows:
+#   $env:TARGET_ENV = "local_isolated"
+#   $env:BASE_URL = "http://127.0.0.1:8001"
 #   $env:SISWA_EMAIL = "siswa@example.test"
 #   $env:SISWA_PASSWORD = "PasswordSiswa"
 #   $env:EDITOR_EMAIL = "editor@example.test"
@@ -10,7 +16,8 @@
 #   .\tests\k6\run-all.ps1
 
 param (
-    [string]$BaseUrl = $(if ($env:BASE_URL) { $env:BASE_URL } else { "http://127.0.0.1:8000" }),
+    [string]$TargetEnv = $(if ($env:TARGET_ENV) { $env:TARGET_ENV } else { "local_isolated" }),
+    [string]$BaseUrl = $(if ($env:BASE_URL) { $env:BASE_URL } else { "http://127.0.0.1:8001" }),
     [string]$SiswaEmail = $(if ($env:SISWA_EMAIL) { $env:SISWA_EMAIL } else { "" }),
     [string]$SiswaPassword = $(if ($env:SISWA_PASSWORD) { $env:SISWA_PASSWORD } else { "" }),
     [string]$EditorEmail = $(if ($env:EDITOR_EMAIL) { $env:EDITOR_EMAIL } else { "" }),
@@ -21,9 +28,25 @@ param (
 
 $ErrorActionPreference = "Continue"
 
+Write-Warning "[DEPRECATED RUNNER] tests\k6\run-all.ps1 adalah runner legacy. Runner resmi berada pada tests\load\."
+
+# FAIL-CLOSED SAFETY GUARDS: Menolak port 8000 dan host selain lokal port 8001
+if ($TargetEnv -ne 'local_isolated') {
+    Write-Host "[FAIL-CLOSED GUARD TRIGGERED] TargetEnv bernilai '$TargetEnv', wajib 'local_isolated'." -ForegroundColor Red
+    Write-Host "Eksekusi dibatalkan seketika demi melindungi basis data bersama Supabase." -ForegroundColor Red
+    exit 1
+}
+
+if ($BaseUrl -notmatch '^http://(127\.0\.0\.1|localhost):8001/?$') {
+    Write-Host "[FAIL-CLOSED GUARD TRIGGERED] BaseUrl '$BaseUrl' ditolak. Hanya http://127.0.0.1:8001 yang diizinkan." -ForegroundColor Red
+    Write-Host "Port 8000 dan host non-8001 ditolak keras karena terhubung ke database bersama via .env." -ForegroundColor Red
+    exit 1
+}
+
 Write-Host "==========================================================" -ForegroundColor Cyan
 Write-Host " MEMULAI AUTOMATION LOAD TESTING EDVORA (GRAFANA k6)     " -ForegroundColor Cyan
 Write-Host "==========================================================" -ForegroundColor Cyan
+Write-Host "Target Env     : $TargetEnv"
 Write-Host "Base URL       : $BaseUrl"
 Write-Host "Akun Siswa     : $(if ($SiswaEmail) { $SiswaEmail } else { '[TIDAK DISET]' })"
 Write-Host "Akun Editor    : $(if ($EditorEmail) { $EditorEmail } else { '[TIDAK DISET]' })"
@@ -63,6 +86,7 @@ $exitStatusOverall = 0
 Write-Host "[1/2] Menjalankan Skenario A: Respons Soal Siswa (Ramping stages hingga 500 VU)..." -ForegroundColor Yellow
 $cmdA = @(
     "run",
+    "-e", "TARGET_ENV=$TargetEnv",
     "-e", "BASE_URL=$BaseUrl",
     "-e", "SISWA_EMAIL=$SiswaEmail",
     "-e", "SISWA_PASSWORD=$SiswaPassword"
@@ -94,6 +118,7 @@ Start-Sleep -Seconds 5
 Write-Host "[2/2] Menjalankan Skenario B: Dashboard Analitik Editor (Ramping stages hingga 50 VU)..." -ForegroundColor Yellow
 $cmdB = @(
     "run",
+    "-e", "TARGET_ENV=$TargetEnv",
     "-e", "BASE_URL=$BaseUrl",
     "-e", "EDITOR_EMAIL=$EditorEmail",
     "-e", "EDITOR_PASSWORD=$EditorPassword",

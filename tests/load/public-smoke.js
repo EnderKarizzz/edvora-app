@@ -5,26 +5,20 @@ import { parseInertiaData } from './inertia-parser.js';
 
 /**
  * ============================================================================
- * PUBLIC GET SMOKE TEST K6 — EDVORA
+ * [DEPRECATED & DISABLED] PUBLIC GET SMOKE TEST K6 — EDVORA
  * Penanggung Jawab: Indah (Senior QA Automation Engineer)
  * ============================================================================
- * 
- * TUJUAN PENGUJIAN:
- * 1. Memverifikasi konektivitas jaringan HTTP antara k6 dan server Laravel lokal.
- * 2. Mengonfirmasi kesiapan engine runtime k6 (v0.54.0).
- * 3. Memvalidasi ketersediaan endpoint publik (GET /login) dan keutuhan struktur Inertia.
- * 4. Mengukur waktu respons request tunggal awal untuk verifikasi konektivitas.
- * 
- * BATASAN KESELAMATAN & CAKUPAN PENGUJIAN:
- * - Script ini SECARA EKSPLISIT HANYA MENDEFINISIKAN SATU REQUEST HTTP GET ke /login.
- * - TIDAK ADA proses login atau autentikasi yang dijalankan.
- * - TIDAK ADA request POST, PUT, PATCH, atau DELETE yang didefinisikan dalam script.
- * - TIDAK MENGAKSES endpoint terproteksi siswa atau editor.
- * - TIDAK MENYERTAKAN kredensial, password, atau session cookie.
- * - Dibatasi ketat hanya: 1 Virtual User (VU) dan 1 Iterasi.
- * - redirects: 0 dikonfigurasi agar k6 tidak mengikuti pengalihan (anti-redirect).
- * - PENTING: Pengujian ini adalah verifikasi fungsionalitas dan konektivitas awal,
- *   BUKAN benchmark performa beban tinggi atau pengukuran statistik SLA.
+ *
+ * STATUS KEAMANAN (Stage 5O-AF):
+ * Script ini telah DINONAKTIFKAN SECARA AMAN (DISABLED).
+ * Alasan:
+ * 1. Request GET /login berpotensi memicu mutasi penulisan session baru ke tabel
+ *    'sessions' pada database jika driver session bernilai 'database' (config/session.php).
+ * 2. Klien HTTP k6 eksternal tidak dapat memverifikasi identitas database runtime
+ *    yang aktif di backend PHP-CGI secara objektif sebelum request dikirim.
+ *    Parameter TARGET_ENV=local_isolated bukan bukti fisik bahwa PHP-CGI memuat .env.loadtest.
+ * 3. Seluruh pengujian beban resmi wajib diorkestrasi melalui scripts/loadtest/
+ *    yang memverifikasi database port 5433 secara lokal sebelum server di-spawn.
  * ============================================================================
  */
 
@@ -63,16 +57,42 @@ export const options = {
 };
 
 // ----------------------------------------------------------------------------
-// 3. KONFIGURASI TARGET ENDPOINT (MURNI PUBLIK & LOKAL)
+// 3. KONFIGURASI TARGET ENDPOINT & FAIL-CLOSED SAFETY GUARD
 // ----------------------------------------------------------------------------
-// Target strictly locked to local Laravel instance on port 8000
-const BASE_URL = 'http://127.0.0.1:8000';
-const TARGET_URL = `${BASE_URL}/login`;
+// PENTING (Stage 5O-AE): Meskipun request hanya GET /login, pada arsitektur Laravel
+// dengan konfigurasi default SESSION_DRIVER=database (config/session.php), request GET
+// dapat memicu mutasi penulisan session baru ke tabel 'sessions' pada database target.
+// Oleh karena itu, target DIKUNCI KETAT hanya ke port 8001 (PostgreSQL lokal terisolasi port 5433)
+// dan DILARANG KERAS diarahkan ke port 8000 (database bersama via .env default).
+
+const TARGET_ENV = (__ENV.TARGET_ENV || '').trim();
+const BASE_URL = (__ENV.BASE_URL || 'http://127.0.0.1:8001').trim();
+
+export function assertPublicSmokeSafety(url, targetEnv) {
+    if (targetEnv !== 'local_isolated') {
+        throw new Error(`[FAIL-CLOSED GUARD] TARGET_ENV bernilai "${targetEnv || '(kosong)'}", wajib "local_isolated". Eksekusi smoke test dibatalkan demi mencegah request ke server yang terhubung ke database bersama.`);
+    }
+
+    const cleanUrl = url.trim().replace(/\/+$/, '');
+    const match = cleanUrl.match(/^http:\/\/(127\.0\.0\.1|localhost):8001$/i);
+    if (!match) {
+        throw new Error(`[FAIL-CLOSED GUARD] Target URL "${url}" ditolak. Smoke test HANYA mengizinkan http://127.0.0.1:8001 atau http://localhost:8001 (Port 8000 ditolak keras karena terhubung ke database bersama).`);
+    }
+
+    // Stage 5O-AF: public-smoke.js dinonaktifkan secara aman (DEPRECATED & DISABLED)
+    // Klien HTTP k6 eksternal tidak dapat memverifikasi database runtime backend secara objektif.
+    throw new Error('[DEPRECATED & DISABLED] public-smoke.js dinonaktifkan secara aman (Stage 5O-AF). Klien HTTP k6 eksternal tidak dapat memverifikasi identitas database runtime backend secara mandiri sebelum request dikirim. Gunakan runner resmi terorkestrasi (scripts/loadtest/) yang memverifikasi database port 5433 sebelum server dijalankan.');
+}
+
+const TARGET_URL = `${BASE_URL.replace(/\/+$/, '')}/login`;
 
 // ----------------------------------------------------------------------------
-// 4. SKENARIO UTAMA (1 VU, 1 ITERASI, MURNI GET)
+// 4. SKENARIO UTAMA (1 VU, 1 ITERASI, MURNI GET TERISOLASI)
 // ----------------------------------------------------------------------------
 export default function () {
+    // Validasi fail-closed safety guard sebelum request HTTP pertama dieksekusi
+    const validatedTargetUrl = assertPublicSmokeSafety(BASE_URL, TARGET_ENV);
+
     const params = {
         headers: {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -82,10 +102,10 @@ export default function () {
         tags: { name: 'GET_Public_Login_Page' },
     };
 
-    // Eksekusi request tunggal HTTP GET ke endpoint publik
+    // Eksekusi request tunggal HTTP GET ke endpoint publik yang terverifikasi aman
     let response = null;
     try {
-        response = http.get(TARGET_URL, params);
+        response = http.get(validatedTargetUrl, params);
     } catch (_) {
         // Penanganan jika terjadi exception fatal pada socket level (koneksi ditolak/timeout)
         successRatePublik.add(0);

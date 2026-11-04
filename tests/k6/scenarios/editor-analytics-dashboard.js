@@ -1,13 +1,17 @@
 import http from 'k6/http';
 import { check, group, sleep } from 'k6';
 import { Trend, Rate, Counter } from 'k6/metrics';
-import { CONFIG, validateConfig } from '../config/environment.js';
+import { CONFIG, validateConfig, assertSafeUrl } from '../config/environment.js';
 import { login, getXsrfToken, extractInertiaPageData } from '../helpers/auth.js';
 
 /**
- * SKENARIO B: Load Testing — Beban Dashboard Analitik Editor
+ * [DEPRECATED] SKENARIO B: Load Testing — Beban Dashboard Analitik Editor (Legacy Runner)
  * Penanggung Jawab: Indah (Senior QA Automation Engineer)
- * 
+ *
+ * CATATAN DEPRECATION (Stage 5O-AE):
+ * Skenario ini digantikan oleh runner resmi terkonsolidasi: tests/load/editor.js.
+ * Dilengkapi fail-closed safety guard: menolak port 8000 dan mewajibkan TARGET_ENV=local_isolated.
+ *
  * Target Pengujian:
  * - Menguji pemuatan ringkasan stok bank soal per subtes (GET /editor) secara mandiri.
  * - Menguji pemuatan dashboard analitik agregasi stok & rata-rata penguasaan siswa (GET /editor/analitik) secara mandiri.
@@ -53,7 +57,9 @@ export const options = {
 };
 
 export function setup() {
+    console.warn('[DEPRECATED RUNNER] tests/k6/scenarios/editor-analytics-dashboard.js adalah skenario legacy. Gunakan runner resmi: tests/load/editor.js.');
     validateConfig('editor');
+    assertSafeUrl(CONFIG.BASE_URL, CONFIG.TARGET_ENV);
 
     const checkRes = http.get(`${CONFIG.BASE_URL}/login`);
     const auth = login(CONFIG.EDITOR.EMAIL, CONFIG.EDITOR.PASSWORD, 'editor');
@@ -74,6 +80,8 @@ let isEditorLoggedIn = false;
 let vuCookies = null;
 
 export default function (setupData) {
+    assertSafeUrl(CONFIG.BASE_URL, CONFIG.TARGET_ENV);
+
     if (setupData && !setupData.valid) {
         rateErrorAuth.add(1);
         sleep(5);

@@ -1,12 +1,12 @@
 import http from 'k6/http';
 import { check } from 'k6';
-import { CONFIG } from '../config/environment.js';
+import { CONFIG, assertSafeUrl } from '../config/environment.js';
 
 /**
  * Mengurai payload data-page Inertia.js baik dari respons HTML Blade maupun JSON langsung.
  * Menghindari pencarian substring longgar/rapuh.
- * 
- * @param {string} body 
+ *
+ * @param {string} body
  * @returns {object|null}
  */
 export function extractInertiaPageData(body) {
@@ -34,7 +34,7 @@ export function extractInertiaPageData(body) {
 
 /**
  * Mengambil CSRF token (XSRF-TOKEN) dari cookie jar k6
- * @param {string} url 
+ * @param {string} url
  * @returns {string|null} Decoded XSRF-TOKEN
  */
 export function getXsrfToken(url = CONFIG.BASE_URL) {
@@ -48,7 +48,7 @@ export function getXsrfToken(url = CONFIG.BASE_URL) {
 
 /**
  * Autentikasi ketat untuk Siswa atau Editor
- * 
+ *
  * Verifikasi bertahap:
  * 1. GET /login -> Memastikan halaman login dapat diakses dan cookie session terinisialisasi.
  * 2. POST /login -> Mengirimkan kredensial dengan proteksi X-XSRF-TOKEN.
@@ -59,13 +59,26 @@ export function getXsrfToken(url = CONFIG.BASE_URL) {
  *    - Mengakses endpoint terproteksi (/dashboard untuk Siswa, /editor untuk Editor).
  *    - Memeriksa struktur objek auth.user.role dan component pada payload data Inertia.js.
  *    - Hanya dinyatakan sukses bila endpoint terproteksi merespons HTTP 200 OK dan role valid.
- * 
- * @param {string} email 
- * @param {string} password 
- * @param {'siswa'|'editor'} expectedRole 
+ *
+ * @param {string} email
+ * @param {string} password
+ * @param {'siswa'|'editor'} expectedRole
  * @returns {{ success: boolean, statusCode: number, error: string|null, xsrfToken: string|null, cookies: object|null }}
  */
 export function login(email, password, expectedRole = 'siswa') {
+    // Fail-Closed Safety Guard: Pastikan URL dan lingkungan target terverifikasi aman sebelum request HTTP
+    try {
+        assertSafeUrl(CONFIG.BASE_URL, CONFIG.TARGET_ENV);
+    } catch (guardErr) {
+        return {
+            success: false,
+            statusCode: 0,
+            error: guardErr.message,
+            xsrfToken: null,
+            cookies: null,
+        };
+    }
+
     const loginUrl = `${CONFIG.BASE_URL}/login`;
 
     if (!email || !password) {
@@ -162,8 +175,8 @@ export function login(email, password, expectedRole = 'siswa') {
     }
 
     // 4. Verifikasi sesi nyata ke endpoint terproteksi sesuai role (tanpa auto-redirect)
-    const verifyUrl = expectedRole === 'editor' 
-        ? `${CONFIG.BASE_URL}/editor` 
+    const verifyUrl = expectedRole === 'editor'
+        ? `${CONFIG.BASE_URL}/editor`
         : `${CONFIG.BASE_URL}/dashboard`;
 
     const verifyHeaders = {
@@ -176,7 +189,7 @@ export function login(email, password, expectedRole = 'siswa') {
         tags: { name: 'AUTH_Verify_Protected_Endpoint' },
     });
 
-    const isRedirectedToLogin = (verifyRes.status === 302 || verifyRes.status === 301) && 
+    const isRedirectedToLogin = (verifyRes.status === 302 || verifyRes.status === 301) &&
         ((verifyRes.headers['Location'] || '').includes('/login'));
 
     // Validasi role struktural melalui objek data-page Inertia (bukan sekadar pencarian kata biasa)

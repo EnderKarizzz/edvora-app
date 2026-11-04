@@ -1,19 +1,23 @@
 import http from 'k6/http';
 import { check, group, sleep } from 'k6';
 import { Trend, Rate, Counter } from 'k6/metrics';
-import { CONFIG, validateConfig } from '../config/environment.js';
+import { CONFIG, validateConfig, assertSafeUrl } from '../config/environment.js';
 import { login, getXsrfToken, extractInertiaPageData } from '../helpers/auth.js';
 
 /**
- * SKENARIO A: Load Testing — Batas Waktu Respons Soal
+ * [DEPRECATED] SKENARIO A: Load Testing — Batas Waktu Respons Soal (Legacy Runner)
  * Penanggung Jawab: Indah (Senior QA Automation Engineer)
- * 
+ *
+ * CATATAN DEPRECATION (Stage 5O-AE):
+ * Skenario ini digantikan oleh runner resmi terkonsolidasi: tests/load/student.js.
+ * Dilengkapi fail-closed safety guard: menolak port 8000 dan mewajibkan TARGET_ENV=local_isolated.
+ *
  * Target Pengujian:
  * - Mengukur waktu pemrosesan pengiriman jawaban oleh server (POST /latihan/ujian/jawab) secara terpisah.
  * - Mengukur waktu pengambilan atau pemunculan soal berikutnya (GET /latihan/kerjakan/{sesiId}) secara terpisah.
  * - Target SLA Waktu Respons: Maksimal 1 detik (1000 ms) untuk masing-masing aksi (p95 < 1000 ms dan max < 1000 ms).
  * - Konfigurasi beban bertahap (ramping stages) hingga 500 Virtual Users (VU).
- * 
+ *
  * KENDALA DATA & ARSITEKTUR BACKEND:
  * 1. Aplikasi EDVORA memberlakukan unique constraint database PostgreSQL (pengerjaan_fleksibel_berjalan_satu)
  *    yang membatasi 1 sesi latihan aktif per siswa per subtes.
@@ -68,7 +72,9 @@ export const options = {
  * Setup: Menyiapkan data sesi aktif dan butir soal riil melalui inspeksi data Inertia
  */
 export function setup() {
+    console.warn('[DEPRECATED RUNNER] tests/k6/scenarios/soal-response-time.js adalah skenario legacy. Gunakan runner resmi: tests/load/student.js.');
     validateConfig('siswa');
+    assertSafeUrl(CONFIG.BASE_URL, CONFIG.TARGET_ENV);
 
     const res = http.get(`${CONFIG.BASE_URL}/login`);
     let sesiId = CONFIG.SESI_ID;
@@ -171,6 +177,8 @@ let vuCookies = null;
 let vuXsrfToken = null;
 
 export default function (setupData) {
+    assertSafeUrl(CONFIG.BASE_URL, CONFIG.TARGET_ENV);
+
     if (!setupData || !setupData.valid) {
         rateErrorValidation.add(1);
         sleep(5);
@@ -250,13 +258,13 @@ export default function (setupData) {
             });
         }
     } else if (currentItem.tipe === 'pilihan_ganda_kompleks') {
-        opsiIds = currentItem.opsiIds.length > 1 
-            ? currentItem.opsiIds.slice(0, 2) 
+        opsiIds = currentItem.opsiIds.length > 1
+            ? currentItem.opsiIds.slice(0, 2)
             : currentItem.opsiIds;
     } else {
         // pilihan_ganda atau benar_salah
-        opsiIds = currentItem.opsiIds.length > 0 
-            ? [currentItem.opsiIds[0]] 
+        opsiIds = currentItem.opsiIds.length > 0
+            ? [currentItem.opsiIds[0]]
             : [];
     }
 

@@ -1,12 +1,14 @@
 import http from 'k6/http';
-import { CONFIG, validateConfig } from './config/environment.js';
+import { CONFIG, validateConfig, assertSafeUrl } from './config/environment.js';
 import scenarioA, { setup as setupA } from './scenarios/soal-response-time.js';
 import scenarioB, { setup as setupB } from './scenarios/editor-analytics-dashboard.js';
 
 /**
- * Master Runner Load Testing EDVORA (k6)
- * Menjalankan Skenario A (Siswa) dan Skenario B (Editor) secara berurutan dalam satu orkestrasi pengujian k6.
- * Mencegah konflik nama custom metrics dan bentrok konkurensi antar skenario.
+ * [DEPRECATED] Master Runner Load Testing EDVORA (Legacy k6 Runner)
+ *
+ * CATATAN DEPRECATION (Stage 5O-AE):
+ * Runner ini digantikan oleh runner resmi: tests/load/student.js dan tests/load/editor.js.
+ * Dilengkapi fail-closed safety guard: menolak port 8000 dan mewajibkan TARGET_ENV=local_isolated.
  */
 
 export const options = {
@@ -43,7 +45,9 @@ export const options = {
 };
 
 export function setup() {
+    console.warn('[DEPRECATED RUNNER] tests/k6/run-all.js adalah runner legacy. Gunakan runner resmi pada tests/load/');
     validateConfig('all');
+    assertSafeUrl(CONFIG.BASE_URL, CONFIG.TARGET_ENV);
 
     let dataA = null;
     let dataB = null;
@@ -60,11 +64,11 @@ export function setup() {
         console.error(`[SETUP ERROR Skenario B] ${e.message}`);
     }
 
-    return { 
+    return {
         scenarioA: dataA,
         scenarioB: dataB,
         url: CONFIG.BASE_URL,
-        timestamp: new Date().toISOString() 
+        timestamp: new Date().toISOString()
     };
 }
 

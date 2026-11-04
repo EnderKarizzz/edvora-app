@@ -12,7 +12,7 @@ param(
     [ValidateSet('ValidateOnly', 'ExecuteSeed')]
     [string]$Mode = 'ValidateOnly',
 
-    [ValidateSet('smoke', 'small', 'medium')]
+    [ValidateSet('smoke', 'small', 'medium', 'large')]
     [string]$Stage = 'smoke',
 
     [string]$DatasetPath = $null,
